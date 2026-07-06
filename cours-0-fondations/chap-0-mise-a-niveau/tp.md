@@ -13,6 +13,11 @@ Il te faut une machine Linux accessible en SSH, n'importe laquelle :
   se fera naturellement au **chapitre 3**, avec ta première VM. Lis-le quand même, fais le
   quiz, et passe au chapitre suivant.
 
+> **⚠️ Poste sous Windows ?** `ssh-copy-id` n'existe pas dans le OpenSSH natif de Windows.
+> Deux options : utiliser **Git Bash** ou **WSL** (qui l'ont), ou copier la clé à la main
+> depuis PowerShell :
+> `type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh utilisateur@ip "cat >> ~/.ssh/authorized_keys"`
+
 ## Objectif
 
 À la fin de ce TP :

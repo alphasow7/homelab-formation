@@ -38,7 +38,7 @@ problème (piratage, erreur) reste confiné à son segment au lieu de se propage
 - A. Il contrôle le trafic réseau : qui a le droit d'entrer, qui a le droit de sortir ✅
 - B. Il sauvegarde les VMs chaque nuit
 - C. Il refroidit le serveur en cas de surchauffe
-- D. Il attribue les adresses IP à toutes les machines
+- D. Il héberge les sites web du lab
 
 **Explication** : le pare-feu filtre le trafic entre les réseaux selon des règles — c'est
 la porte d'entrée gardée des VMs (et avec Suricata, il détecte en plus les intrusions).

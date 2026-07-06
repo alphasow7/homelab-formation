@@ -3,6 +3,8 @@
 > **« 30 minutes chrono pour parler la même langue. »**
 > Durée cible : ~30 min. Prérequis élève : aucun — c'est justement le but de ce chapitre.
 > Trois blocs : Terminal & SSH (12 min), Réseau minimal (12 min), C'est quoi une VM (6 min).
+> Dérogation au gabarit (assumée) : chapitre de mise à niveau — pas d'encart « vrai
+> matériel » ni de « panne du vrai monde », on pose le vocabulaire.
 > Toutes les commandes montrées sont dans `demo.sh`, dans l'ordre, et doivent être rejouées
 > avant tournage.
 
@@ -178,7 +180,9 @@ il te rend une adresse. »
 ```bash
 dig +short example.com
 ```
-**Attendu** : une ou deux adresses IP, par exemple `93.184.215.14`. « `dig` interroge
+**Attendu** : une ou plusieurs adresses IP (example.com en renvoie aujourd'hui une
+demi-douzaine, des `23.x` — les sites sérieux ont plusieurs adresses, on y reviendra).
+« `dig` interroge
 l'annuaire ; `+short` lui demande de répondre juste l'essentiel : l'adresse. Sans le
 `+short`, tu verrais toute la conversation technique — utile plus tard, illisible
 aujourd'hui. »
