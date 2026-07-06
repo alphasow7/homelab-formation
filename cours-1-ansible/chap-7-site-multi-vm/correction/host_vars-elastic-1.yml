@@ -1,0 +1,5 @@
+---
+# Fichier : inventory/host_vars/elastic-1.yml
+# Débraye fail2ban sur CETTE machine uniquement : le rôle common l'arrête et
+# le désactive ici, tout en le gardant actif sur le reste du parc.
+common_fail2ban_enabled: false

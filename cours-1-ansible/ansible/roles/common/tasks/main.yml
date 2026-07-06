@@ -1,0 +1,69 @@
+---
+# Rôle common : le SOCLE. Ce que toute machine du parc doit avoir,
+# quel que soit son métier (DNS, Elasticsearch, Kibana…).
+
+- name: Installer les paquets du socle (chrony, fail2ban)
+  ansible.builtin.apt:
+    name:
+      - chrony
+      - fail2ban
+    state: present
+    update_cache: true
+
+- name: Démarrer et activer chrony (heure synchronisée = logs cohérents)
+  ansible.builtin.service:
+    name: chrony
+    state: started
+    enabled: true
+
+- name: Démarrer et activer fail2ban (anti brute-force SSH)
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true
+  when: common_fail2ban_enabled
+
+# Le rôle décrit un ÉTAT, pas une action : si une machine débraye fail2ban
+# (host_vars), on s'assure aussi qu'il est arrêté — pas juste « pas démarré ».
+- name: Arrêter et désactiver fail2ban là où il est débrayé
+  ansible.builtin.service:
+    name: fail2ban
+    state: stopped
+    enabled: false
+  when: not common_fail2ban_enabled
+
+- name: Déposer la bannière de connexion (motd)
+  ansible.builtin.copy:
+    content: |
+      ⚙️  Machine gérée par Ansible — ne modifie RIEN à la main : change le code, rejoue.
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: "0644"
+
+# Cicatrice d'une vraie panne (voir chapitre 7) : certains services démarrent
+# parfois AVANT que la VM ait son adresse IP et ne s'attachent qu'à 127.0.0.1
+# → service « actif » mais muet depuis le réseau, jusqu'à un restart manuel.
+# Le drop-in ci-dessous force chaque service listé dans common_network_waits
+# à attendre que le réseau soit réellement en ligne.
+- name: Créer le répertoire de drop-in systemd des services à retenir au boot
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ item }}.service.d"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ common_network_waits }}"
+
+- name: Faire attendre le réseau aux services listés (override systemd)
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      After=network-online.target
+      Wants=network-online.target
+    dest: "/etc/systemd/system/{{ item }}.service.d/override.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ common_network_waits }}"
+  notify: Reload systemd

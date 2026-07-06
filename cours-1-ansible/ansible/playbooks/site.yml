@@ -1,0 +1,14 @@
+---
+# Le playbook maître : UNE commande, tout le parc dans l'état voulu.
+- name: Socle commun du lab
+  hosts: lab
+  become: true
+  roles:
+    - common
+
+- name: Serveur DNS du lab
+  hosts: dns-proxy
+  become: true
+  roles:
+    - dns
+    - web_status

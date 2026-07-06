@@ -1,0 +1,6 @@
+---
+# systemd ne relit pas les fichiers d'unités tout seul : après avoir posé ou
+# modifié un drop-in, il faut lui demander de recharger sa configuration.
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true

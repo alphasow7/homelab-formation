@@ -1,0 +1,10 @@
+---
+# Anti brute-force SSH : actif PARTOUT par défaut. Débrayable machine par
+# machine via host_vars (ex. host_vars/elastic-1.yml → false).
+common_fail2ban_enabled: true
+
+# Services qui doivent attendre que le réseau soit VRAIMENT prêt au boot
+# (drop-in systemd After/Wants=network-online.target). Vide par défaut :
+# chaque machine déclare les siens dans son host_vars.
+# Exemple pour dns-proxy :  common_network_waits: [named]
+common_network_waits: []

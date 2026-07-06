@@ -1,0 +1,6 @@
+---
+# Fichier : inventory/host_vars/dns-proxy.yml
+# named démarre parfois avant que la VM ait son IP → il ne s'attache qu'à
+# 127.0.0.1. Ce host_vars demande au rôle common de poser le drop-in systemd
+# qui le fait attendre le réseau (After/Wants=network-online.target).
+common_network_waits: [named]

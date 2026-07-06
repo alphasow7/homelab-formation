@@ -1,0 +1,29 @@
+---
+# Correction TP chap. 4 — fichier complet : roles/dns/defaults/main.yml
+
+# Le domaine interne du lab. Tout ce qui suit se termine en .lab.local.
+dns_domain: lab.local
+
+# Où BIND transmet les questions qu'il ne connaît pas (ex. google.com).
+dns_forwarders:
+  - 1.1.1.1
+
+# L'annuaire du lab : un enregistrement A par machine.
+dns_records:
+  - name: elastic-1
+    ip: 10.10.99.11
+  - name: kibana-logstash
+    ip: 10.10.99.14
+  - name: dns-proxy
+    ip: 10.10.99.12
+  - name: bastion
+    ip: 10.10.99.2
+  # TP étape 1 : le nom du service proxy (même VM que dns-proxy).
+  - name: proxy
+    ip: 10.10.99.12
+
+# TP étape 2 : les surnoms (CNAME) — un nom qui pointe vers un AUTRE nom.
+# Si dns-proxy change d'IP un jour, www suivra tout seul.
+dns_cnames:
+  - name: www
+    target: dns-proxy
