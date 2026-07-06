@@ -2,3 +2,5 @@
 *.qcow2
 .DS_Store
 *.retry
+cours-1-ansible/ansible/.vault_pass
+cours-1-ansible/ansible/inventory/group_vars/lab/vault.yml

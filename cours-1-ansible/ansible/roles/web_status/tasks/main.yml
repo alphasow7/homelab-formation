@@ -1,7 +1,9 @@
 ---
-- name: Installer nginx
+- name: Installer nginx et apache2-utils (fournit htpasswd)
   ansible.builtin.apt:
-    name: nginx
+    name:
+      - nginx
+      - apache2-utils
     state: present
     update_cache: true
 
@@ -9,6 +11,22 @@
   ansible.builtin.template:
     src: index.html.j2
     dest: /var/www/html/index.html
+    mode: "0644"
+  notify: Restart nginx
+
+# no_log: true → le mot de passe ne doit JAMAIS apparaître dans la sortie
+# d'Ansible (ni en -v, ni dans les logs CI). changed_when: true car htpasswd
+# réécrit toujours le fichier : on assume un "changed" à chaque run.
+- name: Créer le fichier htpasswd (utilisateur admin)
+  ansible.builtin.command: >-
+    htpasswd -bc /etc/nginx/.htpasswd admin {{ web_status_users_password }}
+  no_log: true
+  changed_when: true
+
+- name: Déployer la conf nginx (page protégée par mot de passe)
+  ansible.builtin.template:
+    src: status.conf.j2
+    dest: /etc/nginx/sites-available/default
     mode: "0644"
   notify: Restart nginx
 

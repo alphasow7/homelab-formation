@@ -1,3 +1,6 @@
 ---
 # Valeur par défaut, modifiable depuis le playbook sans toucher au rôle.
 web_status_title: "Lab de {{ ansible_user }} — géré par Ansible"
+
+# Valeur d'usine — écrasée par group_vars/lab/vars.yml, qui la tire du vault.
+web_status_users_password: "change-me"
