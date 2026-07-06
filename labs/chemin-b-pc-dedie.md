@@ -55,7 +55,7 @@ Les écrans sont les mêmes que pour le chemin A, seul le réseau change :
 
 1. **EULA** : **I agree**.
 2. **Target Harddisk** : le disque interne du PC (il sera effacé). **Next**.
-3. **Country / Keyboard** : **France**, clavier **French**.
+3. **Country / Time zone / Keyboard** : **France**, fuseau Europe/Paris, clavier **French**.
 4. **Password / Email** : choisis le mot de passe **root** et **note-le**. Email : le tien.
 5. **Management Network Configuration** — ici, ton serveur rejoint le réseau de ta box :
 
@@ -89,6 +89,8 @@ Connexion :
 - **User name** : `root`
 - **Password** : celui que tu as noté
 - **Realm** : **Linux PAM standard authentication**
+
+Le « realm », c'est la source des comptes : « Linux PAM » désigne les comptes Linux du serveur lui-même, dont root.
 
 Ferme la fenêtre « No valid subscription » (simple rappel commercial, tout fonctionne sans licence).
 

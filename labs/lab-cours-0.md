@@ -9,6 +9,8 @@ Deux chemins, mêmes TPs :
 | Réalisme | Proxmox « imbriqué » (nested) | Identique à la vraie vie |
 | Performances | Correctes (suffisant pour les TPs) | Meilleures |
 
+⚠️ **Mac à puce Apple (M1/M2/M3/M4)** : l'ISO Proxmox est x86 (amd64) et ne peut pas tourner dans VirtualBox sur ces machines. Prends le **chemin B** (vieux PC dédié).
+
 👉 Hésitant ? Prends le **chemin A** : tu pourras toujours migrer plus tard
 (chapitre 6 : sauvegarde/restauration — c'est littéralement un TP).
 

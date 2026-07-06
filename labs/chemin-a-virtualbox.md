@@ -16,6 +16,8 @@ Tu vas installer Proxmox **dans une machine virtuelle** sur ton PC. Oui, c'est u
 1. **VirtualBox 7.x** : va sur [virtualbox.org](https://www.virtualbox.org/wiki/Downloads) et télécharge la version pour ton système (Windows, macOS ou Linux). Installe-le comme n'importe quel logiciel.
 2. **L'ISO Proxmox VE** : va sur [proxmox.com/downloads](https://www.proxmox.com/en/downloads) et télécharge le **Proxmox VE 9.x ISO Installer** (prends la dernière version 9.x). C'est un fichier d'environ 1,5 Go. Une ISO, c'est l'image d'un DVD d'installation — sauf qu'ici, pas besoin de DVD.
 
+> ⚠️ **Mac à puce Apple (M1/M2/M3/M4)** : l'ISO Proxmox est x86 (amd64) et ne peut pas tourner dans VirtualBox sur ces machines. Prends le [chemin B (vieux PC dédié)](chemin-b-pc-dedie.md).
+
 ---
 
 ## Étape 2 — Créer la machine virtuelle
@@ -29,7 +31,7 @@ Ouvre VirtualBox et clique sur **Nouvelle** (ou « New »). Renseigne :
 | Version | Debian (64-bit) |
 | Mémoire (RAM) | **8192 Mo** |
 | Processeurs | **2 vCPU** |
-| Disque dur | VDI, **100 Go**, **alloué dynamiquement** |
+| Disque dur | VDI (le format de disque virtuel de VirtualBox), **100 Go**, **alloué dynamiquement** |
 
 Pourquoi Debian ? Parce que Proxmox est construit sur Debian. VirtualBox n'a pas de profil « Proxmox », donc on lui dit « Debian » et tout va bien.
 
@@ -62,8 +64,8 @@ Pas de message ? C'est bon signe : la commande réussit en silence.
 
 Va dans **Configuration → Réseau** de la VM `proxmox-lab` :
 
-1. **Adaptateur 1** : mode **« Réseau NAT »** (NAT tout court dans VirtualBox suffit ici). Ta VM vivra dans un petit réseau privé `10.0.2.0/24` que VirtualBox fabrique pour elle.
-2. Clique sur **Avancé → Redirection de ports** et ajoute deux règles :
+1. **Adaptateur 1** : mode **« NAT »** (attention : « NAT » tout court, pas « Réseau NAT », qui est un autre mode). Ta VM vivra dans un petit réseau privé `10.0.2.0/24` (« /24 » = masque 255.255.255.0, soit les 254 adresses de ton réseau) que VirtualBox fabrique pour elle.
+2. Toujours sur l'Adaptateur 1, clique sur **Avancé → Redirection de ports** et ajoute deux règles :
 
 | Nom | Port hôte | Port invité | Pourquoi |
 |---|---|---|---|
@@ -88,12 +90,12 @@ Démarre la VM. Elle boote sur l'ISO et affiche le menu Proxmox. Choisis **Insta
 
 | Champ | Valeur |
 |---|---|
-| Hostname (FQDN) | `pve-lab.home.lab` |
+| Hostname (FQDN, le nom complet de la machine) | `pve-lab.home.lab` |
 | IP Address (CIDR) | `10.0.2.15/24` |
 | Gateway | `10.0.2.2` |
 | DNS Server | `10.0.2.3` |
 
-Ces valeurs ne sortent pas d'un chapeau : `10.0.2.2` et `10.0.2.3` sont la passerelle et le DNS que VirtualBox fournit dans son réseau NAT, et `10.0.2.15` est l'adresse qu'il réserve à ta VM.
+Ces valeurs ne sortent pas d'un chapeau : `10.0.2.2` et `10.0.2.3` sont la passerelle et le DNS que VirtualBox fournit en mode NAT, et `10.0.2.15` est l'adresse qu'il réserve à ta VM.
 
 6. **Summary** : vérifie, puis **Install**. Va boire un café, ça prend 5-10 minutes.
 7. À la fin, la VM redémarre. Si elle reboote sur l'installateur, éjecte l'ISO (**Périphériques → Lecteurs optiques → Éjecter**) et redémarre.
@@ -120,6 +122,8 @@ Grâce à la redirection de port de l'étape 4, `localhost:8006` arrive directem
 - **Password** : celui que tu as noté (tu l'as noté, hein ?)
 - **Realm** : **Linux PAM standard authentication**
 
+Le « realm », c'est la source des comptes : « Linux PAM » désigne les comptes Linux du serveur lui-même, dont root.
+
 Clique sur **Login**. Une fenêtre te dit que tu n'as pas de licence (« No valid subscription ») : ferme-la, c'est juste un rappel commercial, tout fonctionne sans.
 
 🎉 Tu es dans Proxmox. Ton hyperviseur tourne.
@@ -134,7 +138,7 @@ Message du genre `KVM virtualisation not available` ou erreur mentionnant `kvm`.
 - **VT-x / AMD-V est désactivé dans le BIOS de ton PC.** Redémarre le PC, entre dans le BIOS (souvent touche `Suppr`, `F2` ou `F10` au démarrage), cherche « Intel VT-x », « Intel Virtualization Technology » ou « SVM Mode », mets sur **Enabled**, sauvegarde.
 
 **2. `https://localhost:8006` ne répond pas**
-Tu as oublié la redirection de port (étape 4). Vérifie **Configuration → Réseau → Avancé → Redirection de ports** : il faut la règle hôte **8006** → invité **8006**. Vérifie aussi que la VM est bien démarrée et que l'installation est terminée.
+Tu as oublié la redirection de port (étape 4). Vérifie **Configuration → Réseau → Adaptateur 1 → Avancé → Redirection de ports** : il faut la règle hôte **8006** → invité **8006**. Vérifie aussi que l'Adaptateur 1 est bien en mode **« NAT »** (pas « Réseau NAT »), que la VM est bien démarrée et que l'installation est terminée.
 
 **3. La page ne charge pas alors que tout semble bon**
 Deux oublis classiques dans l'URL :
