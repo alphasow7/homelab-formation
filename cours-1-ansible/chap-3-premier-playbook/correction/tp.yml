@@ -1,0 +1,50 @@
+---
+# Correction du TP chapitre 3 — page de statut enrichie (IP + uptime + htop).
+# Critère : un deuxième run consécutif doit donner changed=0.
+- name: Page de statut enrichie sur dns-proxy
+  hosts: dns-proxy
+  become: true
+  tasks:
+    - name: Installer nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: Installer htop
+      ansible.builtin.apt:
+        name: htop
+        state: present
+
+    # Pas de fact fiable pour un uptime lisible : on lit la commande uptime -p
+    # et on capture sa sortie. changed_when: false car c'est une LECTURE —
+    # sans ça, cette task serait comptée "changed" à chaque run (adieu changed=0).
+    - name: Lire l'uptime
+      ansible.builtin.command: uptime -p
+      register: uptime_result
+      changed_when: false
+
+    # IP : default_ipv4 n'existe PAS sur ces VMs (pas de passerelle par défaut,
+    # segment isolé) — on prend la première entrée de all_ipv4_addresses.
+    - name: Déployer la page de statut enrichie
+      ansible.builtin.copy:
+        content: |
+          <h1>Lab de {{ ansible_user }} — géré par Ansible</h1>
+          <p>Machine : {{ ansible_facts['hostname'] }} — Debian {{ ansible_facts['distribution_version'] }}</p>
+          <p>IP : {{ ansible_facts['all_ipv4_addresses'][0] }}</p>
+          <p>Uptime : {{ uptime_result.stdout }}</p>
+        dest: /var/www/html/index.html
+        mode: "0644"
+      notify: Restart nginx
+
+    - name: Nginx démarré et activé
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

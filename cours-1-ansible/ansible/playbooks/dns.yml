@@ -1,0 +1,7 @@
+---
+# « dns-proxy, tu es un serveur DNS. » Tout le savoir-faire est dans le rôle.
+- name: Serveur DNS du lab
+  hosts: dns-proxy
+  become: true
+  roles:
+    - dns

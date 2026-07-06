@@ -1,0 +1,31 @@
+---
+- name: Page de statut du lab sur dns-proxy
+  hosts: dns-proxy
+  become: true
+  tasks:
+    - name: Installer nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: Déployer la page de statut
+      ansible.builtin.copy:
+        content: |
+          <h1>Lab de {{ ansible_user }} — géré par Ansible</h1>
+          <p>Machine : {{ ansible_facts['hostname'] }} — Debian {{ ansible_facts['distribution_version'] }}</p>
+        dest: /var/www/html/index.html
+        mode: "0644"
+      notify: Restart nginx
+
+    - name: Nginx démarré et activé
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

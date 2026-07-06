@@ -1,0 +1,8 @@
+// Managed by Ansible — ne pas modifier manuellement
+// Zones uniquement : le bloc options vit dans named.conf.options
+// (sinon doublon « already exists » → named refuse de démarrer).
+
+zone "{{ dns_domain }}" IN {
+    type master;
+    file "/etc/bind/zones/db.{{ dns_domain }}";
+};
