@@ -7,7 +7,7 @@ Matériel élève de la formation « Homelab DevSecOps » (Udemy + YouTube).
 | # | Cours | Statut |
 |---|---|---|
 | 0 | [Fondations : ton premier homelab avec Proxmox](cours-0-fondations/) | 🚧 en production |
-| 1 | Ansible : automatise ton infra comme un pro | à venir |
+| 1 | [Ansible : automatise ton infra comme un pro](cours-1-ansible/) | 🚧 en production |
 | 2 | ELK : ton propre SIEM/observabilité à la maison | à venir |
 | 3 | Sécurité : OPNsense, Suricata, Vault | à venir |
 
