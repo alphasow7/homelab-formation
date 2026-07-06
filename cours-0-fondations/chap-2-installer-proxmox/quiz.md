@@ -47,11 +47,11 @@ de l'infrastructure mais toute action de modification (comme créer une VM) est 
 - A. Acheter un abonnement, c'est obligatoire pour utiliser Proxmox
 - B. Réinstaller Proxmox
 - C. Ignorer l'erreur, elle est sans conséquence
-- D. Supprimer les dépôts enterprise et basculer sur le dépôt pve-no-subscription ✅
+- D. Désactiver les dépôts enterprise et basculer sur le dépôt pve-no-subscription ✅
 
 **Explication** : le 401 (Unauthorized) signifie que le dépôt enterprise refuse l'accès sans
-abonnement ; la solution est de le remplacer par le dépôt communautaire no-subscription,
-comme dans demo.sh.
+abonnement ; la solution est de le désactiver (`Enabled: false`) et d'ajouter le dépôt
+communautaire no-subscription, comme dans demo.sh.
 
 ---
 

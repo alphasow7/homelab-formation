@@ -13,8 +13,9 @@ chemin B : `https://192.168.1.240:8006`). Les commandes s'exécutent sur le nœu
 
 ## Étape A — Post-installation complète
 
-1. Bascule les dépôts sur `pve-no-subscription` et supprime les dépôts enterprise
-   (comme dans la démo).
+1. Bascule les dépôts sur `pve-no-subscription` comme dans la démo : désactive les
+   dépôts enterprise (`Enabled: false` dans les fichiers `.sources`) et crée
+   `/etc/apt/sources.list.d/proxmox.sources` au format deb822.
 2. Mets tout à jour (`apt update` puis `apt -y full-upgrade`).
 3. Vérifie : `apt update` ne doit afficher **aucune erreur 401**, et `pveversion` doit
    répondre.

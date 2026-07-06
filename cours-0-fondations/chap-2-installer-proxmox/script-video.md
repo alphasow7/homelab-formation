@@ -68,21 +68,36 @@ erreur 401 Unauthorized. La solution officielle : basculer sur le dépôt commun
 *no-subscription* — mêmes paquets, testés un peu moins longtemps, parfaits pour un homelab. »
 
 **À montrer** :
-- D'abord la panne volontairement : `apt update` avec les dépôts enterprise encore en
-  place → montrer l'erreur 401 sur `enterprise.proxmox.com`. « Regarde bien cette erreur,
-  elle reviendra dans le quiz. »
-- Puis les deux commandes de demo.sh :
+- D'abord la panne volontairement (étape 0 de demo.sh) : `apt update` avec les dépôts
+  enterprise encore actifs → montrer l'erreur 401 sur `enterprise.proxmox.com`. On la
+  montre exprès AVANT la bascule. « Regarde bien cette erreur, elle reviendra dans le quiz. »
+- Puis les étapes 1 et 2 de demo.sh. PVE 9 utilise le format **deb822** — le nouveau
+  format de dépôt Debian : un fichier structuré au lieu d'une ligne. L'ISO a créé
+  `/etc/apt/sources.list.d/pve-enterprise.sources` et `ceph.sources` (des fichiers
+  `.sources`, pas `.list`) : on ne les supprime pas, on les **désactive** proprement avec
+  `Enabled: false`, puis on ajoute le dépôt communautaire :
 
 ```bash
-cat > /etc/apt/sources.list.d/pve-no-subscription.list <<'EOF'
-deb http://download.proxmox.com/debian/pve trixie pve-no-subscription
+sed -i 's/^Enabled: true/Enabled: false/' /etc/apt/sources.list.d/pve-enterprise.sources 2>/dev/null || true
+grep -q '^Enabled: false' /etc/apt/sources.list.d/pve-enterprise.sources || \
+  echo 'Enabled: false' >> /etc/apt/sources.list.d/pve-enterprise.sources
+grep -q '^Enabled: false' /etc/apt/sources.list.d/ceph.sources || \
+  echo 'Enabled: false' >> /etc/apt/sources.list.d/ceph.sources
+
+cat > /etc/apt/sources.list.d/proxmox.sources <<'EOF'
+Types: deb
+URIs: http://download.proxmox.com/debian/pve
+Suites: trixie
+Components: pve-no-subscription
+Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
 EOF
-rm -f /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources.list.d/ceph.list
 ```
 
-**Résultat attendu** : aucune sortie (silence = succès). Expliquer : on écrit un nouveau
-fichier de dépôt, on supprime les deux fichiers enterprise (PVE et Ceph). « `trixie`, c'est
-le nom de la version Debian sur laquelle Proxmox est construit. »
+**Résultat attendu** : aucune sortie (silence = succès). Expliquer : `Enabled: false`
+désactive les deux dépôts enterprise (PVE et Ceph) sans rien supprimer — réversible d'un
+mot ; `proxmox.sources` déclare le dépôt communautaire, signé par la clé officielle
+(`Signed-By`). « `trixie`, c'est le nom de la version Debian sur laquelle Proxmox est
+construit. »
 
 ### 2.2 — Mise à jour complète
 
@@ -95,8 +110,9 @@ apt update && apt -y full-upgrade
 installation : c'est le bon moment pour un café. » (Couper/accélérer au montage.)
 
 **Résultat attendu** : `apt update` liste les dépôts `download.proxmox.com` sans erreur ;
-le full-upgrade se termine sur une invite propre. Si un nouveau noyau a été installé,
-mentionner qu'un reboot est une bonne idée.
+le full-upgrade se termine sur une invite propre. Sur une install fraîche, le full-upgrade
+installe quasi certainement un nouveau noyau : on **reboote dans la démo**. « Un lab
+frais, ça se reboote sans état d'âme. »
 
 ### 2.3 — Vérifications (expliquer chaque sortie)
 
