@@ -1,0 +1,20 @@
+---
+kibana_port: 5601
+kibana_server_host: "0.0.0.0"
+# Le cluster ES à qui Kibana parle (en HTTPS — TLS posé au chapitre 3)
+elasticsearch_hosts:
+  - "https://10.10.99.11:9200"
+
+# Où Kibana range ses certificats
+kibana_certs_dir: /etc/kibana/certs
+kibana_ca_cert: "{{ kibana_certs_dir }}/ca.crt"
+
+# Nœud ES d'où l'on rapatrie la CA ET le cert serveur de kibana-logstash
+# (tous deux générés/signés par LA CA au chapitre 3, stockés sur elastic-1)
+kibana_ca_source_host: elastic-1
+# Le cert serveur kibana-logstash a été signé au chap. 3 et vit ici sur elastic-1 :
+kibana_cert_src_dir: /etc/elasticsearch/certs/kibana-logstash
+kibana_cert_name: kibana-logstash
+# Destinations locales (UI en HTTPS)
+kibana_ssl_cert: "{{ kibana_certs_dir }}/{{ kibana_cert_name }}.crt"
+kibana_ssl_key: "{{ kibana_certs_dir }}/{{ kibana_cert_name }}.key"

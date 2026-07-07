@@ -1,0 +1,22 @@
+---
+# Version Elastic — même dépôt apt que le chapitre 2 (à reposer sur cette VM).
+logstash_version: "9.x"
+
+# Heap volontairement modeste : cette VM (2 Go) hébergera AUSSI Kibana au chap 5.
+logstash_heap: "512m"
+
+# Ports d'entrée
+logstash_beats_port: 5044
+logstash_syslog_port: 5514
+logstash_http_port: 9600
+
+# Sortie Elasticsearch (HTTPS depuis le chapitre 3).
+elasticsearch_host: "https://10.10.99.11:9200"
+logstash_es_user: elastic
+# Vaulté au TP du chapitre 2. no_log là où il apparaît.
+logstash_es_password: "{{ vault_elastic_password }}"
+
+# CA : on la récupère (slurp) depuis un nœud Elasticsearch et on la dépose ici.
+logstash_ca_source_host: elastic-1
+logstash_certs_dir: /etc/logstash/certs
+logstash_ca_cert: "{{ logstash_certs_dir }}/ca.crt"

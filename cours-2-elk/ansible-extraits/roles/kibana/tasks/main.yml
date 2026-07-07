@@ -1,0 +1,70 @@
+---
+- name: Install Kibana
+  ansible.builtin.apt:
+    name: kibana
+    state: present
+
+- name: Ensure Kibana certs directory exists
+  ansible.builtin.file:
+    path: "{{ kibana_certs_dir }}"
+    state: directory
+    owner: root
+    group: kibana
+    mode: "0750"
+
+# --- La CA : Kibana doit faire confiance au cert HTTPS d'Elasticsearch ---
+- name: Read the ELK CA from elastic-1
+  ansible.builtin.slurp:
+    src: /etc/elasticsearch/certs/ca/ca.crt
+  delegate_to: "{{ kibana_ca_source_host }}"
+  register: kibana_elk_ca
+
+- name: Install the ELK CA on the Kibana host
+  ansible.builtin.copy:
+    content: "{{ kibana_elk_ca.content | b64decode }}"
+    dest: "{{ kibana_ca_cert }}"
+    owner: root
+    group: kibana
+    mode: "0640"
+  notify: Restart kibana
+
+# --- Le cert SERVEUR de kibana-logstash (UI en HTTPS) ---
+# Il a été signé par LA CA au chapitre 3 et stocké sur elastic-1 (seul détenteur
+# de la clé de CA). On vient juste le chercher — on ne le génère pas ici.
+- name: Read the kibana-logstash server certificate and key from elastic-1
+  ansible.builtin.slurp:
+    src: "{{ kibana_cert_src_dir }}/{{ kibana_cert_name }}.{{ item }}"
+  loop:
+    - crt
+    - key
+  delegate_to: "{{ kibana_ca_source_host }}"
+  register: kibana_ssl_files
+  no_log: true   # la clé privée transite dans le résultat — on ne l'imprime pas
+
+- name: Install the Kibana server certificate and key
+  ansible.builtin.copy:
+    content: "{{ item.content | b64decode }}"
+    dest: "{{ kibana_certs_dir }}/{{ item.source | basename }}"
+    owner: root
+    group: kibana
+    mode: "0640"
+  loop: "{{ kibana_ssl_files.results }}"
+  loop_control:
+    label: "{{ item.source | basename }}"
+  no_log: true
+  notify: Restart kibana
+
+- name: Deploy Kibana configuration
+  ansible.builtin.template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: kibana
+    mode: "0660"
+  notify: Restart kibana
+
+- name: Ensure Kibana is running
+  ansible.builtin.service:
+    name: kibana
+    state: started
+    enabled: true

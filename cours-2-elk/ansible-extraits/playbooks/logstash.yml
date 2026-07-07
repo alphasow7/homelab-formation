@@ -1,0 +1,8 @@
+---
+# Logstash sur kibana-logstash. La CA est récupérée (slurp) depuis elastic-1 :
+# cette VM doit donc être jouée dans le même inventaire que le nœud ES.
+- name: Deploy Logstash
+  hosts: kibana-logstash
+  become: true
+  roles:
+    - logstash

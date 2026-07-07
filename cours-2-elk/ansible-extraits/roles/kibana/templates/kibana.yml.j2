@@ -1,0 +1,29 @@
+# Managed by Ansible — ne pas modifier manuellement
+
+server.port: {{ kibana_port }}
+server.host: "{{ kibana_server_host }}"
+server.name: "{{ inventory_hostname }}"
+
+# --- HTTPS côté UI (comme l'infra réelle) : cert kibana-logstash signé par LA CA ---
+server.ssl.enabled: true
+server.ssl.certificate: {{ kibana_ssl_cert }}
+server.ssl.key: {{ kibana_ssl_key }}
+
+# --- Connexion au cluster Elasticsearch ---
+elasticsearch.hosts:
+{% for host in elasticsearch_hosts %}
+  - "{{ host }}"
+{% endfor %}
+
+# Kibana se connecte avec le compte de SERVICE dédié `kibana_system`,
+# PAS avec le super-utilisateur `elastic`. Ce compte a juste les droits
+# nécessaires à Kibana. Son mot de passe se (ré)initialise sur elastic-1 avec :
+#   /usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system
+# puis se range dans le vault sous `vault_kibana_system_password`.
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "{{ vault_kibana_system_password }}"
+
+# On fait confiance à LA CA pour valider le cert HTTPS d'Elasticsearch.
+elasticsearch.ssl.certificateAuthorities:
+  - {{ kibana_ca_cert }}
+elasticsearch.ssl.verificationMode: certificate

@@ -1,0 +1,87 @@
+---
+- name: Install prerequisites
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - apt-transport-https
+    state: present
+    update_cache: true
+
+# Le dépôt Elastic a été posé sur elastic-1 au chapitre 2. Cette VM
+# (kibana-logstash) est une machine DIFFÉRENTE : on remet le dépôt ici, avec la
+# MÊME méthode moderne signed-by (apt-key est déprécié).
+- name: Download Elastic GPG key to a keyring
+  ansible.builtin.get_url:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    dest: /usr/share/keyrings/elastic.asc
+    mode: "0644"
+
+- name: Add Elastic apt repository
+  ansible.builtin.copy:
+    content: >-
+      deb [signed-by=/usr/share/keyrings/elastic.asc]
+      https://artifacts.elastic.co/packages/{{ logstash_version }}/apt stable main
+    dest: /etc/apt/sources.list.d/elastic.list
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install Logstash
+  ansible.builtin.apt:
+    name: logstash
+    state: present
+    update_cache: true
+
+# Le heap : Logstash tourne sur la JVM, comme ES. 512m car la VM est partagée
+# avec Kibana (chap 5). Ce fichier est lu en plus des options par défaut.
+- name: Configure JVM heap size
+  ansible.builtin.copy:
+    content: |
+      -Xms{{ logstash_heap }}
+      -Xmx{{ logstash_heap }}
+    dest: /etc/logstash/jvm.options.d/heap.options
+    owner: root
+    group: logstash
+    mode: "0644"
+  notify: Restart logstash
+
+- name: Ensure Logstash certs directory exists
+  ansible.builtin.file:
+    path: "{{ logstash_certs_dir }}"
+    state: directory
+    owner: root
+    group: logstash
+    mode: "0750"
+
+# On lit la CA SUR elastic-1 (delegate_to) et on la ramène ici : Logstash doit
+# faire confiance au certificat HTTPS d'Elasticsearch pour lui envoyer les logs.
+- name: Read the ELK CA from the Elasticsearch node
+  ansible.builtin.slurp:
+    src: /etc/elasticsearch/certs/ca/ca.crt
+  delegate_to: "{{ logstash_ca_source_host }}"
+  register: logstash_elk_ca
+
+- name: Install the ELK CA on the Logstash host
+  ansible.builtin.copy:
+    content: "{{ logstash_elk_ca.content | b64decode }}"
+    dest: "{{ logstash_ca_cert }}"
+    owner: root
+    group: logstash
+    mode: "0640"
+  notify: Restart logstash
+
+- name: Deploy Logstash pipeline (beats + syslog -> Elasticsearch)
+  ansible.builtin.template:
+    src: pipeline.conf.j2
+    dest: /etc/logstash/conf.d/lab.conf
+    owner: root
+    group: logstash
+    mode: "0640"
+  no_log: true  # le mot de passe elastic est dans le fichier rendu
+  notify: Restart logstash
+
+- name: Ensure Logstash is running
+  ansible.builtin.service:
+    name: logstash
+    state: started
+    enabled: true

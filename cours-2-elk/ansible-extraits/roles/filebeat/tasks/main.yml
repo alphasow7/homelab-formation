@@ -1,0 +1,57 @@
+---
+# Le dépôt apt Elastic — méthode moderne signed-by (apt-key est mort). On déploie
+# sur les 4 VMs : pour que le play reste idempotent partout, on pose UNE entrée
+# canonique (elastic.list) et on supprime toute entrée Elastic en double, qui
+# pointerait un keyring différent -> conflit apt sur certaines VMs.
+- name: Download Elastic GPG key to a keyring
+  ansible.builtin.get_url:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    dest: /usr/share/keyrings/elastic.asc
+    mode: "0644"
+
+- name: Find existing Elastic apt sources
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d
+    patterns: "*.list"
+    contains: ".*artifacts\\.elastic\\.co.*"
+  register: filebeat_elastic_sources
+
+- name: Remove non-canonical Elastic apt sources
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ filebeat_elastic_sources.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: item.path != '/etc/apt/sources.list.d/elastic.list'
+
+- name: Deploy canonical Elastic apt source
+  ansible.builtin.copy:
+    content: >-
+      deb [signed-by=/usr/share/keyrings/elastic.asc]
+      https://artifacts.elastic.co/packages/{{ filebeat_version }}/apt stable main
+    dest: /etc/apt/sources.list.d/elastic.list
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install Filebeat
+  ansible.builtin.apt:
+    name: filebeat
+    state: present
+    update_cache: true
+
+- name: Deploy Filebeat configuration
+  ansible.builtin.template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart filebeat
+
+- name: Ensure Filebeat is running
+  ansible.builtin.service:
+    name: filebeat
+    state: started
+    enabled: true

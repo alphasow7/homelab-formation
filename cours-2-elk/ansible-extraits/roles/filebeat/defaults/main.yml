@@ -1,0 +1,13 @@
+---
+# Filebeat : l'agent léger, un par machine — il ramasse les logs et les poste
+# à Logstash. Il ne parse rien, il n'écrit dans aucun index directement.
+filebeat_version: "8.x"
+
+# On envoie TOUT à Logstash (input beats 5044, chap 4) — jamais direct vers ES.
+# Logstash est le seul à parler HTTPS à Elasticsearch et à ranger les documents.
+logstash_host: "10.10.99.14:5044"
+
+# Inputs fichier optionnels (logs applicatifs), définis par hôte (host_vars).
+# Format : - {id, source, paths: [...]}. Vide = journald seul.
+# C'est ce qu'on remplira au TP pour les logs nginx de dns-proxy.
+filebeat_log_inputs: []

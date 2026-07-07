@@ -1,0 +1,30 @@
+# Managed by Ansible — ne pas modifier manuellement
+# Ces Debian minimales n'ont PAS de rsyslog : /var/log/syslog n'existe pas.
+# systemd, lui, journalise TOUJOURS dans son journal binaire -> input journald.
+filebeat.inputs:
+  - type: journald
+    id: system-journal
+
+{% for inp in filebeat_log_inputs | default([]) %}
+  # Logs applicatifs : {{ inp.source }} (fichiers qui EXISTENT bel et bien)
+  - type: filestream
+    id: {{ inp.id }}
+    paths:
+{% for path in inp.paths %}
+      - {{ path }}
+{% endfor %}
+    fields_under_root: true
+    fields:
+      log_source: {{ inp.source }}
+{% endfor %}
+
+processors:
+  - add_host_metadata: {}
+
+# Sortie : Logstash (input beats, en clair sur 5044). PAS d'output.elasticsearch :
+# tout passe par Logstash, seul à parler HTTPS à ES et à ranger les documents.
+output.logstash:
+  hosts: ["{{ logstash_host }}"]
+
+logging.level: info
+logging.to_files: true

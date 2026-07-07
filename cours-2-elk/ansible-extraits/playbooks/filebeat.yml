@@ -1,0 +1,10 @@
+---
+# Filebeat sur TOUTES les VMs du segment (le groupe `lab` = elastic-1,
+# kibana-logstash, dns-proxy, bastion). Chaque machine devient un « facteur » qui
+# poste ses logs à Logstash. En pratique on ajoute plutôt ce rôle au play elk.yml
+# (voir demo.sh) ; ce playbook autonome sert à ne (re)déployer QUE Filebeat.
+- name: Deploy Filebeat on all lab VMs
+  hosts: lab
+  become: true
+  roles:
+    - filebeat

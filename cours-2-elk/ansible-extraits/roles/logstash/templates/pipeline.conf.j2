@@ -1,0 +1,51 @@
+# Managed by Ansible — ne pas modifier manuellement.
+# Le pipeline : INPUT (d'où viennent les événements) -> FILTER (on les met en
+# forme) -> OUTPUT (où on les range). Le centre de tri postal du chapitre.
+
+input {
+  # Les Beats (filebeat, metricbeat…) parleront ici.
+  # CHOIX PÉDAGOGIQUE : input beats EN CLAIR (pas de TLS) pour rester simple.
+  # Seule la sortie vers Elasticsearch est chiffrée (HTTPS + CA). En prod on
+  # activerait aussi le TLS côté beats — voir l'encart du script.
+  beats {
+    port => {{ logstash_beats_port }}
+  }
+  # Le syslog réseau (équipements, tests manuels via nc) arrive ici.
+  tcp {
+    port => {{ logstash_syslog_port }}
+    type => "syslog"
+  }
+  udp {
+    port => {{ logstash_syslog_port }}
+    type => "syslog"
+  }
+}
+
+filter {
+  # grok = des expressions régulières avec des étiquettes nommées. On teste si la
+  # ligne ressemble à un log nginx (COMBINEDAPACHELOG = le format standard) ; si
+  # oui, on éclate le message en champs interrogeables (clientip, verb, response,
+  # bytes…). Sinon, on se contente d'un tag pour la retrouver.
+  if [message] =~ /HTTP\/\d/ {
+    grok {
+      match => { "message" => "%{COMBINEDAPACHELOG}" }
+      tag_on_failure => ["_nginxparsefailure"]
+    }
+  } else {
+    mutate {
+      add_tag => ["non_nginx"]
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["{{ elasticsearch_host }}"]
+    user => "{{ logstash_es_user }}"
+    password => "{{ logstash_es_password }}"
+    ssl_enabled => true
+    ssl_certificate_authorities => ["{{ logstash_ca_cert }}"]
+    ssl_verification_mode => "full"   # on vérifie le cert d'ES avec notre CA
+    index => "logstash-%{+YYYY.MM.dd}"
+  }
+}
