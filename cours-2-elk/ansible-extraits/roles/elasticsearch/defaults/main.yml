@@ -1,0 +1,4 @@
+---
+elasticsearch_version: "9.x"
+elasticsearch_heap: "2g"
+elasticsearch_cluster_name: "lab-elk"

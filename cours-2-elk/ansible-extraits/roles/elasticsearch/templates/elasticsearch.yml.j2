@@ -1,0 +1,15 @@
+# Managed by Ansible — ne pas modifier manuellement
+
+cluster.name: {{ elasticsearch_cluster_name }}
+node.name: {{ inventory_hostname }}
+network.host: 0.0.0.0
+http.port: 9200
+
+# Mono-nœud : dit à ES de ne pas chercher de copains.
+# (L'infra réelle a 2 nœuds et utilise discovery.seed_hosts +
+#  cluster.initial_master_nodes à la place.)
+discovery.type: single-node
+
+# Sécurité activée dès le premier jour (auth obligatoire).
+# Le TLS HTTP arrive au chapitre 3 — une brique à la fois.
+xpack.security.enabled: true

@@ -1,0 +1,56 @@
+---
+- name: Install prerequisites
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - apt-transport-https
+    state: present
+    update_cache: true
+
+# Méthode moderne signed-by (apt-key est déprécié) — la même que sur l'infra réelle.
+- name: Download Elastic GPG key to a keyring
+  ansible.builtin.get_url:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    dest: /usr/share/keyrings/elastic.asc
+    mode: "0644"
+
+- name: Add Elastic apt repository
+  ansible.builtin.copy:
+    content: >-
+      deb [signed-by=/usr/share/keyrings/elastic.asc]
+      https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main
+    dest: /etc/apt/sources.list.d/elastic.list
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install Elasticsearch
+  ansible.builtin.apt:
+    name: elasticsearch
+    state: present
+    update_cache: true
+
+- name: Deploy Elasticsearch configuration
+  ansible.builtin.template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: "0660"
+  notify: Restart elasticsearch
+
+# Le heap : ES prend cette mémoire au démarrage et la GARDE — c'est voulu.
+- name: Deploy JVM heap options
+  ansible.builtin.template:
+    src: lab.options.j2
+    dest: /etc/elasticsearch/jvm.options.d/lab.options
+    owner: root
+    group: elasticsearch
+    mode: "0660"
+  notify: Restart elasticsearch
+
+- name: Ensure Elasticsearch is running
+  ansible.builtin.service:
+    name: elasticsearch
+    state: started
+    enabled: true
