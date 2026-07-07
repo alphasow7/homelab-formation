@@ -26,6 +26,24 @@ comme sur l'infra réelle), le WAN sur le réseau qui a Internet.
 
 Retiens la règle : **un subnet, un rôle**. Jamais deux réseaux avec le même adressage.
 
+## Le plan d'adressage — trois réseaux à ne pas confondre
+
+À partir de ce cours, ton lab a **trois** réseaux distincts. Garde ce tableau sous les yeux :
+
+| Réseau | Rôle | Qui y vit |
+|---|---|---|
+| `192.168.1.0/24` | Ton LAN domestique (la box FAI) | Ton poste, le WAN d'OPNsense (IP DHCP de la box) |
+| `192.168.99.0/24` | Le LAN d'OPNsense (côté « lab protégé ») | OPNsense en `.1` — futur réseau de bureau derrière le pare-feu |
+| `10.10.99.0/24` | Le segment interne Proxmox (des cours 0-2) | elastic-1 `.11`, kibana-logstash `.14`, dns-proxy `.12`, bastion `.2` |
+
+**Le pont entre eux** : OPNsense a le pied sur le LAN domestique par son WAN. Pour que ses
+alertes Suricata rejoignent ton SIEM (Logstash sur `10.10.99.14:5514`), on s'appuie sur le
+relais syslog déjà en place au **chapitre 7 du cours 2** : OPNsense envoie son syslog au
+nœud Proxmox, qui a une patte sur le segment `10.10.99.0/24` et fait suivre à Logstash.
+Autrement dit : **tu ne rebranches rien** — le chemin de logs existe déjà, on ne fait que
+brancher une nouvelle source (OPNsense) dessus. Chaque chapitre te rappelle sur quel
+réseau tu travailles.
+
 ## ✅ Vérifications avant le chapitre 1
 
 ```bash

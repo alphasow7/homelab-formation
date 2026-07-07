@@ -171,7 +171,7 @@ Rends ta réponse avec ces 5 cases cochées :
 | Cours | Ce qu'il apporte ICI | La preuve à l'écran |
 |---|---|---|
 | **Cours 0 — Fondations (Proxmox)** | La VM OPNsense **tourne dessus** — le pare-feu est une machine virtuelle sur ton hyperviseur. Sans virtualisation, pas de pare-feu à héberger. | La VM OPNsense dans l'inventaire Proxmox |
-| **Cours 1 — Ansible (IaC)** | L'**infra provisionnée** et reproductible : les segments réseau, les zones firewall, tout est décrit en code. | `pve-firewall compile`, les rôles de zone |
+| **Cours 1 — Ansible (IaC)** | L'**infra provisionnée** et reproductible : les VMs du lab, les zones firewall, Vault — décrits en code. (OPNsense fait exception : on l'installe à la main, un pare-feu se pilote à la console/GUI.) | `pve-firewall compile`, les rôles de zone |
 | **Cours 2 — ELK (SIEM)** | L'**alerte visible** : sans le SIEM, l'attaque resterait invisible dans un onglet OPNsense. Kibana la garde et la corrèle. | L'alerte Suricata dans `logstash-syslog-*` |
 | **Cours 3 — Sécurité** | Le **pare-feu + l'IDS + la réaction** : détecter, bloquer, et fermer la porte. La défense en profondeur. | Le scan `filtered`, la règle de blocage, le 2e scan mort |
 
