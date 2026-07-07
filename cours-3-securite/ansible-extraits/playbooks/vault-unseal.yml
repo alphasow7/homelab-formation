@@ -1,0 +1,34 @@
+---
+# Descelle Vault après un redémarrage de la VM.
+# Vault redémarre TOUJOURS scellé (c'est par DESIGN : la clé n'est jamais sur
+# le disque). Le descellage fait donc partie de l'exploitation quotidienne.
+#
+# Shamir 1/1 en lab : une seule clé suffit. On la range dans l'ansible-vault
+# (variable `vault_unseal_key`, cf. TP bonus) — jamais en clair dans le dépôt.
+#
+# Usage : ansible-playbook playbooks/vault-unseal.yml
+- name: Desceller HashiCorp Vault
+  hosts: vault
+  become: true
+  tasks:
+    - name: Soumettre la clé d'unseal à l'API
+      ansible.builtin.uri:
+        url: "https://127.0.0.1:8200/v1/sys/unseal"
+        method: POST
+        body_format: json
+        body:
+          key: "{{ vault_unseal_key }}"
+        status_code: [200]
+        # Cert auto-signé du lab → on ne vérifie pas la chaîne ici.
+        validate_certs: false
+      register: vault_unseal_result
+      no_log: true   # ne jamais logguer la clé
+
+    - name: Afficher l'état du sceau
+      ansible.builtin.debug:
+        msg: "sealed={{ vault_unseal_result.json.sealed }}"
+
+    - name: Échouer si toujours scellé
+      ansible.builtin.fail:
+        msg: "Vault est toujours scellé après soumission de la clé."
+      when: vault_unseal_result.json.sealed

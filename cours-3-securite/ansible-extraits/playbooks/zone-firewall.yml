@@ -1,0 +1,9 @@
+---
+# Applique les zones firewall par VM.
+# ⚠️ hosts: proxmox — ce playbook cible le NŒUD Proxmox (l'hyperviseur), car
+# c'est lui qui écrit /etc/pve/firewall/<vmid>.fw. Il ne se connecte PAS aux VMs.
+- name: Durcir les VMs avec un firewall par zone (pve-firewall)
+  hosts: proxmox
+  become: true
+  roles:
+    - zone_firewall

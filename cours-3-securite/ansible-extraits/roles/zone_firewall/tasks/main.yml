@@ -1,0 +1,17 @@
+---
+# ⚠️ Ce rôle tourne sur le NŒUD Proxmox, pas sur les VMs. C'est le nœud qui
+# possède /etc/pve/firewall/ et y écrit un fichier de règles par VM.
+#
+# /etc/pve est un système de fichiers spécial (pmxcfs / FUSE) : il gère lui-même
+# le propriétaire et les permissions, et il n'autorise PAS l'écriture atomique
+# « temp + rename » qu'Ansible fait par défaut. D'où `unsafe_writes: true`
+# (exactement comme dans le rôle proxmox_firewall réel).
+
+- name: Déployer la zone firewall de chaque VM  # noqa: risky-file-permissions
+  ansible.builtin.template:
+    src: zone.fw.j2
+    dest: "/etc/pve/firewall/{{ item.vmid }}.fw"
+    unsafe_writes: true
+  loop: "{{ zone_firewall_vms }}"
+  loop_control:
+    label: "{{ item.name }} (vmid {{ item.vmid }})"

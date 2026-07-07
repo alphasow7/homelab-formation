@@ -1,0 +1,35 @@
+---
+# Rôle zone_firewall — version ÉLÈVE (épurée) du proxmox_firewall réel.
+#
+# ⚠️ Ce rôle s'applique sur le NŒUD Proxmox (hosts: proxmox), PAS sur les VMs.
+# C'est le nœud qui écrit les fichiers /etc/pve/firewall/<vmid>.fw : le pare-feu
+# « par zone » de Proxmox (pve-firewall) filtre le trafic AU RAS de chaque VM.
+#
+# Idée : chaque VM reçoit une politique d'ENTRÉE en DROP (on refuse tout par
+# défaut) + quelques autorisations minimales (moindre privilège). Si UNE VM est
+# compromise, elle ne peut plus se promener librement dans le segment.
+
+# Réseaux du lab (segment unique 10.10.99.0/24 dans la formation).
+# Le "réseau de management" = d'où l'admin se connecte en SSH. Dans le lab, on
+# passe par le bastion (10.10.99.2) ; sur l'infra réelle c'est un vrai segment
+# dédié (10.10.10.0/24).
+zone_firewall_lab_network: 10.10.99.0/24
+zone_firewall_management_source: 10.10.99.2/32   # le bastion (poste d'admin)
+
+# Réseau d'où Logstash joint Elasticsearch (dans le lab, Logstash est colocalisé
+# sur la VM kibana-logstash 10.10.99.14).
+zone_firewall_logstash_source: 10.10.99.14/32
+
+# La liste des VMs à durcir. Une entrée = une VM = un fichier <vmid>.fw.
+# Chaque règle est une ligne au format pve-firewall :
+#   "IN ACCEPT -source <CIDR> -p tcp -dport <PORT>"
+# Une règle ICMP (ping) est ajoutée automatiquement par le template — pas besoin
+# de la mettre ici.
+zone_firewall_vms:
+  - vmid: 611                 # elastic-1  (10.10.99.11)
+    name: elastic-1
+    rules:
+      # Elasticsearch (9200) n'est joignable que depuis Logstash.
+      - "IN ACCEPT -source {{ zone_firewall_logstash_source }} -p tcp -dport 9200"
+      # SSH (22) uniquement depuis le poste d'admin (le bastion).
+      - "IN ACCEPT -source {{ zone_firewall_management_source }} -p tcp -dport 22"

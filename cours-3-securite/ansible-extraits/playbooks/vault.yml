@@ -1,0 +1,16 @@
+---
+# Déploie HashiCorp Vault (install + TLS + conf + service).
+# N'initialise PAS le coffre : `vault operator init` reste MANUEL (les clés
+# d'unseal et le root token sont des secrets critiques, cf. script-video.md).
+#
+# Hôte cible : la VM qui héberge Vault. Dans ce lab on réutilise la VM
+# `dns-proxy` (10.10.99.x, petite VM déjà en place) plutôt que d'en créer une.
+# → déclare un groupe `vault` dans ton inventaire pointant sur cette VM :
+#     [vault]
+#     dns-proxy
+# Ainsi le playbook vault-unseal.yml (hosts: vault) vise la même machine.
+- name: Déployer HashiCorp Vault
+  hosts: vault
+  become: true
+  roles:
+    - vault

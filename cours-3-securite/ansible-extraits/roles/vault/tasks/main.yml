@@ -1,0 +1,105 @@
+---
+# Rôle vault (extrait de cours, épuré du rôle réel).
+# Installe HashiCorp Vault, un cert TLS auto-signé, la conf et le service.
+# Il NE fait PAS init/unseal : ces étapes sont manuelles (secrets critiques),
+# le descellage quotidien est géré par playbooks/vault-unseal.yml.
+
+- name: Installer les dépendances de Vault
+  ansible.builtin.apt:
+    name:
+      - gpg
+      - curl
+      - openssl
+    state: present
+
+# ── Installation depuis le dépôt HashiCorp (méthode moderne signed-by) ──────
+# apt-key est mort : on télécharge la clé GPG dans un keyring dédié et on lie
+# le dépôt à CETTE clé via `signed-by` (même méthode que le rôle elasticsearch
+# du cours 2). apt_key/apt_repository d'Ansible gèrent tout ça pour nous.
+- name: Ajouter la clé GPG HashiCorp
+  ansible.builtin.apt_key:
+    url: https://apt.releases.hashicorp.com/gpg
+    keyring: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    state: present
+
+- name: Ajouter le dépôt HashiCorp
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
+      https://apt.releases.hashicorp.com
+      {{ ansible_distribution_release }} main
+    state: present
+
+- name: Installer Vault
+  ansible.builtin.apt:
+    name: "vault{{ ('=' + vault_version + '-1') if vault_version else '' }}"
+    state: present
+    update_cache: true
+  # Le paquet crée l'utilisateur système `vault` et /etc/vault.d.
+
+# ── Répertoires ────────────────────────────────────────────────────────────
+- name: Créer le répertoire de données de Vault
+  ansible.builtin.file:
+    path: "{{ vault_storage_path }}"
+    state: directory
+    owner: vault
+    group: vault
+    mode: "0750"
+
+- name: Créer le répertoire TLS de Vault
+  ansible.builtin.file:
+    path: "{{ vault_tls_dir }}"
+    state: directory
+    owner: vault
+    group: vault
+    mode: "0750"
+
+# ── Certificat TLS auto-signé (choix du lab, cf. defaults) ─────────────────
+# `creates:` rend la tâche idempotente : on ne régénère pas le cert à chaque run.
+- name: Générer le certificat auto-signé de Vault
+  ansible.builtin.command:
+    cmd: >-
+      openssl req -x509 -newkey rsa:2048 -nodes
+      -keyout {{ vault_tls_key }}
+      -out {{ vault_tls_cert }}
+      -days {{ vault_cert_days }}
+      -subj "/CN={{ vault_domain }}"
+      -addext "subjectAltName=DNS:{{ vault_domain }},DNS:localhost,IP:{{ ansible_host }},IP:127.0.0.1"
+    creates: "{{ vault_tls_cert }}"
+  notify: Restart vault
+
+- name: Fixer les droits sur les fichiers TLS
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: vault
+    group: vault
+    mode: "0640"
+  loop:
+    - "{{ vault_tls_cert }}"
+    - "{{ vault_tls_key }}"
+
+# ── VAULT_ADDR pour le CLI interactif sur la VM ────────────────────────────
+- name: Exporter VAULT_ADDR pour les shells interactifs
+  ansible.builtin.copy:
+    content: |
+      export VAULT_ADDR="{{ vault_addr }}"
+    dest: /etc/profile.d/vault.sh
+    owner: root
+    group: root
+    mode: "0644"
+
+# ── Configuration ──────────────────────────────────────────────────────────
+- name: Déployer la configuration de Vault
+  ansible.builtin.template:
+    src: vault.hcl.j2
+    dest: /etc/vault.d/vault.hcl
+    owner: vault
+    group: vault
+    mode: "0640"
+  notify: Restart vault
+
+- name: Activer et démarrer Vault
+  ansible.builtin.service:
+    name: vault
+    state: started
+    enabled: true
