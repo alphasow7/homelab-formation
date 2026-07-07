@@ -63,7 +63,7 @@ Attendu : les alertes Suricata, avec leur signature, timestamp récent.
 ```bash
 curl --cacert /etc/elasticsearch/certs/http_ca.crt \
   -u elastic:LE_MDP \
-  "https://10.10.20.14:9200/logstash-syslog-*/_search?pretty" \
+  "https://10.10.99.11:9200/logstash-syslog-*/_search?pretty" \
   -H 'Content-Type: application/json' \
   -d '{"query":{"bool":{"must":[
          {"match":{"syslog_hostname":"OPNsense.internal"}},

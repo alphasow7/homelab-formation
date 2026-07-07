@@ -89,7 +89,7 @@ sudo nmap -sS -T4 -p 1-1000 192.168.1.36    # <-- IP WAN d'OPNsense (adapte-la)
 # À jouer depuis une machine qui joint ES (ex. le collecteur). Adapte l'URL/CA/index.
 #   curl --cacert /etc/elasticsearch/certs/http_ca.crt \
 #     -u elastic:LE_MDP \
-#     "https://10.10.20.14:9200/logstash-syslog-*/_search?pretty" \
+#     "https://10.10.99.11:9200/logstash-syslog-*/_search?pretty" \
 #     -H 'Content-Type: application/json' \
 #     -d '{"query":{"bool":{"must":[
 #            {"match":{"syslog_hostname":"OPNsense.internal"}},
