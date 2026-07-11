@@ -131,22 +131,25 @@ ansible-playbook playbooks/vault-unseal.yml   # → sealed=false
 
 « Il lit la clé dans l'ansible-vault et la soumet à l'API. Coffre rouvert. »
 
-### (b) L'histoire des clés jamais sauvegardées
+### (b) L'histoire des clés jamais sauvegardées — le paiement de la promesse du cours 1
 
-**À dire** : « Sur l'infra réelle, le Vault avait été initialisé des **semaines**
-plus tôt. Les clés d'unseal ? Notées **NULLE PART**. Résultat au moment de s'en servir :
-coffre **inouvrable**. Aucune commande, aucune magie ne récupère ça — c'est le principe
-même. Il a fallu **tout réinitialiser** : données perdues. Par chance le coffre était
-encore vide (il était scellé depuis le début, justement...), sinon c'était la catastrophe.
+**À dire** : « Tu te souviens, au **cours 1 chapitre 6**, je t'avais raconté une panne
+en te disant "on la verra pour de vrai au cours 3" ? On y est — et maintenant tu as un
+Vault sous les doigts, ça va parler autrement. Rappel express : sur l'infra réelle, ce
+Vault avait été initialisé des **semaines** plus tôt, les clés d'unseal notées **NULLE
+PART**. Au moment de s'en servir : coffre **inouvrable**. Aucune commande, aucune magie
+ne récupère ça — c'est le principe même. Il a fallu **tout réinitialiser** : données
+perdues. Par chance le coffre était encore vide (il était scellé depuis le début,
+justement...), sinon c'était la catastrophe.
 
 Rejoue-le mentalement : imagine que tu n'aies pas noté la clé tout à l'heure au `init`.
 Reboot → scellé → et là... rien. **Game over.** »
 
 > **Morale** : **un coffre scellé au reboot, c'est normal et SAIN** — les clés ne dorment
-> pas dans le coffre. **Un coffre dont tu as perdu les clés, c'est un presse-papier.** La
-> règle, exactement comme au cours 1 chapitre 6 : **généré → sauvegardé chiffré (dans ton
-> ansible-vault) → testé, dans la même minute.** Pas « je note ça plus tard ». Plus tard
-> n'existe pas.
+> pas dans le coffre. **Un coffre dont tu as perdu les clés, c'est un presse-papier.** Et
+> la règle est exactement la même qu'au cours 1 — sauf qu'ici elle a des dents : **généré
+> → sauvegardé chiffré (dans ton ansible-vault) → testé, dans la même minute.** Pas « je
+> note ça plus tard ». Plus tard n'existe pas.
 
 ## 4. Encart vrai matériel (2 min)
 
