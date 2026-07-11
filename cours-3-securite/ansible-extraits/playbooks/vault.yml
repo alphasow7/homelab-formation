@@ -4,10 +4,13 @@
 # d'unseal et le root token sont des secrets critiques, cf. script-video.md).
 #
 # Hôte cible : la VM qui héberge Vault. Dans ce lab on réutilise la VM
-# `dns-proxy` (10.10.99.x, petite VM déjà en place) plutôt que d'en créer une.
-# → déclare un groupe `vault` dans ton inventaire pointant sur cette VM :
-#     [vault]
-#     dns-proxy
+# `dns-proxy` (10.10.99.12, petite VM déjà en place) plutôt que d'en créer une.
+# → déclare un groupe `vault` dans ton inventaire YAML (inventory/hosts.yml),
+#   sous `all: children:` — dns-proxy y est déjà défini dans le groupe `lab`,
+#   on le rattache juste à un second groupe :
+#     vault:
+#       hosts:
+#         dns-proxy:
 # Ainsi le playbook vault-unseal.yml (hosts: vault) vise la même machine.
 - name: Déployer HashiCorp Vault
   hosts: vault

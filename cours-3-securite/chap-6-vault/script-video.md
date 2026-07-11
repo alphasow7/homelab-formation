@@ -51,7 +51,7 @@ une seule clé, plus simple. »
 ### 2.1 Déployer le rôle
 
 **À montrer** : recopier `roles/vault` et les 2 playbooks depuis `ansible-extraits/`,
-déclarer le groupe `[vault]` dans l'inventaire (→ `dns-proxy`). **Masquerade ON** sur le
+déclarer le groupe `vault` dans l'inventaire YAML `hosts.yml` (→ `dns-proxy`). **Masquerade ON** sur le
 nœud (apt HashiCorp à télécharger). `ansible-playbook playbooks/vault.yml`. Masquerade OFF.
 
 **À expliquer pendant que ça installe** : le tour du rôle — dépôt HashiCorp en `signed-by`

@@ -2,6 +2,16 @@
 # Applique les zones firewall par VM.
 # ⚠️ hosts: proxmox — ce playbook cible le NŒUD Proxmox (l'hyperviseur), car
 # c'est lui qui écrit /etc/pve/firewall/<vmid>.fw. Il ne se connecte PAS aux VMs.
+#
+# Le nœud n'est PAS dans le groupe `lab` (ce sont les VMs, jointes via le bastion).
+# → déclare un groupe `proxmox` dans ton inventaire YAML (inventory/hosts.yml),
+#   sous `all: children:`. Le nœud s'atteint en DIRECT (pas via le bastion) et en root :
+#     proxmox:
+#       hosts:
+#         pve-node:
+#           ansible_host: IP_DE_TON_NOEUD   # l'IP de management du nœud (celle du web :8006)
+#           ansible_user: root
+#           ansible_ssh_common_args: ''     # accès direct — surtout PAS le ProxyJump du lab
 - name: Durcir les VMs avec un firewall par zone (pve-firewall)
   hosts: proxmox
   become: true

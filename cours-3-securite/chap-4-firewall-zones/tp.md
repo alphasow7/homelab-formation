@@ -14,7 +14,8 @@
    - `vmid: 602`, `name: bastion` ;
    - une seule règle : autoriser le `22` **uniquement depuis ton poste de
      management** (utilise `zone_firewall_management_source`).
-3. Applique : `ansible-playbook playbooks/zone-firewall.yml` (il cible le NŒUD).
+3. Applique : `ansible-playbook playbooks/zone-firewall.yml` (il cible le NŒUD —
+   le groupe `proxmox` de l'inventaire, déclaré à la démo du chapitre).
 4. **Prouve que le bastion reste joignable depuis toi** :
    - `ssh alpha@10.10.99.2` depuis ton poste de management → tu entres.
 5. **Prouve qu'une VM du segment ne peut plus toucher le SSH du bastion** :

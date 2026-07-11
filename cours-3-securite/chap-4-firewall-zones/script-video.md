@@ -53,6 +53,13 @@ puis regarder le `defaults/main.yml` : la liste `zone_firewall_vms` avec elastic
 Le template ajoute tout seul une règle ICMP (le ping, pour diagnostiquer) et la
 policy `DROP`. **Tout le reste du segment `10.10.99.0/24` est refusé.**
 
+**Avant de lancer — déclarer le nœud** : le playbook fait `hosts: proxmox`, mais le
+nœud n'est pas dans le groupe `lab` (ce sont les VMs, jointes via le bastion). On
+ajoute un groupe `proxmox` dans `inventory/hosts.yml` pointant sur l'IP de management
+du nœud, en `root`, **en direct** (pas via le ProxyJump du bastion). C'est le premier
+groupe d'inventaire qu'on ajoute hors du `lab` ; le bloc YAML exact est dans l'en-tête
+du playbook `zone-firewall.yml`.
+
 ```bash
 ansible-playbook playbooks/zone-firewall.yml
 ```

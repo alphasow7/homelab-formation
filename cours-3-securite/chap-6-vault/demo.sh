@@ -10,8 +10,11 @@ cp -r ../../cours-3-securite/ansible-extraits/roles/vault roles/
 cp ../../cours-3-securite/ansible-extraits/playbooks/vault.yml playbooks/
 cp ../../cours-3-securite/ansible-extraits/playbooks/vault-unseal.yml playbooks/
 
-# 1. Déclarer le groupe [vault] dans l'inventaire → la VM dns-proxy
-#    (édite inventory/hosts.ini : [vault] / dns-proxy)
+# 1. Déclarer le groupe `vault` dans l'inventaire YAML → la VM dns-proxy
+#    (édite inventory/hosts.yml, sous all: children: — dns-proxy est déjà dans `lab`) :
+#      vault:
+#        hosts:
+#          dns-proxy:
 
 ########## NŒUD PROXMOX (root) — masquerade ON (apt HashiCorp) ##########
 # iptables -t nat -A POSTROUTING -s 10.10.99.0/24 -o vmbr0 -j MASQUERADE

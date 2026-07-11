@@ -19,6 +19,16 @@ cp    "$EXTRAITS/playbooks/zone-firewall.yml" "$ARBRE/playbooks/"
 # Regarder la liste des VMs durcies (elastic-1 = vmid 611) et ses 2 autorisations.
 cat "$ARBRE/roles/zone_firewall/defaults/main.yml"
 
+########## [SUR LE POSTE ÉLÈVE] — déclarer le NŒUD dans l'inventaire (une fois) ##########
+# Le playbook fait hosts: proxmox, mais le nœud n'est PAS dans le groupe `lab`.
+# Ajoute un groupe `proxmox` dans inventory/hosts.yml (sous all: children:) :
+#     proxmox:
+#       hosts:
+#         pve-node:
+#           ansible_host: IP_DE_TON_NOEUD   # IP de management du nœud (le web :8006)
+#           ansible_user: root
+#           ansible_ssh_common_args: ''     # accès direct — PAS le ProxyJump du lab
+
 ########## [SUR LE POSTE ÉLÈVE] — appliquer les zones (playbook -> NŒUD) ##########
 cd "$ARBRE"
 # hosts: proxmox — le playbook écrit /etc/pve/firewall/611.fw SUR LE NŒUD.
