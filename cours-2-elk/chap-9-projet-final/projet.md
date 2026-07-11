@@ -48,6 +48,11 @@ Attends ~1 minute que les logs remontent (Filebeat → Logstash → ES), puis ou
 4. **Des erreurs 500 nginx** — le serveur web se met à renvoyer des erreurs serveur. Pic
    de codes 5xx dans les logs nginx.
 
+> **Prérequis du scénario 4** : les codes 5xx vivent dans l'`access.log` de nginx, pas
+> dans journald. Il faut donc l'input **filestream nginx** de `dns-proxy` (le TP du
+> chapitre 6, champ `log_source: nginx`). Si tu ne l'as pas posé, refais ce TP avant —
+> sinon ce scénario reste invisible dans Kibana.
+
 ## La méthode d'investigation (large → étroit)
 
 Ne cherche pas l'aiguille à la loupe dès la première seconde. Un bon analyste part LARGE

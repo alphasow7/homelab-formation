@@ -56,7 +56,7 @@ l'écran.
    volume** net, il y a trois minutes. Et le camembert de sévérité qui gonfle du côté
    warning au même instant. Voilà ma fenêtre. » Noter l'heure.
 2. **OÙ** : le panneau volume par host. « Le pic est tout entier sur **le bastion**. Les
-   trois autres machines n'ont pas bougé. » Poser le filtre `host.name : "bastion-vm"`.
+   trois autres machines n'ont pas bougé. » Poser le filtre `host.name : "bastion"`.
 3. **QUOI** : passer dans Discover, garder l'heure + la machine, ajouter
    `process.name : "sshd"`. « Et là, l'aiguille : une RAFALE de `Failed password for
    invalid user baduser`, vingt lignes en quelques secondes. Sur le bastion, à telle
