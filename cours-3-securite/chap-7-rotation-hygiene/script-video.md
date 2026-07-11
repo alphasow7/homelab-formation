@@ -3,6 +3,9 @@
 > Durée cible : ~25 min. Prérequis : cours 0-2 finis, et les chapitres 1 à 6 de ce cours
 > (OPNsense en place, Vault déployé, une CA interne ELK qui signe les certs, `ansible-vault`
 > déjà utilisé depuis le cours 1). Toutes les commandes montrées sont dans `demo.sh`.
+> **Où tu travailles** : ce chapitre traverse les trois réseaux — l'admin OPNsense
+> (LAN `192.168.99.1`), Vault et Kibana sur le segment interne (`10.10.99.12` et
+> `10.10.99.14`), et l'import de CA sur ton poste (LAN box `192.168.1.0/24`).
 > Ce chapitre n'a **pas de rôle Ansible** : c'est un chapitre d'hygiène et de réflexes.
 
 ## 1. Le concept (6 min)

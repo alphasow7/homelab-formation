@@ -28,9 +28,9 @@ lab, tu regardes tes défenses réagir, tu retrouves la trace, et tu **fermes la
 - OPNsense en pare-feu de périmètre : **WAN** (côté box) + **LAN** `192.168.99.1`
   (chap 2-3), avec un firewall par zone (chap 4).
 - Suricata **actif sur le WAN** en mode détection (chap 5), rulesets chargés, export
-  syslog vers le SIEM en place.
+  syslog vers le SIEM en place (via le relais du nœud Proxmox, chap 5).
 - Le SIEM ELK du cours 2 : **Kibana en `10.10.99.14`**, qui reçoit les alertes OPNsense
-  (input Logstash syslog `5514`, cours 2 chap 7).
+  relayées par le nœud Proxmox (input Logstash syslog `5514`, cours 2 chap 7).
 - **`nmap` installé sur ton poste** (l'attaquant) : `brew install nmap` (macOS) ou
   `sudo apt install nmap` (Linux). C'est ton seul outil d'attaque.
 - L'**IP WAN d'OPNsense** (celle que ta box lui a donnée en DHCP) — note-la, tu vas la

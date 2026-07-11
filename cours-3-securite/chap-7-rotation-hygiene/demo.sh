@@ -80,6 +80,6 @@ cd "$(dirname "$0")/../../cours-1-ansible/ansible"
 ########## NAVIGATEUR — vérifier que ça passe au vert ##########
 # Rafraîchir un service interne (redémarrer le navigateur si Firefox) :
 #   https://localhost:5601   (Kibana, tunnel ssh)   → cadenas VERT, plus d'avertissement
-#   https://10.10.30.12:8200 (Vault)                → cadenas VERT
+#   https://10.10.99.12:8200 (Vault)                → cadenas VERT
 #   https://localhost:8443   (OPNsense, tunnel ssh) → cadenas VERT
 # Un seul import = confiance à TOUS les services signés par cette CA.

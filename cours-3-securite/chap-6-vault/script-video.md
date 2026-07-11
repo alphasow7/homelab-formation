@@ -1,7 +1,10 @@
 # Chapitre 6 — HashiCorp Vault : le coffre-fort à secrets : script vidéo
 
 > Durée cible : ~25 min. Prérequis : lab de départ (`../lab-depart.md`) + une VM pour
-> héberger Vault (on réutilise `dns-proxy`). Toutes les commandes montrées sont dans
+> héberger Vault (on réutilise `dns-proxy`, `10.10.99.12` sur le segment `10.10.99.0/24`).
+> **Où tu travailles** : sur le segment interne `10.10.99.0/24` — Vault écoute en
+> `https://10.10.99.12:8200`, rien à voir avec le LAN OPNsense `192.168.99.0/24`.
+> Toutes les commandes montrées sont dans
 > `demo.sh` et rejouées avant tournage. Le rôle complet est dans
 > `../ansible-extraits/roles/vault/` — l'élève le recopie dans SON arbre
 > (`cours-1-ansible/ansible/roles/`).

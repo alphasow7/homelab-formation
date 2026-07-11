@@ -40,9 +40,11 @@ Retiens la règle : **un subnet, un rôle**. Jamais deux réseaux avec le même 
 alertes Suricata rejoignent ton SIEM (Logstash sur `10.10.99.14:5514`), on s'appuie sur le
 relais syslog déjà en place au **chapitre 7 du cours 2** : OPNsense envoie son syslog au
 nœud Proxmox, qui a une patte sur le segment `10.10.99.0/24` et fait suivre à Logstash.
-Autrement dit : **tu ne rebranches rien** — le chemin de logs existe déjà, on ne fait que
-brancher une nouvelle source (OPNsense) dessus. Chaque chapitre te rappelle sur quel
-réseau tu travailles.
+Autrement dit : **tu ne reconstruis rien** — le pipeline de logs existe déjà, on ne fait
+que brancher une nouvelle source (OPNsense) dessus. La seule couture à ajouter (chapitre 5) :
+comme le relais du cours 2 ne forwardait que le syslog *du nœud lui-même*, on lui apprend à
+**écouter** les messages entrants d'OPNsense — une ligne dans sa conf rsyslog. Chaque
+chapitre te rappelle sur quel réseau tu travailles.
 
 ## ✅ Vérifications avant le chapitre 1
 

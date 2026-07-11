@@ -69,6 +69,18 @@ sudo nmap -sS -T4 -p 1-1000 192.168.1.36    # <-- IP WAN d'OPNsense (adapte-la)
 #   L'IDS a ALERTÉ (pas bloqué) : c'est bien un IDS.
 
 
+########## SUR LE NŒUD PROXMOX — faire du relais rsyslog un RELAIS (écoute en entrée) ##########
+# Au cours 2 chap 7, le nœud ne forwardait que SON propre syslog. Pour relayer celui
+# d'OPNsense (qui arrive du WAN 192.168.1.x), il doit AUSSI écouter en UDP/514.
+# En root sur le nœud :
+#   cat >/etc/rsyslog.d/10-relay-in.conf <<'EOF'
+#   module(load="imudp")
+#   input(type="imudp" port="514")
+#   EOF
+#   systemctl restart rsyslog
+# La ligne de forward *.* @10.10.99.14:5514 (du cours 2) pousse ensuite tout vers Logstash.
+
+
 ########## DANS LE GUI OPNSENSE — brancher les alertes vers ELK (input Logstash 5514) ##########
 # System > Settings > Logging / targets > Add :
 #   Transport    : UDP(4)

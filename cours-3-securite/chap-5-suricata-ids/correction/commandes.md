@@ -35,6 +35,28 @@ configctl ids start
 sh -c "wc -l /usr/local/etc/suricata/rules/*.rules | tail -1"   # -> > 0 ✅
 ```
 
+## 2bis. Brancher l'export syslog vers le SIEM (via le relais du nœud)
+
+OPNsense est sur son WAN (`192.168.1.x`) et ne voit pas le segment interne `10.10.99.0/24`
+où vit Logstash. On passe par le **nœud Proxmox**, qui a un pied sur les deux réseaux.
+
+**Côté nœud Proxmox** (en root) — le relais du cours 2 ne forwardait que son propre syslog ;
+on lui fait aussi **écouter** l'entrée d'OPNsense :
+
+```sh
+cat >/etc/rsyslog.d/10-relay-in.conf <<'EOF'
+module(load="imudp")
+input(type="imudp" port="514")
+EOF
+systemctl restart rsyslog
+# La ligne *.* @10.10.99.14:5514 (cours 2, chap 7) pousse ensuite tout vers Logstash.
+```
+
+**Côté OPNsense (GUI)** : `System > Settings > Logging / targets > Add`
+- Transport : `UDP(4)`
+- Hostname : `192.168.1.200:514` (l'IP du nœud sur le LAN de la box, port du relais)
+- Applications : tout (ou cibler `suricata`) — **Save**, **Apply**.
+
 ## 3. Déclencher l'alerte de test (depuis le POSTE)
 
 ```bash

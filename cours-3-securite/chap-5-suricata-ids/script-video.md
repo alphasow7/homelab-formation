@@ -130,8 +130,17 @@ destination = le WAN. « L'IDS a vu le scan et a levé la main. Il n'a rien bloq
 
 **À dire** : « Une alerte dans OPNsense, c'est bien. Mais elle vit dans OPNsense. Si tu
 veux la corréler avec le reste (tes logs SSH, tes conteneurs…) et la GARDER, elle doit
-monter dans ton SIEM. On a déjà tout ce qu'il faut : au cours 2 chap 7, on a mis un input
-syslog dans Logstash sur le **5514**. On dit juste à OPNsense d'envoyer son syslog là-bas. »
+monter dans ton SIEM. Et là, attention au chemin : OPNsense est sur son **WAN**
+(`192.168.1.x`, le LAN de la box), il ne voit PAS le segment interne `10.10.99.0/24` où
+vit Logstash. Il ne peut donc pas parler à `10.10.99.14:5514` directement. On réutilise
+le **relais syslog** monté au cours 2 chap 7 : le **nœud Proxmox** a un pied sur les deux
+réseaux. OPNsense lui envoie son syslog sur son IP côté box (`192.168.1.200:514`), et le
+nœud fait suivre à Logstash `10.10.99.14:5514`. Tu ne rebranches rien — tu ajoutes juste
+une source à un chemin qui existe déjà. »
+
+> ⚠️ Pré-requis du relais : au cours 2 chap 7, le nœud ne faisait que **forwarder son
+> propre** syslog. Pour qu'il **relaie** celui d'OPNsense, il doit aussi **écouter** en
+> entrée. Une ligne à ajouter dans sa conf rsyslog (`imudp`, port `514`) — voir `demo.sh`.
 
 **À montrer (GUI)** : `System > Settings > Logging / targets` → **Add** une destination
 syslog :

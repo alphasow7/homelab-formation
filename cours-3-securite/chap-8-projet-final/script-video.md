@@ -32,7 +32,7 @@ non pas "est-ce que je sais faire X ?", mais "est-ce que mes quatre briques se *
   [ TON POSTE ]            [ OPNsense — VM sur Proxmox ]        [ SIEM ELK ]
    l'attaquant   ─scan─►    WAN  ──(pare-feu DROP)──  LAN         Kibana
    (côté WAN)               │                                    10.10.99.14
-                            └─ Suricata détecte ─syslog─► Logstash 5514 ─► ES ─┘
+                            └─ Suricata ─syslog─► relais nœud Proxmox ─► Logstash 5514 ─► ES ─┘
                                                                     ▲
                             l'analyste (toi) lit l'alerte ──────────┘
                             puis écrit la règle de blocage ──► retour sur OPNsense
