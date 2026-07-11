@@ -22,7 +22,7 @@ ls -l /var/log/nginx/*.log        # access.log, error.log doivent être là
 3. **Redéploie** Filebeat, puis **génère du trafic** pour écrire dans access.log :
 
 ```bash
-for i in $(seq 1 10); do curl -s http://10.10.99.13/ >/dev/null; done
+for i in $(seq 1 10); do curl -s http://10.10.99.12/ >/dev/null; done   # dns-proxy = le nginx
 ```
 
 4. **Retrouve dans Kibana → Discover** les lignes taguées : filtre KQL

@@ -35,7 +35,7 @@ cd cours-1-ansible/ansible
 ansible-playbook playbooks/filebeat.yml        # ne change que dns-proxy
 
 # sur dns-proxy (ou depuis le bastion) : écrire dans access.log
-for i in $(seq 1 10); do curl -s http://10.10.99.13/ >/dev/null; done
+for i in $(seq 1 10); do curl -s http://10.10.99.12/ >/dev/null; done   # dns-proxy = le nginx
 ```
 
 ## 3. Retrouver les lignes dans Kibana
