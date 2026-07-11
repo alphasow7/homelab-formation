@@ -186,14 +186,14 @@ terminé : tout passe par le code. »
     liste de tes 4 VMs, avec le bastion en passe-plat SSH.
   - **Chapitre 3** : ton premier **playbook** — tu configures une vraie chose sur une
     vraie VM, en code.
-  - **Chapitre 4** : les **variables et templates** — un seul code, des configs
-    différentes par machine.
-  - **Chapitre 5** : les **rôles** — ranger ton code en briques réutilisables, comme les
+  - **Chapitre 4** : les **rôles** — ranger ton code en briques réutilisables, comme les
     pros.
-  - **Chapitre 6** : les **handlers et conditions** — redémarrer un service uniquement
-    quand c'est nécessaire.
-  - **Chapitre 7** : les **secrets avec Vault** — les mots de passe chiffrés DANS Git,
+  - **Chapitre 5** : les **variables et templates** — un seul code, des configs
+    différentes par machine.
+  - **Chapitre 6** : les **secrets avec Vault** — les mots de passe chiffrés DANS Git,
     sans honte.
+  - **Chapitre 7** : le **site.yml multi-VM** — tout le parc configuré en une seule
+    commande.
   - **Chapitre 8** : le grand final.
 - **LA promesse** (regard caméra, débit lent) : « Et ce grand final, le voilà. Au
   chapitre 8, tu prendras une de tes VMs — une vraie, une qui marche — et tu la

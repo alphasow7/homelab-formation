@@ -1,5 +1,7 @@
 # Quiz chapitre 3 — Première VM
 
+**5 questions, une seule bonne réponse par question.** Les réponses sont en bas.
+
 ## Question 1 — Quelle est la différence entre installer par ISO et par image cloud ?
 
 - A. L'ISO est plus récente que l'image cloud

@@ -73,5 +73,6 @@ et c'est le premier qui l'a résolue.
 **Explication** : la panne du chapitre — des clés d'unseal affichées une fois
 dans un terminal fermé, coffre définitivement inouvrable, réinstallation
 complète. « Un secret qui n'existe que dans un terminal fermé N'EXISTE PAS. »
-Le TODO.txt en clair est l'erreur inverse (question 1). Le seul chemin sûr, et
+Le TODO.txt en clair est l'erreur inverse — exposer le secret plutôt que le perdre
+(même famille que la Q1 : un secret en clair dans le repo). Le seul chemin sûr, et
 il prend trente secondes : `ansible-vault edit`, coller, commiter.
