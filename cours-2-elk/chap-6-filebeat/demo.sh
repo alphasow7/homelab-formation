@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../../cours-1-ansible/ansible"
 cp -r ../../cours-2-elk/ansible-extraits/roles/filebeat roles/
 cp ../../cours-2-elk/ansible-extraits/playbooks/filebeat.yml playbooks/
-# (ou : ajouter le rôle filebeat au play elk.yml en hosts: lab)
+# (ou : ajouter le rôle filebeat au play elk.yml en hosts: lab:bastion — les 4 VMs)
 
 # Masquerade ON (apt tire le paquet filebeat sur des VMs sans Internet), puis :
 ansible-playbook playbooks/filebeat.yml

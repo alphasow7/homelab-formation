@@ -31,7 +31,7 @@ leçon du chapitre, et la panne de tout à l'heure en découle. »
 ### 2.1 Déployer sur les 4 VMs en un coup
 
 **À montrer** : recopier le rôle depuis `ansible-extraits/`, l'ajouter au play `elk.yml`
-(en `hosts: lab`, ou lancer le playbook autonome `filebeat.yml`). Masquerade ON (apt tire
+(en `hosts: lab:bastion` — les 4 VMs —, ou lancer le playbook autonome `filebeat.yml`). Masquerade ON (apt tire
 le paquet filebeat sur des VMs sans Internet), puis :
 
 ```bash

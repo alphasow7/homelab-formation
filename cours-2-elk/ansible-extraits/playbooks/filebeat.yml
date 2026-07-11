@@ -1,10 +1,13 @@
 ---
-# Filebeat sur TOUTES les VMs du segment (le groupe `lab` = elastic-1,
-# kibana-logstash, dns-proxy, bastion). Chaque machine devient un « facteur » qui
-# poste ses logs à Logstash. En pratique on ajoute plutôt ce rôle au play elk.yml
-# (voir demo.sh) ; ce playbook autonome sert à ne (re)déployer QUE Filebeat.
-- name: Deploy Filebeat on all lab VMs
-  hosts: lab
+# Filebeat sur TOUTES les VMs (les 4) : le groupe `lab` (elastic-1,
+# kibana-logstash, dns-proxy) PLUS le `bastion` — d'où le `hosts: lab:bastion`.
+# Le bastion est un groupe à part (il ne se joint pas via lui-même), mais il doit
+# poster ses logs comme les autres — un rebond exposé, c'est justement ce qu'on veut
+# voir dans le SIEM. Chaque machine devient un « facteur » qui poste ses logs à
+# Logstash. En pratique on ajoute plutôt ce rôle au play elk.yml (voir demo.sh) ;
+# ce playbook autonome sert à ne (re)déployer QUE Filebeat.
+- name: Deploy Filebeat on all lab VMs (lab + bastion = les 4)
+  hosts: lab:bastion
   become: true
   roles:
     - filebeat
