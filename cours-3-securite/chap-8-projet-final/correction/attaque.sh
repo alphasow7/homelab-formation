@@ -6,8 +6,8 @@
 set -euo pipefail
 
 IP_WAN_OPNSENSE="192.168.1.36"          # <-- l'IP WAN de TON OPNsense (DHCP box)
-ES_HOST="https://10.10.99.14:9200"      # Elasticsearch derrière Kibana (SIEM cours 2)
-ES_CA="/etc/elasticsearch/certs/http_ca.crt"   # CA du cluster ES (adapte le chemin)
+ES_HOST="https://10.10.99.11:9200"      # elastic-1 : l'API Elasticsearch (SIEM cours 2)
+ES_CA="/etc/elasticsearch/certs/http_ca.crt"   # CA du cluster, sur l'hôte où tu lances la requête
 ES_USER="elastic"                       # user ES ; le mot de passe est demandé au clavier
 SYSLOG_HOST="OPNsense.internal"         # champ hostname des docs OPNsense dans Kibana
 
@@ -16,6 +16,11 @@ SYSLOG_HOST="OPNsense.internal"         # champ hostname des docs OPNsense dans 
 if [ "$(id -u)" -eq 0 ]; then SCAN="-sS"; else echo "[i] pas root -> -sT"; SCAN="-sT"; fi
 
 # --- Petite fonction : chercher l'alerte de scan dans Elasticsearch --------------
+# ⚠️ OÙ LANCER CETTE VÉRIF : depuis kibana-logstash (10.10.99.14). Après le
+# durcissement du chapitre 4, le 9200 d'elastic-1 n'accepte QUE Logstash — et ton
+# poste (192.168.1.x) ne route même pas vers le segment 10.10.99.x. La vérif du
+# projet se fait dans Kibana (Discover, index logstash-syslog-*) ; ce curl est le
+# même contrôle en ligne de commande, à lancer depuis kibana-logstash.
 chercher_alerte() {   # $1 = libellé de la passe
   echo "== [$1] recherche de l'alerte scan dans le SIEM =="
   curl -s --cacert "$ES_CA" -u "$ES_USER" \
