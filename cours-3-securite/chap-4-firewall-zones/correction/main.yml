@@ -1,20 +1,20 @@
 ---
 # CORRECTION TP chap 4 — defaults/main.yml du rôle zone_firewall COMPLÉTÉ.
-# On a AJOUTÉ l'entrée "bastion" (vmid 602) à la liste zone_firewall_vms.
+# On a AJOUTÉ l'entrée "bastion" (vmid 9204) à la liste zone_firewall_vms.
 
 zone_firewall_lab_network: 10.10.99.0/24
 zone_firewall_management_source: 10.10.99.2/32   # le bastion (poste d'admin)
 zone_firewall_logstash_source: 10.10.99.14/32
 
 zone_firewall_vms:
-  - vmid: 611                 # elastic-1 (10.10.99.11) — vu au chapitre
+  - vmid: 9201                 # elastic-1 (10.10.99.11) — vu au chapitre
     name: elastic-1
     rules:
       - "IN ACCEPT -source {{ zone_firewall_logstash_source }} -p tcp -dport 9200"
       - "IN ACCEPT -source {{ zone_firewall_management_source }} -p tcp -dport 22"
 
   # >>> AJOUT DU TP : la serrure du bastion <<<
-  - vmid: 602                 # bastion (10.10.99.2)
+  - vmid: 9204                 # bastion (10.10.99.2)
     name: bastion
     rules:
       # SSH (22) UNIQUEMENT depuis le poste de management. Tout le reste = DROP

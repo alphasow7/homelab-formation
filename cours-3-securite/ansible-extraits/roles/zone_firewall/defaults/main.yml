@@ -26,7 +26,7 @@ zone_firewall_logstash_source: 10.10.99.14/32
 # Une règle ICMP (ping) est ajoutée automatiquement par le template — pas besoin
 # de la mettre ici.
 zone_firewall_vms:
-  - vmid: 611                 # elastic-1  (10.10.99.11)
+  - vmid: 9201                 # elastic-1  (10.10.99.11)
     name: elastic-1
     rules:
       # Elasticsearch (9200) n'est joignable que depuis Logstash.

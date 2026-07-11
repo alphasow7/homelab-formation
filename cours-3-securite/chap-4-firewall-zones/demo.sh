@@ -16,7 +16,7 @@ EXTRAITS=~/Projects/homelab-formation/cours-3-securite/ansible-extraits
 cp -r "$EXTRAITS/roles/zone_firewall"        "$ARBRE/roles/"
 cp    "$EXTRAITS/playbooks/zone-firewall.yml" "$ARBRE/playbooks/"
 
-# Regarder la liste des VMs durcies (elastic-1 = vmid 611) et ses 2 autorisations.
+# Regarder la liste des VMs durcies (elastic-1 = vmid 9201) et ses 2 autorisations.
 cat "$ARBRE/roles/zone_firewall/defaults/main.yml"
 
 ########## [SUR LE POSTE ÉLÈVE] — déclarer le NŒUD dans l'inventaire (une fois) ##########
@@ -31,7 +31,7 @@ cat "$ARBRE/roles/zone_firewall/defaults/main.yml"
 
 ########## [SUR LE POSTE ÉLÈVE] — appliquer les zones (playbook -> NŒUD) ##########
 cd "$ARBRE"
-# hosts: proxmox — le playbook écrit /etc/pve/firewall/611.fw SUR LE NŒUD.
+# hosts: proxmox — le playbook écrit /etc/pve/firewall/9201.fw SUR LE NŒUD.
 ansible-playbook playbooks/zone-firewall.yml
 
 ########## [DEPUIS UNE VM] — vérifier que la vie normale marche encore ##########
@@ -60,8 +60,8 @@ nc -vz -w 3 10.10.99.11 9200      # attendu : "timed out" -> Kibana se vide
 # ssh alpha@10.10.99.11 'journalctl -u elasticsearch -n 50'  # aucune erreur !
 
 ### 2bis) OBSERVER — le BON réflexe : lire les RÈGLES, SUR LE NŒUD ###
-# [SUR LE NŒUD PROXMOX] : les règles réellement compilées pour la VM 611.
-pve-firewall compile | grep -A20 'VM 611'   # le 9200 a DISPARU de la liste
+# [SUR LE NŒUD PROXMOX] : les règles réellement compilées pour la VM 9201.
+pve-firewall compile | grep -A20 'VM 9201'   # le 9200 a DISPARU de la liste
 iptables -L -n | grep 9200                  # (rien = port non autorisé)
 
 ### 3) RÉPARER — remettre la règle 9200 et réappliquer ###

@@ -45,7 +45,7 @@ sait même pas qu'elle est protégée. »
 
 **À montrer** : recopier le rôle depuis `ansible-extraits/` vers l'arbre élève,
 puis regarder le `defaults/main.yml` : la liste `zone_firewall_vms` avec elastic-1
-(vmid 611) et ses deux seules autorisations —
+(vmid 9201) et ses deux seules autorisations —
 
 - `9200` (Elasticsearch) **uniquement depuis Logstash** (`10.10.99.14`) ;
 - `22` (SSH) **uniquement depuis le bastion** (`10.10.99.2`).
@@ -65,7 +65,7 @@ ansible-playbook playbooks/zone-firewall.yml
 ```
 
 **À expliquer pendant que ça tourne** : « Le playbook cible `proxmox`, pas les
-VMs. Il écrit `/etc/pve/firewall/611.fw` sur le nœud. Note le `unsafe_writes:
+VMs. Il écrit `/etc/pve/firewall/9201.fw` sur le nœud. Note le `unsafe_writes:
 true` dans le rôle : `/etc/pve` est un système de fichiers spécial, on ne peut pas
 y écrire "proprement" — c'est normal, le rôle réel fait pareil. »
 
@@ -128,7 +128,7 @@ Et lis-les **sur le NŒUD Proxmox**, là où le filtrage a lieu :
 
 ```bash
 # SUR LE NŒUD Proxmox — compiler/afficher les règles réellement appliquées
-pve-firewall compile | grep -A20 'VM 611'   # la 9200 a disparu de la liste !
+pve-firewall compile | grep -A20 'VM 9201'   # la 9200 a disparu de la liste !
 # ou, plus bas niveau, les règles iptables générées pour la VM :
 iptables -L -n | grep 9200                  # (aucune ligne = port non autorisé)
 ```
