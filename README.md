@@ -12,8 +12,12 @@ Matériel élève de la formation « Homelab DevSecOps » (Udemy + YouTube).
 | 3 | [Sécurité : OPNsense, Suricata, Vault](cours-3-securite/) | 📝 rédigé · revue de cohérence OK |
 
 **Pipeline** : 📝 rédigé → 🧪 bêta-test → 🎬 tournage → ✅ publié. Les 4 cours sont écrits et
-relus (fil rouge inter-cours vérifié : adressage, rôles Ansible, pannes, prérequis, quiz) ;
-prochaine étape, le bêta-test (voir [`cours-0-fondations/beta-test.md`](cours-0-fondations/beta-test.md)).
+relus (fil rouge inter-cours vérifié : adressage, rôles Ansible, pannes, prérequis, quiz).
+
+**Prochaine étape — le bêta-test du cours 0**, porte d'entrée du tournage :
+[protocole](cours-0-fondations/beta-test.md) · [kit de recrutement](cours-0-fondations/beta-recrutement.md) ·
+[grille testeur](cours-0-fondations/beta-grille.md) · [résultats](cours-0-fondations/beta-resultats.md).
+Le matériel est prêt ; il reste l'**action formateur** : recruter 2-3 testeurs débutants.
 
 ## Prérequis
 

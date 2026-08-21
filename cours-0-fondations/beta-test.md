@@ -14,6 +14,10 @@
 Où : collègues juniors, forums/discords FR homelab, entourage étudiant. Idéalement au
 moins 1 sous Windows (chemin A) et 1 avec un vieux PC (chemin B).
 
+👉 **Matériel prêt à l'emploi** : [`beta-recrutement.md`](beta-recrutement.md) — critères de
+sélection, questions de filtrage, annonces à publier (forum + message direct), message
+d'accueil du testeur et check-list d'envoi.
+
 ## Déroulé
 
 Le testeur suit **uniquement les fichiers écrits** (pas de vidéo — elles n'existent pas
@@ -35,6 +39,10 @@ c'est exactement ce que fera un vrai élève.
 | Question restée sans réponse | « pourquoi gw sans rien après ? » |
 | Quiz : score | 4/5 |
 
+👉 **Grille vierge à envoyer au testeur** : [`beta-grille.md`](beta-grille.md) — une section
+par étape (lab + chapitres 2 à 7), seuils d'alerte pré-calculés, et un bilan global de
+10 questions à la fin.
+
 ## Critères de sortie
 
 - [ ] **Au moins 1 testeur termine le chapitre 7 sans aide extérieure** (critère spec)
@@ -45,7 +53,8 @@ c'est exactement ce que fera un vrai élève.
 
 ## Sortie du bêta-test
 
-1. Compiler les grilles dans `beta-resultats.md` (non versionné public si verbatims
-   sensibles).
+1. Compiler les grilles dans [`beta-resultats.md`](beta-resultats.md) — **anonymisé**
+   (testeurs A/B/C) et versionné. Les grilles brutes, avec verbatims et contacts, restent
+   dans `beta-brut/` (ignoré par git).
 2. Passe de correction sur les chapitres concernés (commits `fix(cours-0): beta —  …`).
 3. GO tournage quand les 4 critères sont verts.

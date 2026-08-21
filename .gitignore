@@ -4,3 +4,7 @@
 *.retry
 cours-1-ansible/ansible/.vault_pass
 cours-1-ansible/ansible/inventory/group_vars/lab/vault.yml
+
+# Retours bruts des bêta-testeurs : grilles remplies, verbatims, contacts.
+# Seule la compilation anonymisée (beta-resultats.md) est versionnée.
+cours-*/beta-brut/
