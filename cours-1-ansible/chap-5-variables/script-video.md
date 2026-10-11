@@ -1,5 +1,7 @@
 # Chapitre 5 — Les variables : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~28 min. Prérequis élève : chapitre 4 fait (les rôles `dns` et
 > `web_status` existent dans `ansible/roles/`, `web-status-role.yml` et `dns.yml`
 > tournent, `dig @10.10.99.12 elastic-1.lab.local` répond depuis le bastion).
@@ -163,18 +165,23 @@ un forwarder de secours. Le rôle `dns` n'a pas bougé d'une virgule. »
 
 ## 3. Encart vrai matériel (2 min)
 
-**À filmer** : l'arborescence `inventory/group_vars/` du repo réel du
-formateur : les dossiers `all/`, `elk/`, `devsecops/`, `backup/`, et un
-`tree` + un `cat` rapide de `elk/vars.yml` (version d'Elasticsearch, heap size,
-nom de cluster…).
+**À filmer** : l'arborescence `inventory/` du repo réel du formateur : `group_vars/`
+(`all/`, `backup/`, `supervision.yml`) et surtout `host_vars/` (`rundeck-vortex.yml`,
+`artifactory-vortex.yml`, `vxse-lab-01.yml`), puis un `cat` rapide de
+`host_vars/rundeck-vortex.yml`.
 
-**À dire** : « Voilà le group_vars de mon infra réelle. Un dossier par groupe :
-`elk` a SES variables — version d'Elasticsearch, taille de heap — `devsecops` a
-les siennes, `backup` aussi. **Chaque segment a sa politique**, et les rôles
-en dessous sont les mêmes pour tout le monde. Tu remarqueras aussi des fichiers
-`vault.yml` chiffrés à côté : les secrets suivent la même logique de groupes —
-on en reparle dans un chapitre dédié. C'est exactement ta structure, avec plus
-d'étages. »
+**À dire** : « Voilà l'inventaire de mon infra réelle. `group_vars/all` pour ce qui
+vaut partout, `backup/` pour le serveur de sauvegarde — avec son `vault.yml` chiffré à
+côté, les secrets suivent la même logique, on en reparle dans un chapitre dédié —,
+`supervision.yml` pour tout ce qui reçoit un agent de métriques. Et des `host_vars` :
+chaque VM de la plateforme a SON fichier, parce que certaines choses sont des propriétés
+de la machine, pas du groupe. Regarde `rundeck-vortex.yml` : une ligne dit que ce Vault
+est scellé par un mécanisme externe. Pourquoi là et pas dans un playbook ? Parce que je
+me suis fait avoir : cette variable vivait dans `site.yml`, et le jour où j'ai lancé le
+playbook de Vault **seul**, elle n'y était plus — valeur par défaut `false`, Vault a
+redémarré… scellé. **La précédence, ce n'est pas de la théorie** : une variable qui
+décrit un hôte vit dans `host_vars`, et elle vaut alors pour TOUS les playbooks. C'est
+exactement ta structure, avec plus d'étages — et une cicatrice de plus. »
 
 ---
 

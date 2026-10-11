@@ -1,5 +1,7 @@
 # Chapitre 2 — L'inventaire : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~25 min. Prérequis élève : chapitre 1 fait (Ansible installé sur le
 > poste), lab en place (3 VMs sur le segment 10.10.99.0/24, bastion opérationnel,
 > clés SSH déjà déployées — voir `lab-depart.md`). Le poste de l'élève est le
@@ -179,17 +181,23 @@ on retrouve `ansible_host`, `ansible_user` et le ProxyJump), puis les groupes :
 
 **À dire** : « Ton inventaire a 4 machines. Voilà le MIEN, celui de mon infra réelle.
 Regarde bien : c'est exactement le même format. Juste plus d'étagères : un groupe
-`elk` pour la stack Elastic, un groupe `devsecops` pour GitLab et ses copains, un
-groupe `services`… Et regarde la ligne `ansible_ssh_common_args` : le MÊME ProxyJump
-que toi — chez moi, le rebond se fait par le serveur Proxmox, qui joue le rôle de
-bastion vers mes segments internes. Ce pattern, tu viens de l'apprendre — il tient
-jusqu'à des centaines de machines. Les grosses boîtes ont des inventaires générés
-automatiquement depuis le cloud, mais la logique groupes + variables reste la même. »
+`proxmox` pour les 4 hyperviseurs — lui-même découpé en `proxmox_routeur` (la tour) et
+`proxmox_noeuds` (les mini-PCs), parce que certains rôles ne valent que pour la tour —,
+un groupe `plateforme` pour Rundeck, GitLab et Artifactory, `cibles_elk`, `backup`,
+`acces`… et un groupe `supervision` qui ne contient que des *enfants* : tout ce qui
+reçoit un agent de métriques. Un groupe de groupes — retiens l'idée. Et le bastion ?
+Regarde le groupe `acces` : chez moi, c'est une VM dédiée, la seule joignable de
+l'extérieur, et je rebondis dessus en `ssh -J` exactement comme toi. Ce pattern, tu
+viens de l'apprendre — il tient jusqu'à des centaines de machines. Les grosses boîtes
+ont des inventaires générés automatiquement depuis le cloud, mais la logique groupes +
+variables reste la même. »
 
 **Plans à filmer sur l'infra réelle** :
-1. Le `hosts.yml` réel plein écran, scroll lent : montrer les groupes (elk,
-   devsecops, services…) et surligner le ProxyJump.
-2. `ansible all -m ping` sur l'infra réelle : la cascade de pongs verts (plus de 3 !).
+1. Le `hosts.yml` réel plein écran, scroll lent : montrer les groupes (proxmox,
+   plateforme, cibles_elk, backup, acces, supervision) et les variables par hôte
+   (`vdp_vmid`, `vdp_noeud`, `vortex_fqdns`) — « l'inventaire décrit aussi OÙ vit chaque
+   VM ».
+2. `ansible all -m ping` sur l'infra réelle : la cascade de pongs verts — 10, pas 3.
 3. `ansible-inventory --graph` (bonus visuel) : l'arbre des groupes en une commande.
 
 ---

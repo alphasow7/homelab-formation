@@ -1,5 +1,7 @@
 # Chapitre 9 — Projet final : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~18 min de vidéo (le gros du chapitre, c'est l'examen de l'élève : < 10 min
 > chrono en main). Format projet, comme les finals du cours 0 et du cours 1 : pas de
 > nouvelle notion — on cadre, on montre la méthode, on célèbre. Dérogation au gabarit
@@ -83,5 +85,8 @@ sécurité viendront atterrir ICI, dans le SIEM que tu viens de bâtir. Les yeux
 boucliers ensuite. À très vite. »
 
 **À filmer (encart final)** : sur l'infra réelle, une alerte de sécurité (une détection
-Suricata, un accès refusé au pare-feu) qui apparaît dans Kibana — « voilà ce qu'on branche
-au cours 3, et où ça arrive : chez toi, dans ton SIEM. »
+Suricata, un accès refusé au pare-feu — `application: opnsense` dans `vortex-logs-*`) qui
+apparaît dans Kibana — « voilà ce qu'on branche au cours 3, et où ça arrive : chez toi,
+dans ton SIEM. » Et le cran d'après, en une phrase : « Chez moi, le SIEM ne fait plus que
+montrer : une règle ElastAlert surveille les sondes, et une panne réelle m'est arrivée
+**par mail en trois minutes** — éprouvé de bout en bout, pas supposé. »

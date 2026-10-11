@@ -1,5 +1,7 @@
 # Chapitre 4 — Le firewall par zone : les serrures de chaque appartement : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~25 min. Prérequis : ELK du cours 2 qui tourne (segment
 > `10.10.99.0/24` — elastic-1 en `.11`, kibana-logstash en `.14`, dns-proxy en
 > `.12`, bastion en `.2`) et le périmètre OPNsense des chapitres 2-3 en place.
@@ -149,21 +151,34 @@ modifier, pas l'endroit qui se plaint.** »
 
 ## 4. Encart vrai matériel (2 min)
 
-**À filmer** : sur le vrai nœud, `ls /etc/pve/firewall/` et l'ouverture d'un vrai
-`.fw`, puis un `pve-firewall compile`.
+**À filmer** : sur la tour, `ls /etc/pve/firewall/` et l'ouverture de `cluster.fw`
+(policy `DROP` en entrée pour les **4 nœuds** — c'est un fichier partagé par tout le
+cluster), de `nodes/pve/host.fw`, puis un `pve-firewall compile`.
 
-**À dire** : « Sur l'infra réelle, le rôle `proxmox_firewall` gère plusieurs zones
-d'un coup, chacune avec sa policy `DROP` et ses ports :
+**À dire** : « Sur l'infra réelle, le rôle `proxmox_firewall` écrit trois étages d'un
+coup : les règles du **cluster** (valables sur les 4 hyperviseurs depuis n'importe
+lequel), celles du **nœud**, et des **zones par VM**, chacune avec sa policy `DROP` et ses
+ports — Elasticsearch 9200/9300, Kibana 5601, Filebeat 5044, et rien d'autre ; la zone
+des outils de déploiement a même un filtrage de SORTIE (`policy_out: DROP`) pour limiter
+l'exfiltration. Chaque VM ne reçoit QUE les ports de son rôle. Notre `zone_firewall` de la
+formation, c'est exactement cette idée, réduite à une VM et deux règles pour que tu voies
+le mécanisme à nu. »
 
-- la zone **management** (le contrôleur Ansible) ;
-- la zone **elk** (les nœuds Elasticsearch, Logstash, Kibana) — 9200/9300 entre
-  eux, 5601 pour Kibana, 5044 pour Filebeat, et rien d'autre ;
-- la zone **devsecops** (GitLab, Vault) — 443, 8200, et même un filtrage de
-  SORTIE (`policy_out: DROP`) pour limiter l'exfiltration.
-
-Chaque VM ne reçoit QUE les ports de son rôle. Notre `zone_firewall` de la
-formation, c'est exactement cette idée, réduite à une VM et deux règles pour que
-tu voies le mécanisme à nu. »
+**💥 Trois défauts de pare-feu que j'ai laissés passer, rattrapés en septembre** (le
+troisième est la version grandeur nature de la panne du chapitre) :
+- « `cluster.fw` **refusait une de ses propres options** depuis le premier jour :
+  `log_level_in` n'existe qu'au niveau nœud. Proxmox répond "can't parse option" et ignore
+  la ligne **en silence** — le pare-feu tourne quand même. Un défaut qui ne casse rien ne se
+  voit jamais : lis la sortie de `pve-firewall status`, pas seulement son code de retour. »
+- « Mon rôle appelait `pct` pour les conteneurs — une commande qui ne marche que depuis
+  le nœud qui HÉBERGE le conteneur. Sur les trois autres nœuds : échec. Un rôle écrit pour
+  une machine ne devient pas un rôle de cluster par magie. »
+- « Et la meilleure : sur deux VMs, `firewalld` était **installé mais arrêté**. Mes rôles
+  y avaient écrit des règles permanentes, tout semblait bon… et un firewalld arrêté ne
+  protège rien — puis il se réveille au premier redémarrage, avec ses règles, et coupe le
+  port de Vault pour tout le monde. "Le service est joignable de nulle part" — et le
+  coupable n'était ni le service, ni un pare-feu qu'on croyait actif. Les rôles
+  garantissent maintenant que le démon TOURNE, pas seulement que ses règles existent. »
 
 ## 5. Annonce du TP (1 min)
 

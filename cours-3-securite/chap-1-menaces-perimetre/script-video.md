@@ -1,5 +1,7 @@
 # Chapitre 1 — Menaces & périmètre : penser comme un attaquant : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~20 min. Prérequis élève : cours 0 (Proxmox), 1 (Ansible) et 2 (ELK)
 > terminés — un lab de 4 VMs sur le segment isolé 10.10.99.0/24, et un SIEM ELK
 > fonctionnel où arrivent DÉJÀ tous les logs du lab (Filebeat, syslog réseau, dashboards
@@ -195,14 +197,23 @@
 ### À filmer sur l'infra réelle
 
 - Écran de l'infra réelle du formateur, en direct, sans coupe :
-  1. Le **tableau de bord OPNsense réel** : la page d'accueil du pare-feu, le trafic en
-     temps réel, la liste des règles, le compteur de connexions bloquées qui grimpe tout
-     seul. « Ces blocages, personne ne les a demandés à la main. C'est le bruit d'Internet
-     — les bots de tout à l'heure — qui tape contre mon périmètre, en continu. »
-  2. Bascule vers **Kibana** : une **alerte Suricata qui apparaît en direct** dans le SIEM.
-     « Et voilà la boucle, en vrai, chez moi. Mon IDS vient de repérer quelque chose sur
-     mon réseau, et l'alerte tombe ICI, dans le même Kibana que celui du cours 2, à côté
-     de tous mes autres logs. Le pare-feu bloque, l'IDS détecte, le SIEM me le montre. »
+  1. Le **tableau de bord OPNsense réel** (VM 600, `https://192.168.99.1` via la tour) :
+     la page d'accueil du pare-feu, le trafic en temps réel, la liste des règles, le
+     compteur de connexions bloquées qui grimpe tout seul. « Ces blocages, personne ne les
+     a demandés à la main. C'est le bruit du réseau — les bots de tout à l'heure — qui
+     tape contre mon périmètre, en continu. »
+  2. La règle qui compte : **Interfaces → Virtual IPs** et **Firewall → NAT → One-to-One**.
+     « Depuis septembre, ce pare-feu ne fait plus que regarder : il **filtre**. Ma stack de
+     logs vit derrière lui, sur un réseau interne ; le reste du parc la joint par UNE
+     adresse, traduite ici, et seuls cinq ports passent — SSH, les deux entrées de
+     Logstash, Elasticsearch, Kibana. J'ai vérifié en ouvrant un port de plus sur la
+     machine : accessible depuis l'intérieur, refusé depuis l'extérieur. Un pare-feu, ça
+     se prouve. »
+  3. Bascule vers **Kibana** : une **alerte Suricata qui apparaît en direct** dans le SIEM
+     (`application: opnsense`). « Et voilà la boucle, en vrai, chez moi. Mon IDS vient de
+     repérer quelque chose sur mon réseau, et l'alerte tombe ICI, dans le même Kibana que
+     celui du cours 2, à côté de tous mes autres logs. Le pare-feu bloque, l'IDS détecte,
+     le SIEM me le montre. »
 
 ### À dire
 

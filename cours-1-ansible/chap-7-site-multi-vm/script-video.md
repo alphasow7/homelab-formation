@@ -1,5 +1,7 @@
 # Chapitre 7 — site.yml : tout le parc en une commande : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. Prérequis élève : chapitres précédents faits — les rôles
 > `dns` et `web_status` fonctionnent sur dns-proxy, `ansible lab -m ping` renvoie
 > 3 pongs verts. Toutes les commandes se lancent depuis `cours-1-ansible/ansible/`
@@ -116,18 +118,27 @@ Ce petit message, sur une vraie équipe, évite plus de pannes qu'un pare-feu. �
 
 ## 3. Encart vrai matériel (2 min)
 
-**À dire** : « Voici le `site.yml` de mon infra réelle : **10 plays, une trentaine
-de rôles**. Play après play : le socle sur tout le parc, puis le DNS, le proxy,
-GitLab, Vault, le cluster Elasticsearch, Kibana… La même idée que ton fichier de
-deux plays, **à l'échelle** : l'infra ENTIÈRE — celle qui fait tourner ce cours —
-tient dans UN fichier lisible du haut vers le bas. Quand quelqu'un me demande
-“elle ressemble à quoi, ton infra ?”, je n'ouvre pas un schéma : j'ouvre site.yml. »
+**À dire** : « Voici le `site.yml` de mon infra réelle : **16 plays**, plus l'import
+du playbook de supervision. Et lis le commentaire en tête : *“Ordre voulu, et il
+compte”*. Play après play : les hyperviseurs, puis le socle commun sur TOUT le parc,
+puis la résolution de noms et la CA — AVANT tout rôle qui lit un secret dans Vault,
+sinon le nom de Vault ne résout pas —, puis la plateforme dans l'ordre de ses
+dépendances : le Vault qui descelle, le Vault principal, la PKI, GitLab, Artifactory,
+Rundeck… et la supervision en dernier, parce qu'elle suppose que la stack est debout.
+La même idée que ton fichier de deux plays, **à l'échelle** : l'infra ENTIÈRE tient
+dans UN fichier lisible du haut vers le bas. Quand quelqu'un me demande “elle ressemble
+à quoi, ton infra ?”, je n'ouvre pas un schéma : j'ouvre site.yml. »
+
+**💡 Et une leçon qui a un prix** : « Ce fichier, je l'ai laissé dériver. Pendant un
+mois, après une refonte du parc, il orchestrait encore **12 groupes qui n'existaient
+plus** — il n'était plus jouable, et c'est la porte d'entrée du dépôt. Un `site.yml`
+qu'on ne rejoue pas régulièrement ment. Rejoue-le, en `--check`, souvent. »
 
 **Plans à filmer sur l'infra réelle** :
-1. Scroll lent du `site.yml` réel, du play 1 au play 10.
-2. `grep -c 'hosts:' site.yml` → le nombre de plays, en une commande.
-3. Un run réel `ansible-playbook site.yml --check` : le PLAY RECAP avec tous les
-   hôtes verts.
+1. Scroll lent du `site.yml` réel, en-tête compris, du play 1 au dernier.
+2. `grep -c '^- name:' playbooks/site.yml` → le nombre de plays, en une commande.
+3. Un run réel `ansible-playbook playbooks/site.yml --check` : le PLAY RECAP avec
+   tous les hôtes verts.
 
 ---
 

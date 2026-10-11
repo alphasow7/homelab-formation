@@ -1,5 +1,7 @@
 # Chapitre 2 — OPNsense : installation : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~28 min. Prérequis : lab de départ vérifié (`../lab-depart.md` — surtout
 > **le piège du subnet**). La VM se crée en `qm` côté Proxmox (voir `demo.sh`), mais
 > l'installation elle-même se pilote **dans la console noVNC** — filme-la.
@@ -46,6 +48,10 @@ Trois points de vigilance :
 - `net0` → le bridge **WAN**, celui qui a **Internet** (chez moi `vmbr0`, la box du foyer).
 - `net1` → le bridge **LAN**, un **bridge ISOLÉ** (`vmbr5`, mon segment `192.168.99.0/24`),
   sans Internet, où ne vivent que le lab et le poste d'admin.
+
+(Chez moi, la VM a depuis gagné une **troisième carte**, sur le segment de la stack de
+logs : c'est elle qui fait d'OPNsense un vrai filtre et plus seulement une vigie. On y
+vient au chapitre 3. Deux cartes suffisent pour ce cours.)
 
 ⚠️ **Rappel du piège du lab de départ** : le LAN par défaut d'OPNsense est `192.168.1.1`.
 Si ton WAN est branché sur une box en `192.168.1.x` ET que le LAN reste en `192.168.1.1`,

@@ -1,5 +1,7 @@
 # Chapitre 3 — LAN, WAN & premières règles : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. Prérequis : le lab de départ du cours 3 (`../lab-depart.md`) — la
 > VM OPNsense installée au chapitre 2, 2 NICs (WAN côté Internet, LAN sur bridge isolé),
 > ELK qui tourne (segment `10.10.99.0/24`, Kibana en `10.10.99.14:5601`).
@@ -174,8 +176,28 @@ voilà en action. »**
 d'OPNsense est en `192.168.99.1`** (sur son bridge isolé `vmbr5`), et le **WAN prend une
 IP de la box en `192.168.1.x`** (DHCP, ex. `192.168.1.36`). Les deux mondes sont séparés
 proprement : un réseau côté lab, un réseau côté box, aucun chevauchement. Un `netstat -rn`
-sur la vraie VM montre exactement les deux lignes distinctes qu'on veut voir. C'est
-précisément la config qu'on vient de reconstruire. »
+sur la vraie VM montre les lignes distinctes qu'on veut voir — plus une troisième depuis
+septembre : `10.10.20.0/24`, le segment où vit ma stack de logs, dont OPNsense est la
+passerelle (`10.10.20.254`). Le parc la joint par une **adresse virtuelle** sur le WAN
+(`192.168.1.61`) traduite en **NAT 1:1** vers `10.10.20.61` — aucun client n'a changé
+d'adresse, c'est tout l'intérêt par rapport à une renumérotation. C'est précisément la
+config qu'on vient de reconstruire, avec un étage de plus. »
+
+**💥 Quatre pièges de NAT et de règles, vécus le jour de cette bascule** (en choisir
+deux pour la vidéo, garder les autres pour la FAQ) :
+- **`blockpriv` sur le WAN** bloquait tout le parc : « bloquer les réseaux privés » est
+  juste face à Internet, absurde quand ton "WAN" donne sur un LAN privé. La règle `block
+  quick` tranche AVANT tes règles `pass`.
+- **`reply-to`**, ajouté d'office aux règles d'une interface WAN, renvoie les réponses à
+  la passerelle — la box. Quand le demandeur est sur le MÊME segment, la connexion
+  s'établit puis meurt (« timed out during banner exchange »). À désactiver.
+- **Le retour en épingle** : un service qui vit DERRIÈRE le pare-feu et s'interroge
+  lui-même par son adresse publique sort vers OPNsense pour revenir sur lui-même. Depuis
+  l'intérieur : `localhost`. Depuis l'extérieur : l'adresse d'accès. La segmentation
+  impose cette distinction.
+- **VIP et NAT 1:1 ne s'écrivent pas à la main** dans `config.xml` : sans les identifiants
+  que son framework génère, OPNsense a posé un alias `127.0.0.1` sur le WAN. Pour ces deux
+  objets, l'interface — ou l'API —, pas l'éditeur.
 
 ## 5. Annonce du TP (1 min)
 

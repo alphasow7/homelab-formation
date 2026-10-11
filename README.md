@@ -14,6 +14,14 @@ Matériel élève de la formation « Homelab DevSecOps » (Udemy + YouTube).
 **Pipeline** : 📝 rédigé → 🧪 bêta-test → 🎬 tournage → ✅ publié. Les 4 cours sont écrits et
 relus (fil rouge inter-cours vérifié : adressage, rôles Ansible, pannes, prérequis, quiz).
 
+**Réalignement du 11/10/2026** — le homelab qui sert de base a pivoté en août 2026
+(cluster Proxmox de 4 nœuds, plateforme de déploiement en VMs, ELK derrière OPNsense,
+bastion Tailscale en octobre). Les labs élève ne changent pas ; les **encarts « vrai
+matériel »** des scripts, le plan de tournage et les teasers ont été réécrits sur le parc
+réel, et les pannes vécues depuis juillet sont rangées par chapitre. État de référence :
+[`docs/infra-reelle-2026-10.md`](docs/infra-reelle-2026-10.md) — à relire la veille de
+chaque tournage.
+
 **Prochaine étape — le bêta-test du cours 0**, porte d'entrée du tournage :
 [protocole](cours-0-fondations/beta-test.md) · [kit de recrutement](cours-0-fondations/beta-recrutement.md) ·
 [grille testeur](cours-0-fondations/beta-grille.md) · [résultats](cours-0-fondations/beta-resultats.md).

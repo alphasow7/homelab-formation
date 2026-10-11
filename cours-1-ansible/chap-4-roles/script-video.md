@@ -1,5 +1,7 @@
 # Chapitre 4 — Les rôles : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. Prérequis élève : chapitre 3 fait — le playbook
 > `playbooks/web-status.yml` fonctionne (nginx + page de statut sur dns-proxy),
 > `ansible lab -m ping` renvoie 3 pongs verts. Toutes les commandes se lancent
@@ -143,19 +145,26 @@ c'est le passage du bricolage à l'infrastructure. »
 
 ## 3. Encart vrai matériel (2 min)
 
-**À dire** : « Voici le dossier `roles/` de mon infra réelle : **24 rôles**. Un rôle
-par brique : elasticsearch, kibana, gitlab, vault, proxy, dns… Chaque compétence de
-l'infra est un rôle, rangé dans les mêmes 4 tiroirs que les tiens. Et regarde
-`roles/dns` : tasks, templates avec un zone.j2, handlers Restart/Reload — celui que tu
-viens d'écrire est **le petit frère du vrai**. La seule différence : le mien gère
-plusieurs zones et quelques cas de bord accumulés avec les pannes. La structure, elle,
-est identique — c'est toute la force de la convention. »
+**À dire** : « Voici le dossier `roles/` de mon infra réelle : **26 rôles**. Un rôle
+par brique : common, filebeat, metricbeat, pbs, proxmox_firewall, syslog_relay, et toute
+une famille `vortex_*` pour ma plateforme — vault, gitlab, artifactory, rundeck… Chaque
+compétence de l'infra est un rôle, rangé dans les mêmes 4 tiroirs que les tiens. Et
+regarde `roles/syslog_relay` : defaults, tasks, un template, des handlers — celui que tu
+viens d'écrire est **le petit frère du vrai**. La structure est identique, c'est toute la
+force de la convention. Une anecdote : j'ai eu, moi aussi, un rôle `dns` avec son
+`zone.j2`, le jumeau du tien. Il est aujourd'hui dans `docs/archive/` : quand mon infra a
+changé, la résolution de noms est passée par un simple `/etc/hosts` généré depuis
+l'inventaire. On n'a pas supprimé des machines à la main — on a archivé du code. C'est
+aussi ça, l'infra as code. »
 
 **Plans à filmer sur l'infra réelle** :
-1. `ls roles/` du repo réel : la liste des 24 rôles, scroll lent.
-2. `tree roles/dns/` réel côte à côte avec le `tree roles/dns/` de l'élève :
-   les mêmes tiroirs.
-3. Un `dig @10.10.40.11 gitlab.lab +short` sur l'infra réelle : le DNS de prod répond.
+1. `ls roles/` du repo réel : la liste des 26 rôles, scroll lent.
+2. `tree roles/syslog_relay/` réel côte à côte avec le `tree roles/dns/` de l'élève :
+   les mêmes tiroirs. (Bonus : `tree docs/archive/ansible-pre-pivot/roles/dns/` — le
+   jumeau archivé, pour l'anecdote.)
+3. `ansible plateforme -m command -a "getent hosts vault.vortex.local"` sur l'infra
+   réelle : trois machines, trois réponses identiques — « la résolution de noms, posée
+   par un rôle, pas par un clic ».
 
 ---
 

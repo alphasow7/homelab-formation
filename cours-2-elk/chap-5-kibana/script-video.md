@@ -1,5 +1,7 @@
 # Chapitre 5 — Kibana : la salle de lecture : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~35 min. Prérequis : cluster ES en HTTPS (chap. 2-3) + Logstash qui
 > alimente `logstash-*` (chap. 4). La VM `kibana-logstash` (10.10.99.14) héberge Kibana.
 > Toutes les commandes montrées sont dans `demo.sh` et rejouées avant tournage.
@@ -93,13 +95,24 @@ s'affiche.
 
 ## 3. Encart vrai matériel (3 min)
 
-**À filmer** : sur l'infra réelle, la liste des dashboards Kibana — **un tableau de bord
-par service** (DNS, reverse-proxy, pare-feu OPNsense/Suricata, K3S…). Montrer le dashboard
-DNS : requêtes/s, top domaines, clients bloqués.
+**À filmer** : sur l'infra réelle, la liste des dashboards Kibana — « Homelab — Vue
+d'ensemble » et « Déploiements VDP ». Ouvrir le premier : jauges CPU/RAM/disque des 4
+hyperviseurs, table up/down des sondes, volume de logs par machine et par sévérité. Puis
+le dépôt : `roles/kibana_dashboards/files/vortex-supervision.ndjson` et, à côté, sa
+définition lisible `playbooks/vars/kibana-supervision.yml`.
 
 **À dire** : « Le NDJSON du lab, c'est la graine. En vrai, ces dashboards vivent dans un
 rôle Ansible (`kibana_dashboards`) et s'importent de façon **idempotente** au déploiement.
-Ton tableau de bord n'est pas un clic perdu dans une UI : c'est du code, dans Git. »
+Et chez moi, un cran de plus : le NDJSON n'est plus écrit à la main — il est **généré**
+par un playbook à partir d'une définition YAML, créé par l'API, puis exporté. Le fichier
+reste canonique, mais on peut le relire et le *differ*. Ton tableau de bord n'est pas un
+clic perdu dans une UI : c'est du code, dans Git. »
+
+**💥 Et la version grandeur nature de la panne qui suit** : « Mon ancien paquet de
+dashboards visait la data view `logstash-*` — la nomenclature d'une stack que j'avais
+décommissionnée. Il s'importait **sans la moindre erreur**… sur du vide. Et même un
+panneau qui s'importe peut rester vide : depuis, chaque panneau est vérifié en rejouant
+son agrégation. L'import vert n'est pas la preuve ; le chiffre à l'écran, oui. »
 
 ## 4. 💥 La panne du vrai monde (5 min) — l'import qui « réussit » sans rien faire
 

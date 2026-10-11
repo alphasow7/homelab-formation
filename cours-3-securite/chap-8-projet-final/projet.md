@@ -184,8 +184,9 @@ miniature** — virtualisé, automatisé, observé, défendu — et tu sais l'**
 défendre**. Ce ne sont pas quatre compétences séparées : c'est un métier. Plusieurs,
 même. Et ce lab est ton **portfolio vivant**.
 
-La suite t'appartient : orchestration (K3S), CI/CD (avec ton GitLab), haute
-disponibilité, VPN d'accès… Tu as maintenant le socle pour tout ça.
+La suite t'appartient : une supervision qui t'appelle, une plateforme de déploiement
+(avec ton GitLab), la haute disponibilité, un accès distant durci, Kubernetes… Tu as
+maintenant le socle pour tout ça.
 
 Bravo. Vraiment.
 

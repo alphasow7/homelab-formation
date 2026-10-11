@@ -1,5 +1,7 @@
 # Chapitre 3 — Le premier playbook : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~25 min. Prérequis élève : chapitre 2 fait (inventaire en place,
 > `ansible lab -m ping` renvoie 3 pongs verts, placeholder `IP_DE_TON_BASTION`
 > remplacé). Toutes les commandes montrées sont dans `demo.sh` et doivent être
@@ -195,8 +197,8 @@ d'Internet : nginx était déjà installé, apt n'a rien retéléchargé. »
 ## 4. Encart vrai matériel (2 min)
 
 **À filmer** : le terminal du formateur, la fin d'un run du `site.yml` de l'infra
-réelle : le défilé de dizaines de tasks (ELK, GitLab, Vault, DNS…) puis le PLAY
-RECAP avec plusieurs machines et `changed=0` partout.
+réelle : le défilé de dizaines de tasks (Vault, GitLab, Artifactory, Rundeck, la
+supervision…) puis le PLAY RECAP avec ses 10 machines et `changed=0` partout.
 
 **À dire** : « Ton playbook a 3 tasks sur 1 machine. Voilà le mien : des dizaines
 de tasks, toutes les VMs de l'infra — et regarde le récap : `changed=0` sur toute

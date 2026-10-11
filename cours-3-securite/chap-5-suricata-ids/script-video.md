@@ -1,5 +1,7 @@
 # Chapitre 5 — Suricata : l'IDS qui écoute le WAN : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~35 min. Prérequis : OPNsense installé et joignable (chap 2-3), avec un
 > **WAN** (DHCP box) et un **LAN** `192.168.99.1`. Le SIEM ELK du cours 2 tourne, avec un
 > **input syslog Logstash sur 5514** déjà en place (cours 2, chap 7).
@@ -213,16 +215,22 @@ message "succès", vérifie que la chose a **réellement** eu lieu. »
 ## 4. Encart vrai matériel (2 min)
 
 **À filmer sur l'infra réelle** :
-- OPNsense (VM 600), `Services > Intrusion Detection` : Suricata **running**, mode
-  détection, WAN, **9 rulesets** actifs (7 ET open — scan, exploit, malware,
-  attack_response, botcc, compromised, drop — + abuse.ch sslblacklist & feodotracker),
-  **~69 500 lignes** de règles chargées.
-- Kibana `logstash-syslog-*`, filtre `syslog_hostname: "OPNsense.internal"` : les alertes
-  Suricata frais dans le SIEM, corrélables avec le reste des logs — et **persistant après
-  un reboot** de la VM.
+- OPNsense (VM 600, `onboot: 1` depuis septembre), `Services > Intrusion Detection` :
+  Suricata **running**, mode détection, WAN, **9 rulesets** actifs (7 ET open — scan,
+  exploit, malware, attack_response, botcc, compromised, drop — + abuse.ch sslblacklist &
+  feodotracker). Le nombre de lignes de règles bouge à chaque mise à jour : le lire à
+  l'écran le jour J (~69 500 en juillet).
+- Kibana, data view `vortex-logs-*`, filtre `application: opnsense` : les alertes Suricata
+  fraîches dans le SIEM, à côté de `filterlog` (les règles de pare-feu déclenchées),
+  corrélables avec le reste des logs — et **persistantes après un reboot** de la VM.
 
 **À dire** : « C'est en place pour de vrai : le pare-feu de périmètre détecte les
 intrusions ET les envoie au SIEM. Détecter + garder la trace, sur le vrai matériel. »
+
+**💡 Une leçon de plus, payée en septembre** : « Cette VM était en `onboot: 0`. Au
+prochain redémarrage de la tour, toute ma détection aurait disparu — et rien ne l'aurait
+signalé, puisque OPNsense est surveillé par ce qu'il **émet** : le silence de ses logs
+EST l'alerte (règle "hôte muet"). Vérifie l'`onboot` de tout ce qui te protège. »
 
 ## 5. Annonce du TP (1 min)
 

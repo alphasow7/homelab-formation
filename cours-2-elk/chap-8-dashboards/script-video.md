@@ -1,5 +1,7 @@
 # Chapitre 8 — Dashboards de service : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~22 min. Prérequis : l'ELK complet du cours (Filebeat journald sur les 4
 > VMs, syslog de l'hyperviseur, data view `logstash-*` dans Kibana).
 > Chapitre **pratique-Kibana** : le concept est court, l'essentiel se joue à la souris
@@ -81,14 +83,29 @@ il vit : ouvre-le demain, il s'est mis à jour tout seul. C'est ta vigie. »
 
 ## 3. Encart vrai matériel (2 min)
 
-**À filmer** : sur l'infra réelle du formateur, la liste des dashboards : **GitLab**,
-**Vault**, **DNS**… un par service.
+**À filmer** : sur l'infra réelle du formateur, « Homelab — Vue d'ensemble » : l'en-tête
+(ce qui est down, maintenant), les jauges CPU/RAM/disque par machine, le volume de logs
+par hôte et par sévérité, la table des sondes. Puis « Déploiements VDP », le tableau de
+bord d'un service précis.
 
-**À dire** : « En vrai, on ne fait pas UN dashboard fourre-tout : on en fait un PAR
-service qui compte. Et regarde la recette — c'est EXACTEMENT la tienne : le volume dans
-le temps, la répartition par sévérité, le top des process. Ce que tu viens d'apprendre sur
-le lab se décline à l'infini : même recette, un dashboard par service. GitLab qui se tait,
-Vault qui crache des erreurs, le DNS qui s'affole — trois pages, trois coups d'œil. »
+**À dire** : « En vrai, deux étages. Un **écran unique** d'abord — "est-ce que quelque
+chose va mal, là, maintenant ?" — puis un dashboard PAR service qui compte. Et regarde la
+recette de l'écran unique — c'est EXACTEMENT la tienne : le volume dans le temps, la
+répartition par sévérité, le top des process. Ce que tu viens d'apprendre sur le lab se
+décline à l'infini : même recette, un dashboard par service. »
+
+**💥 Trois leçons de tableau de bord, payées en septembre** :
+- « Mon panneau CPU affichait un hyperviseur à **101,2 %**. Le champ `.pct` n'est pas
+  normalisé par cœur ; il fallait `.norm.pct`. Un panneau qui s'affiche n'est pas un
+  panneau juste : rejoue l'agrégation à la main une fois. »
+- « Une sonde de disponibilité rapportait **down depuis 1 217 contrôles** d'affilée —
+  en ICMP vers une machine derrière un pare-feu qui ne laisse passer que du TCP. Rien
+  n'était en panne. Une alerte qui sonne toujours est pire qu'absente : on apprend à
+  l'ignorer. Passée en TCP sur le port 22. »
+- « Mon moteur d'alertes alertait… sur les conséquences de sa propre installation : ses
+  index internes naissaient avec un réplica impossible à placer sur un seul nœud, le
+  cluster restait jaune, et la règle "cluster dégradé" hurlait en permanence. Même
+  famille de panne. Le signal, c'est ce qui change. »
 
 ## 4. 💡 L'astuce du vrai monde (1 min)
 

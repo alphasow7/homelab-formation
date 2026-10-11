@@ -1,5 +1,7 @@
 # Chapitre 3 — TLS partout : ta propre autorité : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~35 min. Prérequis : chapitre 2 (Elasticsearch mono-nœud en http).
 > Rôle complet : `../ansible-extraits/roles/elk_certs/`. Commandes dans `demo.sh`.
 
@@ -42,11 +44,27 @@ Logstash, Kibana, Filebeat).
 
 ## 3. Encart vrai matériel (2 min)
 
-**À filmer** : sur l'infra réelle, la même CA signe Elasticsearch, Kibana, GitLab ET le
-coffre-fort Vault.
+**À filmer** : sur l'infra réelle, une seule racine — « Vortex Homelab CA » — ancre
+Elasticsearch, Logstash, Kibana, GitLab, Artifactory, Rundeck ET le coffre-fort Vault.
+Montrer `openssl s_client` sur deux services différents : même émetteur. Puis le moteur
+PKI de Vault et le job Rundeck de renouvellement.
 
 **À dire** : « Une seule autorité pour tout le lab. Un seul tampon à faire confiance —
-importé une fois dans le navigateur, et tous les services internes deviennent verts. »
+importé une fois dans le navigateur, et tous les services internes deviennent verts. Chez
+moi, l'étage du dessus : la racine ne signe plus rien directement. C'est le moteur PKI de
+**Vault** — on le rencontre au cours 3 — qui émet des certificats **courts, 72 heures**,
+renouvelés tous les deux jours par un job automatique. Un cert qui expire vite, c'est un
+cert volé qui ne sert à rien longtemps. Ta CA à la main aujourd'hui, c'est la version
+junior de ça. »
+
+**💡 Une dette apprise sur le tas** (à garder pour la FAQ si le temps manque) : « Ma CA
+racine a été générée sans extension `keyUsage`. `openssl` et `curl` l'acceptent sans
+broncher ; le module TLS de **Python** sur Debian 13, lui, la refuse — et Ansible, c'est
+du Python. Résultat : tout appel `uri` vers Vault échoue depuis mes hyperviseurs (Debian)
+et réussit depuis mes VMs (Rocky). Un défaut qui ne se voit que sur une moitié du parc
+est le pire des défauts. Le correctif : régénérer la racine… et réémettre TOUS les
+certificats. `certutil` pose cette extension pour toi ; le jour où tu fabriques une CA
+avec `openssl`, exige `keyUsage = critical, keyCertSign, cRLSign`. »
 
 ## 4. 💥 La panne du vrai monde (7 min)
 

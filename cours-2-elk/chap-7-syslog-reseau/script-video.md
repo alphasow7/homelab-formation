@@ -1,5 +1,7 @@
 # Chapitre 7 — Syslog réseau : brancher ce qui n'a pas d'agent : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~25 min. Prérequis : l'input syslog de Logstash (tcp/udp **5514**) est en
 > place depuis le chap 4, Kibana répond, le lab tourne (elastic-1 / kibana-logstash /
 > dns-proxy / bastion sur `10.10.99.0/24`).
@@ -97,18 +99,29 @@ un restart. C'est ça, syslog. »
 
 ## 3. Encart vrai matériel (3 min)
 
-**À dire** : « Sur mon infra réelle, ce que tu viens de voir tourne pour de bon. Deux
-sources syslog alimentent ELK en permanence :
-
-- le **relais syslog du nœud** Proxmox, comme dans la démo ;
-- surtout, le **pare-feu OPNsense** : lui, il n'aura JAMAIS Filebeat, c'est une appliance
-  fermée. Mais il forwarde son syslog — les connexions, les blocages, les alertes de son
-  IDS Suricata — droit dans le 5514 de Logstash.
+**À dire** : « Sur mon infra réelle, ce que tu viens de voir tourne pour de bon, et c'est
+un rôle Ansible (`syslog_relay`) qui pose le relais sur la tour. Le **pare-feu OPNsense**
+n'aura JAMAIS Filebeat, c'est une appliance fermée. Mais il forwarde son syslog — les
+règles déclenchées, les blocages, les alertes de son IDS Suricata — vers le relais, qui
+le pousse sur le port syslog de Logstash. Dans Kibana, ça atterrit dans `vortex-logs-*`
+avec `application: opnsense`.
 
 Et le switch ? Le mien aujourd'hui est un **TP-Link LS1005G**, un modèle *non-managé* : il
-ne sait rien faire d'autre que commuter des trames, pas de syslog. Mais l'ancien, un
-**T2600G managé**, savait forwarder son syslog exactement comme le nœud. Dès que tu montes
-en gamme sur un switch, cette fonction est là. »
+ne sait rien faire d'autre que commuter des trames, pas de syslog — pas même d'adresse IP.
+Mais l'ancien, un **T2600G managé**, savait forwarder son syslog exactement comme le nœud.
+Dès que tu montes en gamme sur un switch, cette fonction est là. »
+
+**💥 La panne du relais, vécue en septembre** : « Mon relais a forwardé **dans le vide
+pendant un mois**. Sa destination était écrite en dur : l'adresse d'une VM Logstash que
+j'avais décommissionnée. Et un relais syslog qui n'a personne au bout ne produit AUCUNE
+erreur — c'est de l'UDP, ni OPNsense ni rsyslog ne s'en plaignent. La destination est
+désormais lue dans l'inventaire. Règle : une adresse codée en dur dans une conf, c'est une
+panne silencieuse qui attend son heure. »
+
+**💡 Deux pièges de l'input syslog, pour quand tu brancheras ton propre équipement** :
+l'input met dans `host` l'adresse de **qui a envoyé le paquet** — donc le relais, pas
+l'équipement d'origine, qu'il faut aller chercher dans l'en-tête ; et il attend du
+RFC 3164 — un `logger` récent émet du RFC 5424, qui est ingéré mais reste brut.
 
 **Teaser cours 3** : « Retiens bien les logs du pare-feu OPNsense qui arrivent ici. Pour
 l'instant ce ne sont que des lignes dans Kibana. **Au cours 3, ces mêmes logs de pare-feu

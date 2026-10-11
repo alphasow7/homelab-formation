@@ -40,7 +40,7 @@
 
 ## Question 5 — Qu'auras-tu construit à la fin du cours 0 ?
 
-- A. Une copie exacte de l'infra du formateur, avec 10 VMs et un cluster K3S
+- A. Une copie exacte de l'infra du formateur, avec son cluster de 4 nœuds et sa plateforme de déploiement
 - B. Un mini-homelab : Proxmox installé, des VMs, du réseau, des snapshots et des sauvegardes
 - C. Uniquement de la théorie, la pratique commence au cours 1
 - D. Un site web hébergé chez un fournisseur cloud

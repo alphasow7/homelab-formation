@@ -1,5 +1,7 @@
 # Chapitre 2 — Installer Proxmox : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. Prérequis élève : Proxmox fraîchement installé via un des deux
 > guides labs/ (chemin A VirtualBox → `https://localhost:8006`, chemin B PC dédié →
 > `https://192.168.1.240:8006`).
@@ -147,17 +149,23 @@ C'est ton budget RAM : chaque VM va piocher dedans. »
 ## 3. Encart vrai matériel (3 min)
 
 **À dire** : « Tout ce qu'on vient de faire, tu l'as fait sur un lab tout neuf. Voilà à
-quoi ressemble le MÊME Proxmox après quelques mois de vie : le mien, bare-metal, un i7
-avec 31 Go de RAM, qui fait tourner 10 VMs. Rien de magique : c'est exactement la même
-interface, le même `pveversion`, le même port 8006. La seule différence, c'est le temps et
-les chapitres qu'on va passer ensemble. On le verra grandir pendant toute la formation. »
+quoi ressemble le MÊME Proxmox après quelques mois de vie : le mien. Il a commencé comme
+le tien — une seule machine, un i7 avec 31 Go de RAM — et c'est aujourd'hui un **cluster
+de quatre nœuds** : la tour plus trois mini-PCs. Rien de magique : c'est exactement la
+même interface, le même `pveversion`, le même port 8006. La seule différence, c'est le
+temps et les chapitres qu'on va passer ensemble. On le verra grandir pendant toute la
+formation. »
 
 **Plans à filmer sur l'infra réelle (192.168.1.200)** :
-1. La GUI : arborescence Datacenter → nœud avec les 10 VMs dépliées (comparaison visuelle
-   avec l'arbre vide de l'élève).
-2. Le résumé du nœud : jauges CPU / RAM 31 Go / uptime.
-3. Shell sur le nœud réel : `pveversion` puis `free -h` — « mêmes commandes, autre échelle ».
-4. (Optionnel, plan B-roll) la machine physique elle-même, pour ancrer le « bare-metal ».
+1. La GUI : arborescence Datacenter → `vortex-cluster` → les 4 nœuds dépliés avec leurs
+   VMs (comparaison visuelle avec l'arbre vide de l'élève, qui n'a qu'un nœud et rien
+   dessous).
+2. Le résumé de la tour : jauges CPU / RAM 31 Go / uptime — puis celui d'un Lenovo
+   (16 Go) : « même écran, deux machines très différentes ».
+3. Shell sur la tour : `pveversion` puis `free -h` — « mêmes commandes, autre échelle ».
+   La version a bougé entre l'écriture du cours et le tournage (9.1 en juillet, 9.2 en
+   octobre) : lire la valeur à l'écran, ne pas en citer une de mémoire.
+4. (Optionnel, plan B-roll) la tour et les trois mini-PCs, pour ancrer le « bare-metal ».
 
 ---
 

@@ -1,5 +1,7 @@
 # Chapitre 3 — Ta première VM : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. Prérequis élève : Proxmox 9 post-installé (chapitre 2), dépôts
 > no-subscription, système à jour. Chemin A : VirtualBox, réseau NAT 10.0.2.0/24, GUI via
 > `https://localhost:8006`. Chemin B : PC dédié sur le LAN 192.168.1.0/24. Bridge par
@@ -174,19 +176,33 @@ pourquoi c'est LA méthode. »
 ## 3. Encart vrai matériel (3 min)
 
 **À dire** : « Tu te demandes peut-être si cette méthode cloud-init, c'est un truc de
-formation. Réponse : sur mon infra réelle, les 10 VMs que tu as vues au chapitre 2 sont
-TOUTES nées exactement comme ça — image cloud + cloud-init, orchestrées par un outil
-d'automatisation qui s'appelle Ansible (on le croisera plus tard). Personne, jamais, n'a
-cliqué dans un installateur Debian sur cette machine. La méthode que tu viens d'apprendre,
-c'est la méthode de production. »
+formation. Réponse : sur mon infra réelle, TOUTES les VMs que tu as vues au chapitre 2
+sont nées exactement comme ça — image cloud + cloud-init, orchestrées par un outil
+d'automatisation qui s'appelle Ansible (on le croisera plus tard). Les trois VMs de ma
+plateforme de déploiement sont des Rocky Linux créées depuis une image cloud ; et la stack
+de logs, c'est encore mieux : un job la **détruit et la recrée de zéro** à la demande.
+Personne, jamais, n'a cliqué dans un installateur sur ces machines. La méthode que tu
+viens d'apprendre, c'est la méthode de production. »
 
 **Plans à filmer sur l'infra réelle (192.168.1.200)** :
-1. GUI : cliquer sur 2-3 VMs différentes → onglet **Cloud-Init** : montrer que chacune a
-   son user, sa clé, son ipconfig — « même étiquette, valeurs différentes ».
-2. Shell du nœud réel : `qm cloudinit dump <vmid> user` sur une vraie VM — « la même
+1. GUI : cliquer sur 2-3 VMs différentes (210, 211, 300…) → onglet **Cloud-Init** :
+   montrer que chacune a son user, sa clé, son ipconfig — « même étiquette, valeurs
+   différentes ».
+2. Shell de la tour : `qm cloudinit dump <vmid> user` sur une vraie VM — « la même
    commande que celle qu'on va utiliser dans deux minutes pour diagnostiquer une panne ».
-3. (Optionnel, B-roll) faire défiler la liste des 10 VMs : « dix étiquettes, zéro clic
-   d'installateur ».
+3. (Optionnel, B-roll) la vue Datacenter : « des étiquettes, zéro clic d'installateur ».
+
+**Deux leçons de plus, apprises sur ces VMs depuis juillet** (à glisser ici, ou à garder
+pour la FAQ) :
+- Sur une image cloud Rocky, cloud-init **régénère `/etc/hosts` à chaque démarrage** : un
+  bloc ajouté à la main disparaît au reboot, en silence. Et déclarer
+  `manage_etc_hosts: false` ne suffit pas — la valeur vient de la user-data injectée par
+  Proxmox, qui a priorité ; il faut retirer le module `update_etc_hosts` de `cloud.cfg`.
+  Morale : ce qui est posé par cloud-init appartient à cloud-init.
+- Le modèle de CPU par défaut de Proxmox (`kvm64`) n'expose pas `x86-64-v2` : une image
+  Rocky 9 ou 10 **panique au boot** (« Fatal glibc error: CPU does not support
+  x86-64-v2 »). Debian 12 s'en moque, d'où le silence dans ce cours — mais le jour où tu
+  crées une Rocky, ajoute `--cpu host`.
 
 ---
 

@@ -1,5 +1,7 @@
 # Chapitre 8 — Projet final : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~20 min de vidéo (le gros du chapitre, c'est le projet de l'élève, 45 min).
 > Format projet, comme le chap. 7 du cours 0 : pas de nouvelle notion — on cadre, on
 > montre le résultat attendu, on donne la méthode. Dérogation au gabarit assumée.
@@ -57,8 +59,11 @@ montage, ou `SECONDS` affiché par le script) :
    identique, prouvé par l'idempotence. »
 
 **Encart vrai matériel (2 min)** : sur l'infra réelle du formateur, montrer que c'est le
-même pattern : les VMs applicatives sont recréables depuis les playbooks du dépôt
-homelab ; ce qui est précieux, c'est le dépôt Git et les données — jamais la VM.
+même pattern, poussé un cran plus loin : les 3 VMs de la plateforme sont recréables par
+`provision-plateforme.yml`, et la stack ELK entière est **détruite et reconstruite de
+zéro par un job Rundeck** (`vdp rebuild`) — c'était le critère de réussite du chantier,
+atteint le 02/08/2026. À filmer : le job dans l'interface Rundeck et son journal
+d'exécution. Ce qui est précieux, c'est le dépôt Git et les données — jamais la VM.
 
 ## 4. Célébration et suite (3 min)
 
@@ -71,5 +76,5 @@ instant ? Qui l'interroge, qu'est-ce qui rame, qu'est-ce qui échoue en silence 
 cours 2, on branche les yeux : ELK — Elasticsearch, Logstash, Kibana. Et tes deux VMs
 `elastic-1` et `kibana-logstash` attendent déjà sur le segment. À très vite. »
 
-**À filmer (encart final)** : un dashboard Kibana de l'infra réelle en teaser — « voilà
-les yeux qu'on branche au cours 2 ».
+**À filmer (encart final)** : le tableau de bord Kibana « Homelab — Vue d'ensemble » de
+l'infra réelle en teaser — « voilà les yeux qu'on branche au cours 2 ».

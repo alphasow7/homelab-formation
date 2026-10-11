@@ -1,17 +1,20 @@
 # Vidéo YouTube d'appel — « Transforme un vieux PC en datacenter »
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../docs/infra-reelle-2026-10.md).
+
 **Durée cible : ~18 min.** Publication : ~2 semaines avant la sortie du cours Udemy.
-**Miniature** : split-screen — à gauche un vieux PC poussiéreux, à droite la GUI Proxmox
-avec 10 VMs vertes. Texte : « DATACENTER MAISON ».
+**Miniature** : split-screen — à gauche un vieux PC poussiéreux, à droite la vue Datacenter
+Proxmox avec ses 4 nœuds et leurs VMs vertes. Texte : « DATACENTER MAISON ».
 
 ## Déroulé
 
 ### Hook (0:00-0:30)
 
-**À montrer** : la GUI de l'infra réelle — 10 VMs qui tournent, le dashboard Kibana avec
-les logs qui défilent, une alerte Suricata.
-**À dire** : « Tout ça — un cluster de recherche, un GitLab, un coffre-fort à secrets, un
-détecteur d'intrusion — tourne dans mon salon, sur un PC qu'on m'aurait presque donné.
+**À montrer** : la GUI de l'infra réelle — le cluster de 4 nœuds et ses VMs, le tableau de
+bord Kibana « Homelab — Vue d'ensemble », une alerte Suricata.
+**À dire** : « Tout ça — un moteur de recherche, un GitLab, un coffre-fort à secrets, un
+détecteur d'intrusion, une plateforme qui reconstruit une stack entière en un clic — tourne
+dans mon salon, sur un PC qu'on m'aurait presque donné et trois mini-PCs d'occasion.
 Aujourd'hui, je te montre comment démarrer le tien. Et tu n'as même pas besoin de PC en
 plus : une machine avec 16 Go de RAM suffit pour tout faire en virtuel. »
 

@@ -1,5 +1,7 @@
 # Chapitre 7 — Projet final : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~20 min de vidéo (le gros du chapitre, c'est le projet de l'élève, 45 min).
 > Format différent : pas de nouvelle notion — on cadre le projet, on montre le résultat
 > attendu, on donne la méthode de travail. Dérogation au gabarit assumée.
@@ -38,4 +40,8 @@ encarts. Au cours 1, on ajoute le super-pouvoir : Ansible — détruire et recon
 ça en UNE commande. La première chose qu'on fera ? Détruire dns-proxy. À très vite. »
 
 **À filmer (encart final)** : l'infra réelle en guise de « voilà où ce chemin mène » —
-la GUI avec les 10 VMs + un dashboard Kibana.
+la vue Datacenter du cluster (4 nœuds et leurs VMs) + le tableau de bord Kibana
+« Homelab — Vue d'ensemble ». Et un clin d'œil : chez moi aussi il y a un **bastion**
+(VM 220, 1 vCPU, 2 Go) — même rôle que ton 9204, la seule porte SSH vers le lab, avec
+Tailscale et un second facteur en plus. « Ce que tu viens de poser, c'est la version
+junior d'une vraie brique de sécurité. »

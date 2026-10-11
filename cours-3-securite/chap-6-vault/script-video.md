@@ -1,5 +1,7 @@
 # Chapitre 6 — HashiCorp Vault : le coffre-fort à secrets : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~25 min. Prérequis : lab de départ (`../lab-depart.md`) + une VM pour
 > héberger Vault (on réutilise `dns-proxy`, `10.10.99.12` sur le segment `10.10.99.0/24`).
 > **Où tu travailles** : sur le segment interne `10.10.99.0/24` — Vault écoute en
@@ -57,7 +59,8 @@ nœud (apt HashiCorp à télécharger). `ansible-playbook playbooks/vault.yml`. 
 **À expliquer pendant que ça installe** : le tour du rôle — dépôt HashiCorp en `signed-by`
 (même méthode moderne que le rôle elasticsearch), le **cert TLS auto-signé** généré par le
 rôle (Vault refuse le HTTP en clair ; en lab un cert auto-signé suffit, sur l'infra réelle
-c'est la CA ELK du cours 2), et le `vault.hcl` : storage file, listener TLS 8200, UI activée.
+c'est la CA interne du parc — la même racine qu'au cours 2), et le `vault.hcl` : storage
+file, listener TLS 8200, UI activée.
 
 **⚠️ À dire** : « Le rôle installe et démarre Vault, mais il **n'initialise pas** le
 coffre. L'init produit des secrets critiques — on le fait à la main, à l'écran, pour bien
@@ -153,16 +156,30 @@ Reboot → scellé → et là... rien. **Game over.** »
 
 ## 4. Encart vrai matériel (2 min)
 
-**À filmer** : sur l'infra réelle, le `docs/secrets.md` (section Vault) et le vrai
-`playbooks/vault-unseal.yml`.
+**À filmer** : sur l'infra réelle, `vdp/runbook-vault-autounseal-transit.md` (le schéma
+et la section « Pièges vécus »), le rôle `vortex_vault_unsealer`, puis `vault status` sur
+le Vault principal : `Sealed false`, `Seal Type transit`, `Recovery Seal true`.
 
-**À dire** : « Sur l'infra, exactement le même playbook `vault-unseal.yml`. La clé et le
-root token sont rangés dans le vault Ansible **devsecops** (`vault_unseal_key`,
-`vault_root_token`) — chiffrés, versionnés, jamais en clair. Après le fiasco du 06/07, le
-Vault a été réinitialisé **proprement** : shamir 1/1, clés sauvegardées dans la même minute.
-Le SEUL changement entre le lab et la prod : le cert TLS est signé par la CA ELK au lieu
-d'être auto-signé, et le PKI/KV sont provisionnés par Ansible plutôt qu'à la main. Le
-principe, lui, est identique. »
+**À dire** : « Sur l'infra, j'ai vécu exactement ton chapitre, dans l'ordre. D'abord le
+fiasco du 06/07 : clés jamais notées, coffre réinitialisé. Puis des semaines avec un
+playbook `vault-unseal.yml`, comme le tien, à rejouer après chaque reboot — la clé rangée
+dans ansible-vault, chiffrée, versionnée. Ça marche. Mais un descellement manuel, c'est
+une corvée, et une corvée finit par être oubliée. Alors l'étape d'après, celle que tu
+feras quand ton lab grandira : l'**auto-unseal par transit**. Un **second Vault**, sur un
+autre nœud, qui ne détient qu'UNE clé de chiffrement — l'« unsealer ». Le principal lui
+demande de déchiffrer sa clé maître au démarrage, et n'a plus **aucune** clé sur son
+disque : voler ce disque ne suffit plus. L'ancienne clé Shamir devient clé de secours.
+Vérifié par un vrai redémarrage, pas par un playbook vert. »
+
+**💥 Et la catastrophe évitée de justesse, à raconter telle quelle** : « Pour poser la
+clé de l'unsealer, j'ai capturé une clé base64 avec `cut -d=`. Une clé base64 finit
+souvent par `=` — le padding. `cut` l'a tronquée : 43 caractères au lieu de 44. Si je ne
+l'avais pas vu, l'unsealer devenait inaccessible pour toujours, et avec lui le Vault
+principal — car les clés de secours NE descellent PAS un Vault en auto-unseal dont le
+backend transit est perdu. Même règle qu'au chapitre : généré → sauvegardé → **testé**,
+dans la minute. Et deux pannes "qu'aucun playbook vert ne montre", révélées par un
+reboot : `/etc/hosts` régénéré par cloud-init qui effaçait le nom de Vault, et un
+`firewalld` installé mais arrêté qui s'est réveillé au boot en coupant le port 8200. »
 
 ## 5. Annonce du TP (1 min)
 

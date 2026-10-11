@@ -1,5 +1,7 @@
 # Projet final du cours 3 — ET DE LA FORMATION — La boucle complète : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. C'est le dernier chapitre du dernier cours. Prérequis : tout le
 > lab debout — OPNsense pare-feu de périmètre (WAN + LAN `192.168.99.1`, chap 2-4),
 > Suricata actif sur le WAN (chap 5), SIEM ELK du cours 2 (**Kibana `10.10.99.14`**)
@@ -148,11 +150,19 @@ Sois fier. Vraiment. Peu de gens vont au bout de ces quatre cours. Toi, tu l'as 
 
 **À dire** : « Et maintenant ? Le socle est là, tu peux construire dessus :
 
-- **Orchestration** — tes deux nœuds K3S attendent : Kubernetes, les conteneurs à
-  l'échelle.
-- **CI/CD** — ton GitLab est déjà là : automatise le déploiement de ton propre code.
-- **Haute disponibilité** — plusieurs nœuds, du failover, que rien ne tombe.
-- **VPN d'accès** — rejoindre ton lab de l'extérieur, en sécurité (WireGuard sur OPNsense).
+- **Supervision qui prévient** — aujourd'hui ton SIEM te montre ; demain il t'appelle :
+  sondes de disponibilité, règles d'alerte, un mail quand une machine se tait. Chez moi,
+  une panne réelle arrive par courrier en trois minutes.
+- **Plateforme de déploiement** — ton GitLab est déjà là : automatise le déploiement de
+  ton propre code. Chez moi c'est devenu une chaîne complète — Rundeck, GitLab,
+  Artifactory, Ansible — où un job reconstruit une stack ELK de zéro.
+- **Haute disponibilité** — plusieurs nœuds, de la réplication, que rien ne tombe. Chez
+  moi : un cluster Proxmox de quatre nœuds, né de trois mini-PCs d'occasion.
+- **Accès distant durci** — rejoindre ton lab de l'extérieur, en sécurité. Chez moi : un
+  bastion dédié, joignable uniquement par un VPN maillé, clé non exportable ET code à
+  usage unique — ton bastion du cours 0, version adulte.
+- **Orchestration** — Kubernetes, les conteneurs à l'échelle : deux VMs et `kubeadm`
+  suffisent pour apprendre — c'est comme ça que je m'entraîne.
 
 Aucune n'est un mur. Ce sont des **portes**, et tu as maintenant la clé de chacune. La
 suite t'appartient. Merci d'avoir fait tout ce chemin. À toi de jouer. »

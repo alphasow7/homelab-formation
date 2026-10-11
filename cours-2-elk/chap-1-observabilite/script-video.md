@@ -1,5 +1,7 @@
 # Chapitre 1 — Observabilité : voir enfin ce qui se passe : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~20 min. Prérequis élève : cours 0 et cours 1 terminés — 4 VMs vivantes
 > (elastic-1 4 Go, kibana-logstash 2 Go, dns-proxy sur le segment isolé 10.10.99.0/24,
 > plus le bastion), le tout géré par Ansible (`site.yml` passe en `changed=0`).
@@ -201,15 +203,24 @@
 
 ### À filmer sur l'infra réelle
 
-- Écran du Kibana réel de l'infra du formateur, en direct, sans coupe :
-  1. La page d'accueil, puis Discover : le compteur de documents — **plus de 2 millions
-     de documents** indexés. « Deux millions de lignes de logs. Essaie de `grep` ça. »
+- Écran du Kibana réel de l'infra du formateur (`https://192.168.1.61:5601`, authentifié),
+  en direct, sans coupe :
+  1. La page d'accueil, puis Discover sur `vortex-logs-*` : le compteur de documents
+     (relever le chiffre le jour du tournage — la stack a été reconstruite de zéro
+     plusieurs fois depuis juillet). « Autant de lignes de logs. Essaie de `grep` ça. »
   2. Une recherche en live sur une plage horaire : le résultat qui tombe instantanément.
-  3. Les **dashboards par service** : un pour le DNS, un pour le système, un pour le
-     réseau — quelques secondes sur chacun, sans expliquer les détails.
-  4. Le clou : une **alerte Suricata qui arrive en direct** dans l'interface — « ça,
-     c'est mon IDS, celui du cours 3, qui vient de signaler quelque chose sur mon réseau.
-     Le SIEM en action, en vrai, chez moi. »
+  3. Les deux **tableaux de bord** : « Homelab — Vue d'ensemble » (les 4 hyperviseurs,
+     la plateforme, les sondes up/down, le volume de logs par machine) et
+     « Déploiements VDP » — quelques secondes sur chacun, sans expliquer les détails.
+  4. Le clou : une **alerte Suricata qui arrive en direct** — filtre
+     `application: opnsense` dans Discover — « ça, c'est mon IDS, celui du cours 3, qui
+     vient de signaler quelque chose sur mon réseau. Le SIEM en action, en vrai, chez
+     moi. »
+
+> ⚠️ **Honnêteté de version** : la stack de production du formateur est en **Elastic
+> 7.17** (elle porte une plateforme qui n'a pas à bouger), le cours est en **9.x**.
+> L'interface diffère par endroits ; le dire en une phrase à l'écran plutôt que de le
+> laisser remarquer en commentaire.
 
 ### À dire
 
