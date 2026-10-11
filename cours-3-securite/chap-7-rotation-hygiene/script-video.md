@@ -1,5 +1,7 @@
 # Chapitre 7 — Rotation & hygiène des secrets : script vidéo
 
+> 🔄 Encart « vrai matériel » complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~25 min. Prérequis : cours 0-2 finis, et les chapitres 1 à 6 de ce cours
 > (OPNsense en place, Vault déployé, une CA interne ELK qui signe les certs, `ansible-vault`
 > déjà utilisé depuis le cours 1). Toutes les commandes montrées sont dans `demo.sh`.
@@ -150,7 +152,11 @@ valeurs, montrer les **noms** des variables rotées :
 Un seul fichier `.vault_pass` (jamais committé, dans `.gitignore`) ouvre l'ensemble. Le jour
 où l'un fuite, je sais exactement où il est et je le fais tourner en une commande :
 `ansible-vault edit`, puis je rejoue le playbook. La rotation devient une routine, pas une
-crise. »
+crise. Et l'inverse exact, pour bien fixer la frontière : les clés **publiques** de mes
+appareils — celle du Mac, celle du téléphone — sont versionnées en clair, dans un dossier
+`keys/`, et un rôle les pose sur les machines. Public : dans git, lisible par tous. Privé :
+ne quitte jamais l'appareil, et sinon, le vault. Si tu hésites sur la catégorie d'un
+fichier, c'est qu'il est privé. »
 
 ## 5. Annonce du TP (1 min)
 

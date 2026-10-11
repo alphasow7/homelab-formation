@@ -15,6 +15,11 @@
 > 02/09/2026 » en tête de `Contexte.md`, `ansible/inventory/hosts.yml`,
 > `docs/opnsense.md`, `docs/supervision.md`, `docs/acces-distant.md`,
 > `docs/certifications-alignement-2026-09.md`.
+>
+> **Point de synchronisation.** Dernier commit du dépôt `homelab` intégré dans la formation :
+> `homelab-sync: 2d42e71` (12/10/2026, « rebond Termius vers les hôtes internes »). Le script
+> `scripts/suivi-homelab.sh` lit cette ligne et liste tout ce qui a bougé depuis côté homelab.
+> Après chaque passe d'alignement, remplacer le hash par celui du dernier commit traité.
 
 ## 1. Le parc aujourd'hui
 
@@ -29,7 +34,7 @@
    i7 / 31 Go   16 Go          16 Go          16 Go         Proxmox VE 9.2.11
        │            │              │              │
        │        rundeck-vortex  gitlab-vortex   bastion .56 (VM 220)
-       │        .53 (VM 210)    .54 (VM 211)    Tailscale + TOTP
+       │        .53 (VM 210)    .54 (VM 211)    Tailscale + clé + TOTP
        │        artifactory     (+ Vault
        │        .55 (VM 212)    unsealer)
        │
@@ -48,7 +53,7 @@
 | `rundeck-vortex` (VM 210) | Rundeck + **Vault principal** (auto-unseal par transit) | pve01 | .53 |
 | `gitlab-vortex` (VM 211) | GitLab CE + runner + **Vault unsealer** (:8210) | pve02 | .54 |
 | `artifactory-vortex` (VM 212) | Artifactory OSS + moteur `vdp` + PKI Vault | pve01 | .55 |
-| `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret | pve03 | .56 |
+| `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes | pve03 | .56 |
 | `vxse-lab-01` (VM 300) | cible VDP : stack ELK **7.17** (VXSE/VXLO/VXKI/VXFB), TLS par PKI Vault | pve, vmbr2 | 10.10.20.61 ↔ 192.168.1.61 |
 | OPNsense (VM 600) | pare-feu, `onboot: 1`, 2 vCPU / 4 Go ; LAN vmbr5, WAN vmbr0, patte vmbr2 | pve | 192.168.99.1 / DHCP box |
 | PBS (LXC 500) | PBS 3.4.8, datastore `vm-backups` sur HDD ~1 To | pve | 10.10.10.20 et 192.168.1.220 |
@@ -86,7 +91,7 @@ VDP ») ; une alerte réelle éprouvée de bout en bout, panne → courrier en 3
 | OPNsense « Phase 1 lab, VM laissée arrêtée » | **en service**, `onboot: 1`, filtre réellement : VIP `192.168.1.61` NAT 1:1 → `10.10.20.61`, seuls 22/5044/5140udp/9200/5601 passent, prouvé (port 9999 refusé du parc) | C3 ch.1-3, ch.5 |
 | `proxmox_firewall` « zones management/elk/devsecops » | `cluster.fw` (4 nœuds) + `host.fw` + zones par VM ; recentré sur `proxmox_routeur` (`pct` ne marche que localement) ; `log_level_in` invalide au niveau cluster | C3 ch.4 |
 | Vault : `vault-unseal.yml`, clés dans le vault Ansible `devsecops`, cert « CA ELK » | **auto-unseal par transit** (unsealer sur gitlab-vortex), aucune clé sur le disque du principal, Shamir = recovery ; cert de la racine Vortex ; `vault-unseal.yml` archivé | C3 ch.6 |
-| « tes deux nœuds K3S attendent », « WireGuard sur OPNsense » | kubeadm sur 2 VMs ; accès distant = **bastion + Tailscale**, clé Secure Enclave/FIDO2 + TOTP (08/10/2026) ; WireGuard archivé | C3 ch.8 (script + projet) |
+| « tes deux nœuds K3S attendent », « WireGuard sur OPNsense » | kubeadm sur 2 VMs ; accès distant = **bastion + Tailscale**, clé liée à l'appareil + TOTP — Mac enrôlé le 11/10, iPhone le 12/10/2026 ; WireGuard archivé | C3 ch.8 (script + projet) |
 | Teaser des 4 cours dans C0 ch.1 (ordre et contenus faux : « cours 1 réseau, 2 services, 3 automatisation ») | ordre réel 0 Fondations, 1 Ansible, 2 ELK, 3 Sécurité — incohérence antérieure au pivot, corrigée au passage | C0 ch.1 §6 |
 
 ## 3. Ce qui n'a pas bougé (à filmer tel quel)
@@ -156,6 +161,10 @@ hors-série ou une V2.
 | C3 ch.6 ✍️ | auto-unseal par transit vérifié par un vrai reboot ; `Restart=on-failure` sinon une panne de courant est fatale | `0218f7f` |
 | C3 ch.7 (hygiène) | voir C1 ch.6 : secret dans l'historique git, garde-fou, `scripts/secret` | ci-dessus |
 | C3 ch.8 / bastion | 1 Go de RAM : `dnf` tué par l'OOM ; `PermitOpen` non trié → sshd redémarrait à chaque passage ; politique Tailscale collée en commentaire = règle par défaut active, révélé seulement par le filtre compilé | `docs/acces-distant.md` |
+| C3 ch.8 / bastion | `LoginGraceTime 20` : Face ID + saisie du code TOTP dépassaient 20 s depuis l'iPhone, et chaque dépassement coûte 90 s de pénalité (`PerSourcePenalties`, OpenSSH ≥ 9.8) → 60 s. Termius : le champ *Password* de l'hôte doit rester vide, sinon l'app répond seule à l'invite TOTP | `50213c4` |
+| C3 ch.8 / bastion | compromis assumé et écrit : la clé de l'iPhone (Termius) est exportable, celle du Mac (Secure Enclave) non ; compensé par Face ID, TOTP et bientôt Tailnet Lock. Élargir la politique Tailscale (téléphone → 22 **et** 443) impose de réécrire ses `tests` — c'est le but | `50213c4`, `docs/tailscale-policy.hujson` |
+| C0 ch.7 · C1 ch.2 | le bastion ne détient **aucune clé** : la clé de l'appareil est posée sur les hôtes internes (rôle `cles_distantes`, `exclusive: false` pour ne pas écraser celles de cloud-init et du moteur vdp) et l'authentification part du téléphone jusqu'à la machine cible, en rebond. Piège client : `IdentitiesOnly yes` avec un agent (Secretive) exige un `IdentityFile` pointant sur la **clé publique**, sinon la clé n'est jamais proposée | `84ed3d3`, `docs/acces-distant.md` |
+| C3 ch.7 | les clés **publiques** des appareils sont versionnées en clair (`scripts/keys/*.pub`) et chargées par `lookup('file')` ; les privées ne quittent jamais l'appareil — l'exact inverse du trousseau `ansible-vault` | `50213c4` |
 
 ## 5. À trancher avant tournage
 
@@ -221,6 +230,8 @@ hors-série ou une V2.
 - PBS (`https://192.168.1.220:8007`) : dernière sauvegarde de la nuit OK, ratio de dédup.
 - `ansible all -m ping` → 10 pongs ; `ansible-playbook playbooks/site.yml --check` vert.
 - `vault status` sur rundeck-vortex : `Sealed false`, `Seal Type transit`.
+- Depuis le tailnet (Mac) : `ssh bastion-ts` accepté (Touch ID puis code TOTP), et un
+  `ssh pve01-ts hostname` en rebond. Adresse `100.x` jamais à l'écran.
 
 ## 7. Fichiers modifiés le 11/10/2026
 
@@ -241,3 +252,14 @@ réaligné le 11/10/2026 ».
 `correction/`, `quiz.md` hors C0 ch.1, `lab-depart.md`, `labs/`), les extraits Ansible
 (`ansible-extraits/`, `cours-1-ansible/ansible/`) et les tags `c*-fin` — le lab élève est
 autonome et ne dépend pas du parc réel. Le matériel de bêta-test du cours 0 non plus.
+
+## 8. Journal des synchronisations avec le dépôt `homelab`
+
+Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des modifications.
+
+- **11/10/2026** — point de départ, `5e0feb5` (bastion : TOTP depuis le tailnet). Réalignement
+  complet des encarts (§7), correctif syslog du cours 2 ch. 7, épinglage Elastic 9.3.8.
+- **12/10/2026** — `50213c4`, `84ed3d3`, `2d42e71` (bastion : enrôlement du Mac et de
+  l'iPhone, rôle `cles_distantes`, `LoginGraceTime` 60 s). Mis à jour : §1 (ligne bastion),
+  §2, §4 (cinq lignes bastion / clés), §6 ; encarts de C0 ch.7, C1 ch.2, C3 ch.7 et C3 ch.8.
+  Matériel élève intact : aucune pratique enseignée ne change.

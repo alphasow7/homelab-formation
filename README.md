@@ -20,7 +20,9 @@ bastion Tailscale en octobre). Les labs élève ne changent pas ; les **encarts 
 matériel »** des scripts, le plan de tournage et les teasers ont été réécrits sur le parc
 réel, et les pannes vécues depuis juillet sont rangées par chapitre. État de référence :
 [`docs/infra-reelle-2026-10.md`](docs/infra-reelle-2026-10.md) — à relire la veille de
-chaque tournage.
+chaque tournage. La formation suit le homelab en continu : `scripts/suivi-homelab.sh`
+liste ce qui a bougé dans le dépôt `homelab` depuis le dernier commit intégré (marqueur
+`homelab-sync:` en tête du document de référence).
 
 **Prochaine étape — le bêta-test du cours 0**, porte d'entrée du tournage :
 [protocole](cours-0-fondations/beta-test.md) · [kit de recrutement](cours-0-fondations/beta-recrutement.md) ·

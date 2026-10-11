@@ -1,6 +1,6 @@
 # Chapitre 2 — L'inventaire : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~25 min. Prérequis élève : chapitre 1 fait (Ansible installé sur le
 > poste), lab en place (3 VMs sur le segment 10.10.99.0/24, bastion opérationnel,
@@ -187,7 +187,9 @@ un groupe `plateforme` pour Rundeck, GitLab et Artifactory, `cibles_elk`, `backu
 `acces`… et un groupe `supervision` qui ne contient que des *enfants* : tout ce qui
 reçoit un agent de métriques. Un groupe de groupes — retiens l'idée. Et le bastion ?
 Regarde le groupe `acces` : chez moi, c'est une VM dédiée, la seule joignable de
-l'extérieur, et je rebondis dessus en `ssh -J` exactement comme toi. Ce pattern, tu
+l'extérieur, et je rebondis dessus en `ssh -J` exactement comme toi. Détail qui compte :
+le bastion ne détient aucune clé — celle de mon appareil est posée sur les machines du
+fond par un rôle Ansible, et l'authentification va de bout en bout. Ce pattern, tu
 viens de l'apprendre — il tient jusqu'à des centaines de machines. Les grosses boîtes
 ont des inventaires générés automatiquement depuis le cloud, mais la logique groupes +
 variables reste la même. »

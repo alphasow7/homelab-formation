@@ -1,6 +1,6 @@
 # Projet final du cours 3 — ET DE LA FORMATION — La boucle complète : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~30 min. C'est le dernier chapitre du dernier cours. Prérequis : tout le
 > lab debout — OPNsense pare-feu de périmètre (WAN + LAN `192.168.99.1`, chap 2-4),
@@ -159,8 +159,9 @@ Sois fier. Vraiment. Peu de gens vont au bout de ces quatre cours. Toi, tu l'as 
 - **Haute disponibilité** — plusieurs nœuds, de la réplication, que rien ne tombe. Chez
   moi : un cluster Proxmox de quatre nœuds, né de trois mini-PCs d'occasion.
 - **Accès distant durci** — rejoindre ton lab de l'extérieur, en sécurité. Chez moi : un
-  bastion dédié, joignable uniquement par un VPN maillé, clé non exportable ET code à
-  usage unique — ton bastion du cours 0, version adulte.
+  bastion dédié, joignable uniquement par un VPN maillé, clé liée à l'appareil ET code à
+  usage unique, depuis le Mac comme depuis le téléphone — ton bastion du cours 0, version
+  adulte. Et chaque compromis est écrit noir sur blanc dans la doc, avec sa compensation.
 - **Orchestration** — Kubernetes, les conteneurs à l'échelle : deux VMs et `kubeadm`
   suffisent pour apprendre — c'est comme ça que je m'entraîne.
 
