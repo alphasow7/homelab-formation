@@ -26,6 +26,12 @@ au total sur la VM.
 infra, un repo, qui grandit. Les nouveaux rôles (elasticsearch, elk_certs, logstash,
 kibana, filebeat) s'y ajoutent chapitre après chapitre.
 
+**Une seule version Elastic pour tout le cours : 9.3.8**, épinglée dans les rôles
+(`elasticsearch`, `logstash`, `kibana`, `filebeat` lisent tous `elastic_version`). Le
+dépôt apt « 9.x » sert la dernière 9.x du moment, qui ne sera pas celle des vidéos : ne
+change pas la version en cours de route, et si tu dois le faire, fais-le d'un bloc dans
+`inventory/group_vars/lab/vars.yml` puis rejoue les quatre playbooks.
+
 Le dossier [`ansible-extraits/`](ansible-extraits/) de ce cours contient la **copie de
 référence** de chaque fichier ajouté — pour lire le code final sans dépendre de l'état de
 ton lab, et pour te comparer en cas de doute (les tags `c2-chap*-fin` figent aussi chaque

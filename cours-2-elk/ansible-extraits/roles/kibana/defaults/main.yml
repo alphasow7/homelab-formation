@@ -1,4 +1,7 @@
 ---
+# Même version épinglée que le reste de la stack (dépôt posé par le rôle
+# logstash sur cette VM) — voir roles/elasticsearch/defaults.
+kibana_version: "{{ elastic_version | default('9.3.8') }}"
 kibana_port: 5601
 kibana_server_host: "0.0.0.0"
 # Le cluster ES à qui Kibana parle (en HTTPS — TLS posé au chapitre 3)

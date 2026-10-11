@@ -1,7 +1,10 @@
 ---
 # Filebeat : l'agent léger, un par machine — il ramasse les logs et les poste
 # à Logstash. Il ne parse rien, il n'écrit dans aucun index directement.
-filebeat_version: "9.x"
+# Même version épinglée que la stack qui reçoit ses événements — voir
+# roles/elasticsearch/defaults. Un Beat plus récent que son Logstash est refusé.
+filebeat_repo_channel: "{{ elastic_repo_channel | default('9.x') }}"
+filebeat_version: "{{ elastic_version | default('9.3.8') }}"
 
 # On envoie TOUT à Logstash (input beats 5044, chap 4) — jamais direct vers ES.
 # Logstash est le seul à parler HTTPS à Elasticsearch et à ranger les documents.

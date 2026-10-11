@@ -9,6 +9,12 @@ cd "$(dirname "$0")/../../cours-1-ansible/ansible"
 cp -r ../../cours-2-elk/ansible-extraits/roles/elasticsearch roles/
 cp ../../cours-2-elk/ansible-extraits/playbooks/elk.yml playbooks/
 
+# 0 bis. La version est ÉPINGLÉE (roles/elasticsearch/defaults : 9.3.8, celle du cours).
+#        Le dépôt « 9.x » sert la dernière 9.x du moment : sans épinglage, ta stack ne
+#        serait pas celle des vidéos. Pour changer de version plus tard, UNE ligne dans
+#        inventory/group_vars/lab/vars.yml, lue par les 4 rôles du cours :
+#            elastic_version: "9.3.8"
+
 ########## SUR LE NŒUD PROXMOX (root) — masquerade ON (~600 Mo à télécharger) ##########
 # iptables -t nat -A POSTROUTING -s 10.10.99.0/24 -o vmbr0 -j MASQUERADE
 

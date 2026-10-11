@@ -18,17 +18,23 @@
   ansible.builtin.copy:
     content: >-
       deb [signed-by=/usr/share/keyrings/elastic.asc]
-      https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main
+      https://artifacts.elastic.co/packages/{{ elasticsearch_repo_channel }}/apt stable main
     dest: /etc/apt/sources.list.d/elastic.list
     owner: root
     group: root
     mode: "0644"
 
+# Version ÉPINGLÉE (paquet=version), puis figée : voir defaults.
 - name: Install Elasticsearch
   ansible.builtin.apt:
-    name: elasticsearch
+    name: "elasticsearch={{ elasticsearch_version }}"
     state: present
     update_cache: true
+
+- name: Figer la version (elasticsearch ne bougera pas à un apt upgrade)
+  ansible.builtin.dpkg_selections:
+    name: elasticsearch
+    selection: hold
 
 - name: Deploy Elasticsearch configuration
   ansible.builtin.template:

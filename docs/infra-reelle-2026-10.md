@@ -159,11 +159,13 @@ hors-série ou une V2.
 
 ## 5. À trancher avant tournage
 
-1. **Épingler la version Elastic du cours 2.** Les rôles de `cours-2-elk/ansible-extraits`
-   déclarent `"9.x"` : un élève installera la dernière 9.x du moment, pas celle de la
-   vidéo. Leçon payée le 02/09 sur le lab de certification (`b34cd84`). Épingler
-   (`elasticsearch=9.3.x` + `apt-mark hold`, ou une variable `elastic_version`) change
-   les rôles **et** les tags `c2-chap*-fin` : à faire en une passe dédiée, pas ici.
+1. **Épingler la version Elastic du cours 2 — fait le 11/10/2026.** Les quatre rôles
+   distinguent désormais le canal du dépôt (`*_repo_channel`, `9.x`) de la version du
+   paquet (`*_version`, `9.3.8`, figée par `dpkg hold`), avec `elastic_version` /
+   `elastic_repo_channel` surchargeables d'un bloc dans `group_vars/lab`. 9.3.8 = la
+   version de l'examen Elastic Certified Engineer et du lab `elastic/` du homelab,
+   vérifiée disponible le 02/09/2026 (`b34cd84`). Non rejoué sur le lab ; les tags
+   `c2-*` restent sur la version non épinglée.
 2. **Kibana 7.17 à l'écran, cours en 9.x.** L'écart d'interface se voit. Deux options :
    l'assumer en une phrase (fait dans C2 ch.1), ou filmer les encarts Kibana sur le lab
    Elastic 9.3 de `elastic/` (3 nœuds, mais pas de Suricata ni de supervision dessus).
@@ -205,6 +207,9 @@ hors-série ou une V2.
    lab** (le motif grok a été testé hors ligne sur les formats rsyslog/syslog-ng, pas sur
    un Logstash réel), puis déplacer les tags `c2-chap7-fin`, `c2-chap8-fin`, `c2-fin` et
    `c3-*` si l'on veut qu'un `git checkout` d'étape embarque le correctif.
+
+9. **Prérequis Ansible — fait le 11/10/2026** : le cours 1 demande désormais `≥ 2.16`
+   (le homelab l'exige et épingle `ansible-core` en CI ; 2.15 n'est plus maintenu).
 
 ## 6. Ce qui reste à vérifier sur le parc, le jour J
 

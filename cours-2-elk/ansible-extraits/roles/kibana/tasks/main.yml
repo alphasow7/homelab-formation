@@ -1,8 +1,14 @@
 ---
 - name: Install Kibana
   ansible.builtin.apt:
-    name: kibana
+    name: "kibana={{ kibana_version }}"
     state: present
+    update_cache: true
+
+- name: Figer la version (kibana ne bougera pas à un apt upgrade)
+  ansible.builtin.dpkg_selections:
+    name: kibana
+    selection: hold
 
 - name: Ensure Kibana certs directory exists
   ansible.builtin.file:

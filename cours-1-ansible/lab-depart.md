@@ -40,7 +40,7 @@ rien sur les machines gérées — juste SSH).
 ## ✅ Vérifications avant le chapitre 1
 
 ```bash
-ansible --version        # ≥ 2.15
+ansible --version        # ≥ 2.16 (ansible-core 2.15 n'est plus maintenu)
 ssh alpha@IP_DE_TON_BASTION hostname    # → bastion, sans mot de passe
 ```
 

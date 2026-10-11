@@ -218,7 +218,7 @@
      moi. »
 
 > ⚠️ **Honnêteté de version** : la stack de production du formateur est en **Elastic
-> 7.17** (elle porte une plateforme qui n'a pas à bouger), le cours est en **9.x**.
+> 7.17** (elle porte une plateforme qui n'a pas à bouger), le cours est en **9.3** (épinglée).
 > L'interface diffère par endroits ; le dire en une phrase à l'écran plutôt que de le
 > laisser remarquer en commentaire.
 

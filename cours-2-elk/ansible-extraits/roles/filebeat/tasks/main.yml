@@ -29,7 +29,7 @@
   ansible.builtin.copy:
     content: >-
       deb [signed-by=/usr/share/keyrings/elastic.asc]
-      https://artifacts.elastic.co/packages/{{ filebeat_version }}/apt stable main
+      https://artifacts.elastic.co/packages/{{ filebeat_repo_channel }}/apt stable main
     dest: /etc/apt/sources.list.d/elastic.list
     owner: root
     group: root
@@ -37,9 +37,14 @@
 
 - name: Install Filebeat
   ansible.builtin.apt:
-    name: filebeat
+    name: "filebeat={{ filebeat_version }}"
     state: present
     update_cache: true
+
+- name: Figer la version (filebeat ne bougera pas à un apt upgrade)
+  ansible.builtin.dpkg_selections:
+    name: filebeat
+    selection: hold
 
 - name: Deploy Filebeat configuration
   ansible.builtin.template:

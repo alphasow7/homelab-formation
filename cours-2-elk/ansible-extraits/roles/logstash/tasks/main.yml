@@ -20,17 +20,24 @@
   ansible.builtin.copy:
     content: >-
       deb [signed-by=/usr/share/keyrings/elastic.asc]
-      https://artifacts.elastic.co/packages/{{ logstash_version }}/apt stable main
+      https://artifacts.elastic.co/packages/{{ logstash_repo_channel }}/apt stable main
     dest: /etc/apt/sources.list.d/elastic.list
     owner: root
     group: root
     mode: "0644"
 
+# Épinglé comme Elasticsearch. Particularité : le paquet Debian de Logstash
+# porte une « epoch » et une révision — la version apt s'écrit 1:9.3.8-1.
 - name: Install Logstash
   ansible.builtin.apt:
-    name: logstash
+    name: "logstash=1:{{ logstash_version }}-1"
     state: present
     update_cache: true
+
+- name: Figer la version (logstash ne bougera pas à un apt upgrade)
+  ansible.builtin.dpkg_selections:
+    name: logstash
+    selection: hold
 
 # Le heap : Logstash tourne sur la JVM, comme ES. 512m car la VM est partagée
 # avec Kibana (chap 5). Ce fichier est lu en plus des options par défaut.

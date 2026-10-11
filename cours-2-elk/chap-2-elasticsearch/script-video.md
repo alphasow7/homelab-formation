@@ -33,7 +33,14 @@ Masquerade OFF.
 
 **À expliquer pendant que ça télécharge** : le tour du rôle — la méthode GPG moderne
 (signed-by, « apt-key est mort »), le template avec `discovery.type: single-node`, le
-heap fixé à 2 Go.
+heap fixé à 2 Go. Et la ligne `name: "elasticsearch={{ elasticsearch_version }}"` :
+« Le dépôt s'appelle `9.x`, mais `9.x` n'est pas une version : c'est un **canal**, qui
+sert la dernière 9.x du moment. Si j'installais "la 9.x", tu n'aurais pas la même que
+moi dans trois mois — et les défauts, les écrans, les messages bougent d'une version
+mineure à l'autre. Alors on **épingle** : 9.3.8, pour tout le cours, et on la **fige**
+(`dpkg hold`) pour qu'un `apt upgrade` ne la déplace pas. Ça m'est arrivé pour de vrai :
+un lab monté "en 9.x" qui servait une version que l'examen que je préparais ne
+connaissait pas. »
 
 ### 2.2 Premier contact
 
