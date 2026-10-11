@@ -152,10 +152,12 @@ Sois fier. Vraiment. Peu de gens vont au bout de ces quatre cours. Toi, tu l'as 
 
 - **Supervision qui prévient** — aujourd'hui ton SIEM te montre ; demain il t'appelle :
   sondes de disponibilité, règles d'alerte, un mail quand une machine se tait. Chez moi,
-  une panne réelle arrive par courrier en trois minutes.
+  une panne réelle arrive par courrier en trois minutes — et j'ai appris, en perdant la
+  stack un mois sans un mail, à surveiller le surveillant aussi.
 - **Plateforme de déploiement** — ton GitLab est déjà là : automatise le déploiement de
   ton propre code. Chez moi c'est devenu une chaîne complète — Rundeck, GitLab,
-  Artifactory, Ansible — où un job reconstruit une stack ELK de zéro.
+  Artifactory, Ansible — où un job reconstruit une stack ELK de zéro, et une CI qui
+  joue mes playbooks dans le lab depuis GitHub, sans ouvrir un seul port entrant.
 - **Haute disponibilité** — plusieurs nœuds, de la réplication, que rien ne tombe. Chez
   moi : un cluster Proxmox de quatre nœuds, né de trois mini-PCs d'occasion.
 - **Accès distant durci** — rejoindre ton lab de l'extérieur, en sécurité. Chez moi : un

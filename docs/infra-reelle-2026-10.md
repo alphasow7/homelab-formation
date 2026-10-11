@@ -16,10 +16,12 @@
 > `docs/opnsense.md`, `docs/supervision.md`, `docs/acces-distant.md`,
 > `docs/certifications-alignement-2026-09.md`.
 >
-> **Point de synchronisation.** Dernier commit du dépôt `homelab` intégré dans la formation :
-> `homelab-sync: 2d42e71` (12/10/2026, « rebond Termius vers les hôtes internes »). Le script
-> `scripts/suivi-homelab.sh` lit cette ligne et liste tout ce qui a bougé depuis côté homelab.
-> Après chaque passe d'alignement, remplacer le hash par celui du dernier commit traité.
+> **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
+> alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
+> `homelab-sync: 2d42e71 830f78e 3e44693 2171609` — bastion (12/10), supervision (08/10),
+> runner GitHub (08/10), pièges de démarrage du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
+> de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
+> les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
 
 ## 1. Le parc aujourd'hui
 
@@ -51,7 +53,7 @@
 | `pve` | tour, nœud « routeur » : seuls bridges internes, apt-cacher-ng, relais syslog, PBS | — | 192.168.1.200 |
 | `pve01` / `pve02` / `pve03` | les 3 Lenovo M715q, réinstallés en hyperviseurs le 31/08/2026 | — | .50 / .51 / .52 |
 | `rundeck-vortex` (VM 210) | Rundeck + **Vault principal** (auto-unseal par transit) | pve01 | .53 |
-| `gitlab-vortex` (VM 211) | GitLab CE + runner + **Vault unsealer** (:8210) | pve02 | .54 |
+| `gitlab-vortex` (VM 211) | GitLab CE + runner GitLab + **Vault unsealer** (:8210) + runner **GitHub Actions** (08/10, sortie HTTPS seule : la CI joue dans le lab sans port entrant) | pve02 | .54 |
 | `artifactory-vortex` (VM 212) | Artifactory OSS + moteur `vdp` + PKI Vault | pve01 | .55 |
 | `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes | pve03 | .56 |
 | `vxse-lab-01` (VM 300) | cible VDP : stack ELK **7.17** (VXSE/VXLO/VXKI/VXFB), TLS par PKI Vault | pve, vmbr2 | 10.10.20.61 ↔ 192.168.1.61 |
@@ -62,7 +64,11 @@
 reconstruit une stack ELK de zéro (critère atteint le 02/08/2026) ; Metricbeat sur les
 9 machines supervisées, Heartbeat et ElastAlert sur `rundeck-vortex`, chien de garde
 Rundeck, relais SMTP ; deux écrans Kibana (« Homelab — Vue d'ensemble », « Déploiements
-VDP ») ; une alerte réelle éprouvée de bout en bout, panne → courrier en 3 minutes.
+VDP ») ; une alerte réelle éprouvée de bout en bout, panne → courrier en 3 minutes
+(02/09). **Deux jours plus tard, la stack s'est arrêtée pour un mois (04/09 → 08/10) sans
+un seul mail** — cinq défauts muets, §4 C2 ch.9 ; corrigés le 08/10 : job de renouvellement
+des certificats importé par Ansible, jeton PKI prolongé par un timer, SMTP sur Rundeck,
+`onboot` sur la VM 300, BIOS des Lenovo en *Power On*.
 
 **Ansible** : 26 rôles, `site.yml` = 16 plays + import de `monitoring.yml`, groupes
 `proxmox` (`proxmox_routeur` / `proxmox_noeuds`), `plateforme`, `cibles_elk`, `backup`,
@@ -165,6 +171,14 @@ hors-série ou une V2.
 | C3 ch.8 / bastion | compromis assumé et écrit : la clé de l'iPhone (Termius) est exportable, celle du Mac (Secure Enclave) non ; compensé par Face ID, TOTP et bientôt Tailnet Lock. Élargir la politique Tailscale (téléphone → 22 **et** 443) impose de réécrire ses `tests` — c'est le but | `50213c4`, `docs/tailscale-policy.hujson` |
 | C0 ch.7 · C1 ch.2 | le bastion ne détient **aucune clé** : la clé de l'appareil est posée sur les hôtes internes (rôle `cles_distantes`, `exclusive: false` pour ne pas écraser celles de cloud-init et du moteur vdp) et l'authentification part du téléphone jusqu'à la machine cible, en rebond. Piège client : `IdentitiesOnly yes` avec un agent (Secretive) exige un `IdentityFile` pointant sur la **clé publique**, sinon la clé n'est jamais proposée | `84ed3d3`, `docs/acces-distant.md` |
 | C3 ch.7 | les clés **publiques** des appareils sont versionnées en clair (`scripts/keys/*.pub`) et chargées par `lookup('file')` ; les privées ne quittent jamais l'appareil — l'exact inverse du trousseau `ansible-vault` | `50213c4` |
+| C2 ch.9 ✍️ | **la panne d'un mois** (04/09 → 08/10) : certificats Metricbeat (TTL 72 h) expirés car le job de renouvellement avait disparu, jeton PKI mort, VM 300 sans `onboot` ; le chien de garde a vu la panne **391 fois** mais Rundeck n'avait pas de SMTP, chaque mail échouait. Qui surveille le surveillant ? Tester la chaîne d'alerte en la faisant **échouer** | `830f78e`, `docs/supervision.md` §8 quater |
+| C1 ch.8 ✍️ | un job Rundeck créé **à la main** le 02/08 (hors dépôt) a disparu à la reconstruction du 31/08 — et avec lui le renouvellement des certificats. Ce qui n'est pas dans le dépôt n'existe pas ; désormais importé par le rôle `vortex_rundeck_projet` | `830f78e` |
+| C3 ch.6 ✍️ | un jeton Vault **périodique** (720 h) ne se prolonge pas en servant : seul `renew-self` le fait. Mort début octobre, il bloquait même le renouvellement manuel. Timer systemd nocturne, `Persistent=true` | `830f78e` |
+| C3 ch.1 ✍️ | piloter le lab de l'extérieur **sans ouvrir un port** : runner GitHub Actions sur gitlab-vortex qui interroge github.com en sortie ; vault pass et clé SSH restent dans le lab. Workflow : lint à chaque push, `ansible all -m ping` et `site.yml --check --diff` à la demande | `3e44693`, `docs/github-runner.md` |
+| C0 ch.3 / ch.7 | VM 300 sans `onboot` : après chaque coupure, tout le parc revenait sauf la stack ; BIOS des Lenovo en *After Power Loss = Last State* → `Power On` (`think-lmi`). Vérifier `onboot` et le BIOS avant de parler de « reprise automatique » | `830f78e` |
+| C1 ch.3 | CI du dépôt : `yamllint`, `ansible-lint --offline` (profil production) et `--syntax-check` sur chaque push, dans le lab | `3e44693` |
+| C1 ch.2 ✍️ | `ansible.cfg` n'est lu que dans le **répertoire courant** et porte `inventory` et `roles_path` en relatif : lancé depuis la racine du dépôt, « No inventory was parsed » puis « role … was not found » alors que le rôle est là. C'est la raison du `cd` en tête de chaque `demo.sh` | `89d25bf` |
+| C2 ch.2 ✍️ | un pin posé **avant** l'installation ne verrouille rien (`dnf versionlock` sur un paquet absent écrit une ligne par version du dépôt, 49 pour kibana, et la liste est un allowlist) ; aucun message, le lock « existe ». Épingler après, et **vérifier** le pin : une ligne par paquet | `89d25bf` |
 
 ## 5. À trancher avant tournage
 
@@ -182,8 +196,10 @@ hors-série ou une V2.
    SG3424P d'occasion câblé le 02/08, verrouillé, laissé en L2. Vérifier le jour J ; le
    script dit « switch cinq ports non managé », ce qui est vrai dans les deux cas.
 4. **Ne pas rejouer le lab élève sur la tour sans précaution** : `10.10.99.0/24` est
-   désormais pris par `vmbr7` (labs RHCSA/RHCE/CKA/Elastic, VMIDs 91xx), et le lab élève
-   utilise le même réseau sur `vmbr1` et des VMIDs 9000-9204. Collision garantie. Filmer
+   désormais pris par `vmbr7` (labs RHCSA/RHCE/CKA/Elastic, VMIDs 91xx ; es-01..03 en
+   `.41`-`.43` depuis le 02/09, `2171609`), et le lab élève utilise le même réseau sur
+   `vmbr1` et des VMIDs 9000-9204 — `.11`, `.12`, `.14`, `.2` libres côté vmbr7 mais le
+   routage ne saurait pas lequel des deux bridges viser. Collision garantie. Filmer
    les démos élève sur le chemin A (VirtualBox) ou sur un nœud sans lab.
 5. **`--cpu host`** : sans objet tant que le lab élève est en Debian 12. Si un jour le lab
    passe sur Rocky, c'est un prérequis du chapitre 3 du cours 0.
@@ -232,6 +248,9 @@ hors-série ou une V2.
 - `vault status` sur rundeck-vortex : `Sealed false`, `Seal Type transit`.
 - Depuis le tailnet (Mac) : `ssh bastion-ts` accepté (Touch ID puis code TOTP), et un
   `ssh pve01-ts hostname` en rebond. Adresse `100.x` jamais à l'écran.
+- Rundeck : le job `vdp/renew-certs-nova` a tourné cette nuit (succès), et un job d'échec
+  jetable produit un **mail reçu** — pas seulement « envoyé ».
+- GitHub → Actions : dernier workflow `homelab-ansible` vert, runner `gitlab-vortex` *Idle*.
 
 ## 7. Fichiers modifiés le 11/10/2026
 
@@ -263,3 +282,12 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   l'iPhone, rôle `cles_distantes`, `LoginGraceTime` 60 s). Mis à jour : §1 (ligne bastion),
   §2, §4 (cinq lignes bastion / clés), §6 ; encarts de C0 ch.7, C1 ch.2, C3 ch.7 et C3 ch.8.
   Matériel élève intact : aucune pratique enseignée ne change.
+- **12/10/2026 (bis)** — le script ne regardait que la branche courante : deux branches
+  homelab non fusionnées n'avaient jamais été vues. `830f78e` (`fix/supervision-certs-et-alertes` :
+  la panne d'un mois de la stack ELK, cinq défauts muets) et `3e44693`
+  (`feat/github-runner-ci` : runner GitHub Actions dans le lab). Marqueur multi-têtes,
+  scan de toutes les branches (depuis le pivot, 08/2026). Également `2171609`
+  (`docs/elastic-pieges-demarrage`, 03/09 : `ansible.cfg` lu dans le seul répertoire
+  courant, pin inerte posé avant l'installation, vmbr7 partagé). Mis à jour : §1
+  (gitlab-vortex, paragraphe supervision), §4 (huit lignes), §5 décision 4, §6 ; encarts
+  de C1 ch.2, C1 ch.8, C2 ch.2, C2 ch.9, C3 ch.1, C3 ch.6 et C3 ch.8.

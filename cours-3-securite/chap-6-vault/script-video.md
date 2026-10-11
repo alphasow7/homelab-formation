@@ -1,6 +1,6 @@
 # Chapitre 6 — HashiCorp Vault : le coffre-fort à secrets : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~25 min. Prérequis : lab de départ (`../lab-depart.md`) + une VM pour
 > héberger Vault (on réutilise `dns-proxy`, `10.10.99.12` sur le segment `10.10.99.0/24`).
@@ -170,6 +170,13 @@ autre nœud, qui ne détient qu'UNE clé de chiffrement — l'« unsealer ». Le
 demande de déchiffrer sa clé maître au démarrage, et n'a plus **aucune** clé sur son
 disque : voler ce disque ne suffit plus. L'ancienne clé Shamir devient clé de secours.
 Vérifié par un vrai redémarrage, pas par un playbook vert. »
+
+**💥 Leçon d'octobre, sur les jetons** : « Mon moteur de déploiement parle à Vault avec un
+jeton *périodique*, valable 720 heures. Je croyais que s'en servir le prolongeait. Non :
+seul un appel explicite de renouvellement le fait. Il est mort début octobre, en silence,
+et il bloquait jusqu'au renouvellement manuel des certificats. Désormais un timer le
+prolonge chaque nuit, et rattrape une nuit manquée. Un jeton, comme un certificat, a une
+date de mort : note-la, et automatise le report. »
 
 **💥 Et la catastrophe évitée de justesse, à raconter telle quelle** : « Pour poser la
 clé de l'unsealer, j'ai capturé une clé base64 avec `cut -d=`. Une clé base64 finit

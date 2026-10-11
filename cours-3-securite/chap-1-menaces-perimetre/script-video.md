@@ -1,6 +1,6 @@
 # Chapitre 1 — Menaces & périmètre : penser comme un attaquant : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~20 min. Prérequis élève : cours 0 (Proxmox), 1 (Ansible) et 2 (ELK)
 > terminés — un lab de 4 VMs sur le segment isolé 10.10.99.0/24, et un SIEM ELK
@@ -220,6 +220,12 @@
 - « Tout ce que tu vois tourne sur le même genre de matériel que le tien, et sera
   configuré par les mêmes rôles Ansible que tu vas écrire. **Voilà les couches qu'on va
   poser, une par une** — et à la fin, ton tableau de bord ressemblera à ça. »
+- « Et pour piloter tout ça depuis l'extérieur — relancer un playbook, vérifier le parc
+  pendant que je suis loin — je n'ouvre **aucun** port. Un petit agent dans le lab interroge
+  GitHub en sortie, récupère le travail, l'exécute ici, et renvoie le résultat. C'est le
+  lab qui va chercher ses ordres, jamais l'inverse. Rappelle-toi le port "juste pour
+  tester" de tout à l'heure : la bonne question n'est pas "comment j'ouvre", c'est
+  "comment je n'ouvre pas". »
 
 ---
 

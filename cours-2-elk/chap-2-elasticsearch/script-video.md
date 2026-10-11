@@ -40,7 +40,12 @@ moi dans trois mois — et les défauts, les écrans, les messages bougent d'une
 mineure à l'autre. Alors on **épingle** : 9.3.8, pour tout le cours, et on la **fige**
 (`dpkg hold`) pour qu'un `apt upgrade` ne la déplace pas. Ça m'est arrivé pour de vrai :
 un lab monté "en 9.x" qui servait une version que l'examen que je préparais ne
-connaissait pas. »
+connaissait pas. Et l'ordre des deux tâches n'est pas décoratif : on **installe, puis**
+on fige. Un pin posé sur un paquet pas encore installé n'a rien à retenir — sur mon lab
+RHEL, il avait inscrit 49 versions autorisées pour Kibana, 9.5 comprise, sans un seul
+message d'erreur. Un verrou inerte ressemble trait pour trait à un verrou qui marche ;
+la seule façon de les distinguer, c'est de le vérifier : `apt-mark showhold`, une ligne
+par paquet. »
 
 ### 2.2 Premier contact
 

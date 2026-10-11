@@ -1,6 +1,6 @@
 # Chapitre 8 — Projet final : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~20 min de vidéo (le gros du chapitre, c'est le projet de l'élève, 45 min).
 > Format projet, comme le chap. 7 du cours 0 : pas de nouvelle notion — on cadre, on
@@ -64,6 +64,11 @@ même pattern, poussé un cran plus loin : les 3 VMs de la plateforme sont recr�
 zéro par un job Rundeck** (`vdp rebuild`) — c'était le critère de réussite du chantier,
 atteint le 02/08/2026. À filmer : le job dans l'interface Rundeck et son journal
 d'exécution. Ce qui est précieux, c'est le dépôt Git et les données — jamais la VM.
+Et la leçon inverse, payée cher : un job créé **à la main** dans Rundeck, hors du dépôt,
+a disparu à la reconstruction suivante — avec lui le renouvellement des certificats de ma
+supervision, et un mois de panne silencieuse (tu l'entendras au cours 2). **Ce qui n'est
+pas dans le dépôt n'existe pas.** Aujourd'hui ce job est un fichier versionné, importé par
+un rôle, et chaque push du dépôt est vérifié par une CI qui tourne dans le lab.
 
 ## 4. Célébration et suite (3 min)
 

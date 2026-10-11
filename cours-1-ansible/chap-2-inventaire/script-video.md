@@ -52,8 +52,12 @@
   `ansible_user: alpha` (l'utilisateur SSH) et le ProxyJump. Surligner le placeholder
   `IP_DE_TON_BASTION` et le remplacer en direct.
 - Montrer aussi `ansible/ansible.cfg` 20 secondes : « Ce petit fichier dit à Ansible
-  où trouver l'inventaire. Grâce à lui, plus besoin de `-i` à chaque commande. On
-  reparlera de `host_key_checking` en fin de vidéo. »
+  où trouver l'inventaire. Grâce à lui, plus besoin de `-i` à chaque commande. Une
+  règle à retenir dès maintenant : Ansible ne lit ce fichier **que dans le dossier où tu
+  te trouves**. Lance la même commande d'un dossier au-dessus, et il te répond "No
+  inventory was parsed", puis qu'il ne trouve pas tes rôles — alors qu'ils sont là. Ça
+  m'arrive encore. D'où le `cd` en tête de tous nos scripts. On reparlera de
+  `host_key_checking` en fin de vidéo. »
 
 ---
 

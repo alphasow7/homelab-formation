@@ -1,6 +1,6 @@
 # Chapitre 9 — Projet final : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~18 min de vidéo (le gros du chapitre, c'est l'examen de l'élève : < 10 min
 > chrono en main). Format projet, comme les finals du cours 0 et du cours 1 : pas de
@@ -90,3 +90,12 @@ apparaît dans Kibana — « voilà ce qu'on branche au cours 3, et où ça arri
 dans ton SIEM. » Et le cran d'après, en une phrase : « Chez moi, le SIEM ne fait plus que
 montrer : une règle ElastAlert surveille les sondes, et une panne réelle m'est arrivée
 **par mail en trois minutes** — éprouvé de bout en bout, pas supposé. »
+
+**💥 Et la suite, à raconter sans la maquiller** : « Deux jours après cette alerte en trois
+minutes, la stack entière s'est arrêtée. Un mois. Sans un seul mail. Les certificats que
+les agents utilisent pour livrer avaient expiré — le job qui les renouvelait avait disparu
+avec une reconstruction. Le chien de garde, lui, a bien vu la panne : **391 fois**. Mais le
+serveur qui devait envoyer le courrier n'avait pas de serveur de courrier. Un SIEM
+surveille tout… sauf lui-même. Retiens ça : qui surveille le surveillant ? Et teste ta
+chaîne d'alerte en la faisant **échouer** — un mail de test qui part, ce n'est pas un mail
+de panne qui arrive. »
