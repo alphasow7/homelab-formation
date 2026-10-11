@@ -118,7 +118,9 @@ de source : `logstash-filebeat-*`, `logstash-metricbeat-*`, `logstash-syslog-*`�
 par famille de Beat. Pourquoi ? Pour éviter les conflits de *mapping* (deux sources qui
 appellent un champ pareil avec des types différents) et pour pouvoir purger/dimensionner
 chaque type indépendamment. Notre `logstash-%{+YYYY.MM.dd}` du lab est la version simple
-de cette idée : **un index par jour** — on verra tout de suite pourquoi. »
+de cette idée : **un index par jour** — on verra tout de suite pourquoi. Et au chapitre 7,
+quand on branchera le syslog réseau, on lui donnera son propre index `logstash-syslog-*` :
+exactement cette idée, de tes mains. »
 
 ## 4. 💡 L'astuce du vrai monde (2 min)
 

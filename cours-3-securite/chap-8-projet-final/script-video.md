@@ -77,7 +77,7 @@ tient. Mais est-ce qu'il m'a **vu** ? »
 Alerts` ; à droite **Kibana** en Discover, `logstash-syslog-*`, KQL :
 
 ```
-syslog_hostname : "OPNsense.internal" and message : "SCAN"
+syslog_hostname : "OPNsense.localdomain" and message : "SCAN"
 ```
 
 **À dire, en pointant l'alerte qui apparaît** : « Regardez — **en direct**. Je viens de

@@ -155,7 +155,7 @@ syslog :
 **À montrer (DEPUIS KIBANA)** : Discover → index `logstash-syslog-*` (ou `logstash-*`) →
 
 ```
-syslog_hostname : "OPNsense.internal" and message : "SCAN"
+syslog_hostname : "OPNsense.localdomain" and message : "SCAN"
 ```
 
 **Attendu** : les alertes Suricata apparaissent, avec leur signature. « Ton IDS et ton

@@ -45,20 +45,25 @@ journalctl -u ssh --no-pager | tail       # ou -u sshd selon la VM
 
 ## 4. Retrouver le log dans Kibana
 
-Kibana → **Discover** → index `logstash-*` → requête **KQL** :
+Kibana → **Discover** → data view `logstash-*` (elle couvre `logstash-syslog-*`) →
+requête **KQL** :
 
 ```
-host : "bastion" and message : "mauvaisuser"
+syslog_hostname : "bastion" and syslog_program : "sshd" and message : "mauvaisuser"
 ```
 
-Adapte `"bastion"` à la valeur réelle du champ `host` des documents (regarde un document
-remonté par le bastion pour lire son `host` exact). Variantes utiles si `mauvaisuser`
-n'apparaît pas tel quel :
+`syslog_hostname` vient de l'en-tête syslog (le hostname du bastion), pas de l'adresse
+de l'expéditeur : c'est le grok ajouté à la démo qui l'extrait. Variantes utiles si
+`mauvaisuser` n'apparaît pas tel quel :
 
 ```
-host : "bastion" and message : "Failed"
-host : "bastion" and message : "invalid user"
+syslog_hostname : "bastion" and message : "Failed"
+syslog_hostname : "bastion" and message : "invalid user"
 ```
+
+Si le champ n'existe pas dans Kibana : Stack Management → Data Views → `logstash-*` →
+**Refresh field list**. Si les documents portent `_syslogparsefailure` : la ligne ne
+colle pas au motif grok — lis `message` tel quel et compare.
 
 ## 5. Diagnostic si rien n'arrive (les 3 maillons, dans l'ordre)
 
@@ -71,4 +76,7 @@ logger -p auth.warning "TEST-SYSLOG-depuis-bastion"
 ss -tulnp | grep 5514
 
 # 3. Format : rsyslog émet du RFC 3164/5424 par défaut → maillon bon d'office avec rsyslog.
+
+# 4. Parsing : le document existe mais sans syslog_hostname ? Cherche le tag
+#    _syslogparsefailure dans Kibana — le grok n'a pas reconnu la ligne.
 ```

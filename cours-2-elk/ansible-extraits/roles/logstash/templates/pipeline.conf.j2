@@ -36,16 +36,47 @@ filter {
       add_tag => ["non_nginx"]
     }
   }
+
+  # ── Syslog réseau (ajouté au chapitre 7) ──────────────────────────────────
+  # Les inputs tcp/udp livrent la ligne syslog BRUTE dans `message`, et `host`
+  # contient l'adresse de QUI A ENVOYÉ LE PAQUET — un relais quand il y en a un
+  # (cours 3 : OPNsense passe par le nœud Proxmox), pas l'équipement d'origine.
+  # L'équipement d'origine est dans l'EN-TÊTE syslog : grok l'en sort, dans
+  # `syslog_hostname`, avec le programme et le message nettoyé.
+  # Formats acceptés : RFC 3164 (rsyslog par défaut, « Oct 11 05:22:01 »),
+  # horodatage ISO 8601 (rsyslog haute précision, syslog-ng), PRI optionnel
+  # (un test à la main avec `nc` n'en met pas), « prog[pid]: » ou « prog: ».
+  if [type] == "syslog" {
+    grok {
+      match => { "message" => "(?:<%{POSINT:syslog_pri}>)?(?:1 )?(?:%{SYSLOGTIMESTAMP:syslog_timestamp}|%{TIMESTAMP_ISO8601:syslog_timestamp8601}) %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?:? %{GREEDYDATA:syslog_message}" }
+      tag_on_failure => ["_syslogparsefailure"]
+    }
+  }
 }
 
 output {
-  elasticsearch {
-    hosts => ["{{ elasticsearch_host }}"]
-    user => "{{ logstash_es_user }}"
-    password => "{{ logstash_es_password }}"
-    ssl_enabled => true
-    ssl_certificate_authorities => ["{{ logstash_ca_cert }}"]
-    ssl_verification_mode => "full"   # on vérifie le cert d'ES avec notre CA
-    index => "logstash-%{+YYYY.MM.dd}"
+  # Un index par FAMILLE de source (encart du chapitre 4) : le syslog réseau
+  # dans `logstash-syslog-*`, le reste (Beats, tests) dans `logstash-*`.
+  # La data view `logstash-*` de Kibana voit les deux.
+  if [type] == "syslog" {
+    elasticsearch {
+      hosts => ["{{ elasticsearch_host }}"]
+      user => "{{ logstash_es_user }}"
+      password => "{{ logstash_es_password }}"
+      ssl_enabled => true
+      ssl_certificate_authorities => ["{{ logstash_ca_cert }}"]
+      ssl_verification_mode => "full"
+      index => "logstash-syslog-%{+YYYY.MM.dd}"
+    }
+  } else {
+    elasticsearch {
+      hosts => ["{{ elasticsearch_host }}"]
+      user => "{{ logstash_es_user }}"
+      password => "{{ logstash_es_password }}"
+      ssl_enabled => true
+      ssl_certificate_authorities => ["{{ logstash_ca_cert }}"]
+      ssl_verification_mode => "full"   # on vérifie le cert d'ES avec notre CA
+      index => "logstash-%{+YYYY.MM.dd}"
+    }
   }
 }

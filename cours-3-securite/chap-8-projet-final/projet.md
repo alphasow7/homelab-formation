@@ -89,10 +89,10 @@ SYN Scan` ou `ET SCAN Nmap …`, **source = l'IP de ton poste**, **destination =
 l'**analyste SOC**. `Discover` → index `logstash-syslog-*` → filtre KQL :
 
 ```
-syslog_hostname : "OPNsense.internal" and message : "SCAN"
+syslog_hostname : "OPNsense.localdomain" and message : "SCAN"
 ```
 
-(adapte `"OPNsense.internal"` au champ hostname réel de tes documents ; `"SCAN"` à un mot
+(adapte `"OPNsense.localdomain"` au champ hostname réel de tes documents ; `"SCAN"` à un mot
 de ta signature.) Cale la fenêtre temporelle sur **l'heure notée à l'étape 1**.
 
 **Analyse l'alerte** — c'est la partie « je sais lire une alerte », pas « j'ai un point

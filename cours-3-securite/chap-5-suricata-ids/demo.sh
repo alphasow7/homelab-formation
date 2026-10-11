@@ -93,7 +93,7 @@ sudo nmap -sS -T4 -p 1-1000 192.168.1.36    # <-- IP WAN d'OPNsense (adapte-la)
 ########## DANS KIBANA — retrouver l'alerte dans le SIEM ##########
 # Discover -> index "logstash-syslog-*" (ou "logstash-*") -> requête KQL :
 #
-#     syslog_hostname : "OPNsense.internal" and message : "SCAN"
+#     syslog_hostname : "OPNsense.localdomain" and message : "SCAN"
 #
 # Attendu : les alertes Suricata, avec leur signature. Détecter ET garder la trace.
 
@@ -104,7 +104,7 @@ sudo nmap -sS -T4 -p 1-1000 192.168.1.36    # <-- IP WAN d'OPNsense (adapte-la)
 #     "https://10.10.99.11:9200/logstash-syslog-*/_search?pretty" \
 #     -H 'Content-Type: application/json' \
 #     -d '{"query":{"bool":{"must":[
-#            {"match":{"syslog_hostname":"OPNsense.internal"}},
+#            {"match":{"syslog_hostname":"OPNsense.localdomain"}},
 #            {"match":{"message":"SCAN"}}
 #          ]}}, "size":3, "sort":[{"@timestamp":"desc"}]}'
 #   Attendu : "hits.total.value" > 0, des documents Suricata frais (@timestamp récent).

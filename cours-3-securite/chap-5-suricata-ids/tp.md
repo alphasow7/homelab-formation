@@ -33,9 +33,9 @@ Rappel : pas de rôle Ansible. Tout se fait dans le **GUI OPNsense**, sa **conso
    Alerts`), puis dans **Kibana** → Discover → index `logstash-syslog-*`, filtrée par le
    hostname OPNsense :
    ```
-   syslog_hostname : "OPNsense.internal" and message : "SCAN"
+   syslog_hostname : "OPNsense.localdomain" and message : "SCAN"
    ```
-   (adapte `"OPNsense.internal"` à ce que rapporte réellement le champ hostname de tes
+   (adapte `"OPNsense.localdomain"` à ce que rapporte réellement le champ hostname de tes
    documents, et `"SCAN"` à un mot présent dans ta signature — ou filtre sur le type
    d'événement `suricata`.)
 
@@ -74,7 +74,7 @@ Deux endroits, deux usages :
   le pare-feu. Tu y vois la signature (ex. `ET SCAN ...`), la source, la destination.
 - **Kibana** : `Discover` → index `logstash-syslog-*`. La vue "SIEM", où l'alerte est
   gardée et corrélable avec le reste. Filtre par le hostname OPNsense :
-  `syslog_hostname : "OPNsense.internal"`. Ajoute un mot de la signature
+  `syslog_hostname : "OPNsense.localdomain"`. Ajoute un mot de la signature
   (`and message : "SCAN"`) pour ne garder que ton alerte de test.
 
 Si rien n'arrive dans Kibana alors que l'onglet Alerts OPNsense montre bien l'alerte : le

@@ -88,5 +88,5 @@ sans rien faire" et de "Apply GUI ≠ CLI".
 les alertes vivent d'abord dans l'onglet Alerts d'OPNsense, mais en
 activant l'export syslog (System > Settings > Logging) vers l'input Logstash **5514** (mis
 en place au cours 2, chap 7), elles montent dans **Kibana** (`logstash-syslog-*`, filtre
-`syslog_hostname: "OPNsense.internal"`). Ton IDS et ton SIEM se parlent : tu détectes ET tu
+`syslog_hostname: "OPNsense.localdomain"`). Ton IDS et ton SIEM se parlent : tu détectes ET tu
 gardes la trace.

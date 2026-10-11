@@ -183,7 +183,7 @@ hors-série ou une V2.
    elles existent. Les arrêter ou les détruire (`reset-*.sh` les recrée) avant de filmer
    le chapitre 1 : « chaque VM a son métier » ne tient pas avec des `servera`/`cks-node`.
 
-8. **Défaut lab-élève trouvé au passage, non corrigé ici (touche des tags).** Le cours 3
+8. **Défaut lab-élève trouvé au passage — corrigé le 11/10/2026 (fix b ci-dessous).** Le cours 3
    (ch.5 et ch.8 : `demo.sh`, `tp.md`, `correction/commandes.md`, `attaque.sh`, `projet.md`,
    les deux quiz et les scripts) envoie l'élève chercher les alertes Suricata dans l'index
    **`logstash-syslog-*`** avec le filtre **`syslog_hostname : "OPNsense.internal"`**. Ce
@@ -195,8 +195,16 @@ hors-série ou une V2.
    possibles : (a) côté cours 3 seulement, filtrer `logstash-*` sur
    `type : "syslog" and message : "OPNsense"` ; (b) côté cours 2 ch.7, ajouter un grok
    syslog au pipeline (champ `logsource` ou `syslog_hostname`) et un index dédié — plus
-   juste pédagogiquement, mais ça rouvre les tags `c2-chap7-fin` et suivants. À valider
-   sur le lab avant de retoucher les corrections.
+   juste pédagogiquement, mais ça rouvre les tags `c2-chap7-fin` et suivants.
+   **Fait (b)** : le chapitre 7 du cours 2 gagne une étape 2.5/2.6 — grok syslog
+   (`syslog_hostname`, `syslog_program`, `syslog_pid`, `syslog_message`, tag
+   `_syslogparsefailure`) et sortie `logstash-syslog-*` dans le template du rôle
+   `logstash` ; démo, TP et correction du chapitre 7 filtrent sur `syslog_hostname` ; le
+   cours 3 reste tel quel, hormis le hostname d'exemple, passé de `OPNsense.internal`
+   (ancienne infra réelle) au défaut OPNsense `OPNsense.localdomain`. **À valider sur le
+   lab** (le motif grok a été testé hors ligne sur les formats rsyslog/syslog-ng, pas sur
+   un Logstash réel), puis déplacer les tags `c2-chap7-fin`, `c2-chap8-fin`, `c2-fin` et
+   `c3-*` si l'on veut qu'un `git checkout` d'étape embarque le correctif.
 
 ## 6. Ce qui reste à vérifier sur le parc, le jour J
 

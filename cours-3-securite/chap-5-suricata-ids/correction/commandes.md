@@ -1,7 +1,9 @@
 # Correction TP chapitre 5 — Suricata IDS
 
-Étapes complètes. Adapte l'IP WAN d'OPNsense (`192.168.1.36`), le relais syslog
-(`192.168.1.200:514`) et le hostname (`OPNsense.internal`) à ton lab.
+Étapes complètes. Adapte l'IP WAN d'OPNsense (`192.168.1.36`) et le relais syslog
+(`192.168.1.200:514`) à ton lab. `OPNsense.localdomain` est le hostname **par défaut**
+d'OPNsense (celui qu'il écrit dans l'en-tête syslog, donc dans `syslog_hostname`) : adapte
+seulement si tu l'as changé à l'installation.
 
 ## 1. Ajouter un ruleset abuse.ch (GUI OPNsense)
 
@@ -76,7 +78,7 @@ Attendu : ligne(s) type `ET SCAN ...`, src = ton poste, dst = le WAN.
 
 ```
 Discover -> index "logstash-syslog-*" -> KQL :
-  syslog_hostname : "OPNsense.internal" and message : "SCAN"
+  syslog_hostname : "OPNsense.localdomain" and message : "SCAN"
 ```
 Attendu : les alertes Suricata, avec leur signature, timestamp récent.
 
@@ -88,7 +90,7 @@ curl --cacert /etc/elasticsearch/certs/http_ca.crt \
   "https://10.10.99.11:9200/logstash-syslog-*/_search?pretty" \
   -H 'Content-Type: application/json' \
   -d '{"query":{"bool":{"must":[
-         {"match":{"syslog_hostname":"OPNsense.internal"}},
+         {"match":{"syslog_hostname":"OPNsense.localdomain"}},
          {"match":{"message":"SCAN"}}
        ]}}, "size":3, "sort":[{"@timestamp":"desc"}]}'
 # Attendu : hits.total.value > 0, documents Suricata frais.
