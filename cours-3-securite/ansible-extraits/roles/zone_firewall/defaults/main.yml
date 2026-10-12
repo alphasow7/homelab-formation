@@ -16,6 +16,17 @@
 zone_firewall_lab_network: 10.10.99.0/24
 zone_firewall_management_source: 10.10.99.2/32   # le bastion (poste d'admin)
 
+# Le nœud Proxmox, par sa patte vmbr1 : il garde TOUJOURS le SSH des VMs (règle
+# ajoutée par le template). C'est la console de secours — si une règle t'enferme,
+# le nœud entre encore.
+zone_firewall_node_source: 10.10.99.254/32
+
+# D'où TU arrives sur le bastion (sa patte net0, côté ton réseau) — utilisé par la
+# zone du bastion (TP). Chemin B : le LAN de ta box, ex. 192.168.1.0/24.
+# Chemin A (VirtualBox) : 10.0.2.0/24 (la redirection de port arrive de 10.0.2.2).
+# ⚠️ Surtout pas 10.10.99.2/32 : c'est le bastion lui-même, tu t'enfermerais dehors.
+zone_firewall_admin_source: RESEAU_DE_TON_POSTE/24
+
 # Réseau d'où Logstash joint Elasticsearch (dans le lab, Logstash est colocalisé
 # sur la VM kibana-logstash 10.10.99.14).
 zone_firewall_logstash_source: 10.10.99.14/32

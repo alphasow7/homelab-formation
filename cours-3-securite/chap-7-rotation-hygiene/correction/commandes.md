@@ -60,7 +60,7 @@ ansible-vault view inventory/group_vars/opnsense/vault.yml | grep vault_opnsense
 
 ```bash
 # récupérer la CA du cours 2 (sur le nœud ELK)
-scp root@elastic-1:/etc/elasticsearch/certs/ca/ca.crt ~/homelab-ca.crt
+ssh -J alpha@IP_DE_TON_BASTION alpha@10.10.99.11 'sudo cat /etc/elasticsearch/certs/ca/ca.crt' > ~/homelab-ca.crt
 
 # vérifier que c'est une racine auto-signée
 openssl x509 -in ~/homelab-ca.crt -noout -subject -issuer   # subject == issuer
@@ -87,6 +87,8 @@ Firefox : `Paramètres ▸ Vie privée & sécurité ▸ Certificats ▸ Autorit�
 ### Vérifier le vert
 
 Rafraîchir un service interne (redémarrer Firefox après import) :
-`https://localhost:5601` (Kibana), `https://10.10.99.12:8200` (Vault),
-`https://localhost:8443` (OPNsense) → cadenas **vert**, plus d'« Accepter le risque ».
-Un seul import couvre tous les services signés par cette CA.
+`https://localhost:5601` (Kibana) → cadenas **vert**, plus d'« Accepter le risque ».
+Un seul import couvre tous les services signés par cette CA — et seulement eux : Vault
+(`https://10.10.99.12:8200`, cert auto-signé par le rôle) et OPNsense
+(`https://localhost:8443`, cert auto-signé) restent orange. C'est attendu, et c'est la
+limite à noter dans la checklist (point 7 : une seule CA, un jour).

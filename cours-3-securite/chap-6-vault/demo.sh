@@ -46,7 +46,7 @@ ansible-playbook playbooks/vault.yml
 # vault login <ROOT_TOKEN>
 
 # 5. Activer un moteur KV v2 et écrire/lire un secret
-# vault secrets enable -path=secret kv-v2       # (souvent déjà activé)
+# vault secrets enable -path=secret kv-v2       # OBLIGATOIRE hors mode dev : rien n'est monté
 # vault kv put secret/lab/demo password=s3cr3t-du-lab
 # vault kv get secret/lab/demo                  # attendu : le password
 

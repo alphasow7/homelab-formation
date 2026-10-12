@@ -40,8 +40,11 @@ iptables -t nat -A POSTROUTING -s 10.10.99.0/24 -o "$WAN_IF" -j MASQUERADE
 
 # OFF (après le playbook) — un accès temporaire, ÇA SE REFERME
 iptables -t nat -D POSTROUTING -s 10.10.99.0/24 -o "$WAN_IF" -j MASQUERADE
-sysctl -w net.ipv4.ip_forward=0
 ```
+
+Le verrou vers Internet, c'est la **règle NAT** : c'est elle qu'on ouvre et qu'on referme.
+Le routage (`ip_forward`) reste à 1 — sans lui, rien ne traverse le nœud, et le cours 3 en
+aura besoin en permanence (il le rendra persistant).
 
 Les `demo.sh` qui en ont besoin le signalent par un bloc « MASQUERADE ON/OFF ». La
 réponse propre — un proxy apt sur le nœud — est évoquée dans les encarts ; elle n'est

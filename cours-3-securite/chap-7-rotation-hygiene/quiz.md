@@ -51,10 +51,6 @@
 
 ---
 
-**Réponses : 1-B, 2-C, 3-B, 4-C, 5-B.**
-
----
-
 ## Corrigé
 
 > Ne lis cette section qu'après avoir répondu aux 5 questions.

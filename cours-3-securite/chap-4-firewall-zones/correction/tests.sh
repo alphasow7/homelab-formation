@@ -9,8 +9,11 @@ ARBRE=~/Projects/homelab-formation/cours-1-ansible/ansible
 cd "$ARBRE"
 ansible-playbook playbooks/zone-firewall.yml   # écrit /etc/pve/firewall/9204.fw
 
-########## [DEPUIS TON POSTE] — le bastion reste joignable ##########
-ssh -o ConnectTimeout=5 alpha@10.10.99.2 'echo "bastion OK"'   # attendu : bastion OK
+########## [DEPUIS TON POSTE] — le bastion reste joignable (par net0, ton réseau) ##########
+ssh -o ConnectTimeout=5 alpha@IP_DE_TON_BASTION 'echo "bastion OK"'   # attendu : bastion OK
+# (chemin A : ssh -p 2223 alpha@localhost …)
+# Et à travers lui, le segment répond toujours (la règle « bastion » des autres zones) :
+ssh -J alpha@IP_DE_TON_BASTION alpha@10.10.99.11 hostname               # attendu : elastic-1
 
 ########## [DEPUIS dns-proxy 10.10.99.12] — SSH du bastion refusé ##########
 # ssh alpha@10.10.99.12  puis :

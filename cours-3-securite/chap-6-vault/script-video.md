@@ -93,9 +93,13 @@ vault login <ROOT_TOKEN>
 ### 2.4 KV — ranger et relire un secret
 
 ```bash
+vault secrets enable -path=secret kv-v2      # hors mode dev, RIEN n'est monté au départ
 vault kv put secret/lab/demo password=s3cr3t-du-lab
 vault kv get secret/lab/demo
 ```
+
+(« Un coffre neuf n'a aucun tiroir : on monte d'abord le moteur KV. En mode `-dev`, Vault
+le fait pour toi — pas ici, et c'est tant mieux : tu sais ce qui est monté. »)
 
 **Attendu** : `password  s3cr3t-du-lab`. « Voilà le moteur KV : je range, je relis. Une
 API, pas un fichier. »

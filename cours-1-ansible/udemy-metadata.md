@@ -69,10 +69,10 @@ Prix catalogue : 59,99 € — lancement à 14,99 € (bundle avec le cours 0 à
 ## Curriculum (sections = chapitres)
 
 1. Pourquoi l'Infrastructure as Code (+ 💥 la zone DNS fantôme) — 20 min
-2. L'inventaire : ton parc dans un fichier (+ ProxyJump bastion) — 35 min
-3. Ton premier playbook (+ l'idempotence prouvée, le vandalisme réparé) — 40 min
-4. Les rôles : le rangement des pros (+ 💥 le doublon qui tue BIND) — 45 min
-5. Variables : d'usine, de groupe, d'exception (+ 💥 le 0.0.0.0 piégé) — 35 min
-6. Secrets : chiffre tout dans Git (+ 💥 les clés jamais sauvegardées) — 35 min
-7. site.yml : tout le parc en une commande (+ 💥 le service qui rate le réseau) — 40 min
+2. L'inventaire : ton parc dans un fichier (+ ProxyJump bastion) — 25 minNone
+3. Ton premier playbook (+ l'idempotence prouvée, le vandalisme réparé) — 25 minNone
+4. Les rôles : le rangement des pros (+ 💥 le doublon qui tue BIND) — 30 minNone
+5. Variables : d'usine, de groupe, d'exception (+ 💥 le 0.0.0.0 piégé) — 28 minNone
+6. Secrets : chiffre tout dans Git (+ 💥 les clés jamais sauvegardées) — 27 minNone
+7. site.yml : tout le parc en une commande (+ 💥 le service qui rate le réseau) — 30 minNone
 8. Projet final : le phénix — détruire et reconstruire en < 5 min — 20 min + 45 min de projet

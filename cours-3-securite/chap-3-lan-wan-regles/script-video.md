@@ -93,9 +93,21 @@ le WAN (`vtnet0`), `192.168.99.0/24` via le LAN (`vtnet1`), et **une seule** rou
 défaut (`default`) qui pointe vers la box par le WAN. « Chaque réseau a sa ligne, la route
 par défaut est claire : OPNsense sait exactement où envoyer chaque paquet. »
 
+### 2.2 bis Un client derrière le pare-feu, et le chemin vers le segment ELK
+
+**À montrer** (`demo.sh` § 2.2 bis) : sur le nœud, cloner `lan-test` (VM 9205, 512 Mo) sur
+`vmbr5` en `192.168.99.10`, passerelle `192.168.99.1`. « Aucune de tes VMs ne vit derrière
+le pare-feu : il nous faut un figurant. Voilà le poste de bureau du LAN protégé. » Puis les
+deux lignes qui relient les mondes : `ip_forward` **persistant** sur le nœud (« au cours 0
+on l'avait activé pour un TP ; cette fois c'est pour de bon : le nœud est le routeur entre
+ses bridges »), et dans OPNsense une **route statique** `10.10.99.0/24` via le nœud.
+« OPNsense ne connaît que ses deux pattes. Le segment ELK est derrière le nœud, pas
+derrière la box : il faut le lui dire, sinon il enverra ces paquets à la box, qui les
+jettera. » `netstat -rn | grep 10.10.99` sur OPNsense : la route est là.
+
 ### 2.3 Vérifier qu'une machine du LAN sort sur Internet (via le NAT par défaut)
 
-**À montrer** : depuis une VM du LAN (ou depuis OPNsense lui-même) :
+**À montrer** : depuis `lan-test` (`ssh alpha@192.168.99.10` depuis le nœud) :
 
 ```
 ping -c 3 8.8.8.8
@@ -119,7 +131,9 @@ prendre le geste en main :
 **Apply** (bouton en haut). « En GUI, rien n'est actif tant que tu n'as pas cliqué
 **Apply changes**. »
 
-**Tester** : depuis une VM du LAN, ouvrir `https://10.10.99.14:5601` → Kibana répond.
+**Tester** : depuis `lan-test`, `curl -k -o /dev/null -s -w '%{http_code}\n'
+https://10.10.99.14:5601` → `200` (ou `302`) : Kibana répond à travers le pare-feu, le
+nœud et le segment.
 « Ta première règle explicite vit. Retiens la forme — action, source, destination, port —
 on la réutilise au TP pour faire du *moindre privilège*. »
 

@@ -136,7 +136,7 @@ monter dans ton SIEM. Et là, attention au chemin : OPNsense est sur son **WAN**
 (`192.168.1.x`, le LAN de la box), il ne voit PAS le segment interne `10.10.99.0/24` où
 vit Logstash. Il ne peut donc pas parler à `10.10.99.14:5514` directement. On réutilise
 le **relais syslog** monté au cours 2 chap 7 : le **nœud Proxmox** a un pied sur les deux
-réseaux. OPNsense lui envoie son syslog sur son IP côté box (`192.168.1.200:514`), et le
+réseaux. OPNsense lui envoie son syslog sur son IP côté box (`IP_DE_TON_NOEUD:514`), et le
 nœud fait suivre à Logstash `10.10.99.14:5514`. Tu ne rebranches rien — tu ajoutes juste
 une source à un chemin qui existe déjà. »
 
@@ -148,8 +148,9 @@ une source à un chemin qui existe déjà. »
 syslog :
 - **Transport** : UDP(4)
 - **Applications** : (laisser tout, ou cibler `suricata`)
-- **Hostname** : l'IP du relais/collecteur (sur le lab : `192.168.1.200:514`, le relais
-  Proxmox qui pousse vers Logstash 5514)
+- **Hostname** : l'IP du relais/collecteur (sur le lab : `IP_DE_TON_NOEUD:514`, le relais
+  Proxmox qui pousse vers Logstash 5514 — l'IP du nœud sur le réseau du WAN d'OPNsense :
+  chemin B `192.168.1.240`, chemin A `10.0.2.15`)
 - **Save**, **Apply**.
 
 **À montrer (DEPUIS KIBANA)** : Discover → index `logstash-syslog-*` (ou `logstash-*`) →

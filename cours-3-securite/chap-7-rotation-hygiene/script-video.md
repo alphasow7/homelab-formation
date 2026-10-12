@@ -108,10 +108,15 @@ scp root@elastic-1:/etc/elasticsearch/certs/ca/ca.crt ~/homelab-ca.crt
   de certification racines de confiance » Windows / `/usr/local/share/ca-certificates/` +
   `update-ca-certificates` Linux).
 
-**Attendu** : rafraîchir Kibana (`https://localhost:5601`), Vault (`:8200`), OPNsense — le
-cadenas passe au **vert**, plus aucun « Accepter le risque ». « Un seul import a rendu
-confiance à **tous** mes services internes d'un coup. Et le jour où un avertissement rouge
-réapparaît, ce sera un vrai. »
+**Attendu** : rafraîchir Kibana (`https://localhost:5601`) — le cadenas passe au **vert**,
+plus d'« Accepter le risque ». Puis Vault (`https://10.10.99.12:8200` via le bastion) et
+OPNsense (`https://localhost:8443`) : **toujours orange**. « Et c'est normal : ces deux-là
+se sont signés eux-mêmes — le rôle Vault du lab génère son propre certificat, OPNsense
+aussi. Ma CA ne les connaît pas. Un seul import a rendu confiance à tout ce que ma CA
+signe, et m'a montré ce qu'elle ne signe pas encore : c'est le point 7 de la checklist
+d'hygiène — une seule CA pour tous les services, un jour. Sur mon infra, c'est la PKI de
+Vault qui signe tout le monde. Et le jour où un avertissement rouge réapparaît sur Kibana,
+ce sera un vrai. »
 
 ## 3. 💥 La panne du vrai monde — le mot de passe par défaut oublié 3 semaines (RÉELLE)
 

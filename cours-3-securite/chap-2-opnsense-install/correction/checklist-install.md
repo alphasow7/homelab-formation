@@ -9,6 +9,8 @@
 qm config 600 | grep -E 'net0|net1|ide2|scsi0|vga|boot'
 ```
 
+**Prérequis** : `ip -4 addr show vmbr5` → `192.168.99.254/24` (bridge créé au bloc 0 de `demo.sh`).
+
 **Attendu** :
 - `net0: virtio,bridge=vmbr0`  → WAN (bridge avec Internet)
 - `net1: virtio,bridge=vmbr5`  → LAN (bridge ISOLÉ 192.168.99.0/24)
@@ -48,13 +50,13 @@ qm reboot 600
 Option **`8) Shell`**, login `root`, puis :
 
 ```
-mount | grep conf
+mount | head -1
 ```
 
-**Attendu** : `/conf` sur `/dev/da0…` en **ufs**.
-**Interdit** : `/conf` sur **`tmpfs`** → tu serais sur un live-installer, la config
-serait perdue au reboot (la panne du chapitre). Si tu vois `tmpfs`, tu n'as pas fait
-`Install (UFS)` — recommence l'étape 1.
+**Attendu** : `/dev/gpt/rootfs on / (ufs, …)` — la racine vit sur le disque.
+**Interdit** : une racine sur un disque mémoire (`/dev/md…`) ou sur le CD → tu serais sur
+un live-system, la config serait perdue au reboot (la panne du chapitre). Dans ce cas, tu
+n'as pas fait `Install (UFS)` — recommence l'étape 1.
 
 ## 5. Reboot-test de persistance
 
@@ -67,11 +69,14 @@ Si elle est revenue à `192.168.1.1` → la config n'a pas survécu (live-system
 
 ## 6. GUI
 
-Depuis Proxmox (sur vmbr5, `192.168.99.254`) :
+Depuis le nœud Proxmox (sur vmbr5, `192.168.99.254`) :
 
 ```bash
 curl -k -o /dev/null -s -w '%{http_code}\n' https://192.168.99.1
 ```
+
+Depuis ton poste, par le tunnel (`ssh -L 8443:192.168.99.1:443 root@IP_DE_TON_NOEUD`) :
+`https://localhost:8443` → la page de login.
 
 **Attendu** : `200`. Puis dans le navigateur `https://192.168.99.1`, login **`root`** /
 `opnsense`, et **changer le mot de passe** à la première connexion.
@@ -79,6 +84,6 @@ curl -k -o /dev/null -s -w '%{http_code}\n' https://192.168.99.1
 ## Tous les critères
 
 - [ ] Boot disque : `Root file system: /dev/gpt/rootfs`
-- [ ] `mount | grep conf` → UFS/`da0` (jamais `tmpfs`)
+- [ ] `mount | head -1` → racine sur `/dev/gpt/rootfs` (ufs), jamais sur un disque mémoire
 - [ ] LAN persisté après reboot : `192.168.99.1`
 - [ ] GUI : `https://192.168.99.1` → HTTP 200

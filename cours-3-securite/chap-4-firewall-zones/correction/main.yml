@@ -4,7 +4,10 @@
 
 zone_firewall_lab_network: 10.10.99.0/24
 zone_firewall_management_source: 10.10.99.2/32   # le bastion (poste d'admin)
+zone_firewall_node_source: 10.10.99.254/32       # le nœud : console de secours
 zone_firewall_logstash_source: 10.10.99.14/32
+# D'où TU arrives sur le bastion : chemin B 192.168.1.0/24, chemin A 10.0.2.0/24
+zone_firewall_admin_source: 192.168.1.0/24
 
 zone_firewall_vms:
   - vmid: 9201                 # elastic-1 (10.10.99.11) — vu au chapitre
@@ -14,9 +17,12 @@ zone_firewall_vms:
       - "IN ACCEPT -source {{ zone_firewall_management_source }} -p tcp -dport 22"
 
   # >>> AJOUT DU TP : la serrure du bastion <<<
-  - vmid: 9204                 # bastion (10.10.99.2)
+  - vmid: 9204                 # bastion (10.10.99.2 côté segment, net0 côté toi)
     name: bastion
     rules:
-      # SSH (22) UNIQUEMENT depuis le poste de management. Tout le reste = DROP
-      # (policy_in du template). Le ping reste autorisé (règle ICMP du template).
-      - "IN ACCEPT -source {{ zone_firewall_management_source }} -p tcp -dport 22"
+      # SSH (22) UNIQUEMENT depuis TON réseau (là où tu arrives, par net0). Tout
+      # le reste = DROP (policy_in du template) : une VM du segment ne touche plus
+      # son SSH. Le ping et le nœud restent autorisés (règles du template).
+      # PIÈGE : avec zone_firewall_management_source (10.10.99.2/32 = le bastion
+      # lui-même) tu te serais enfermé dehors — tout le lab injoignable.
+      - "IN ACCEPT -source {{ zone_firewall_admin_source }} -p tcp -dport 22"

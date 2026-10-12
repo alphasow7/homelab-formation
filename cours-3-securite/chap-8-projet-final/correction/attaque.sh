@@ -7,7 +7,7 @@ set -euo pipefail
 
 IP_WAN_OPNSENSE="192.168.1.36"          # <-- l'IP WAN de TON OPNsense (DHCP box)
 ES_HOST="https://10.10.99.11:9200"      # elastic-1 : l'API Elasticsearch (SIEM cours 2)
-ES_CA="/etc/elasticsearch/certs/http_ca.crt"   # CA du cluster, sur l'hôte où tu lances la requête
+ES_CA="/etc/logstash/certs/ca.crt"      # CA du cours 2, telle qu'elle est sur kibana-logstash
 ES_USER="elastic"                       # user ES ; le mot de passe est demandé au clavier
 SYSLOG_HOST="OPNsense.localdomain"      # syslog_hostname des docs OPNsense (hostname par défaut)
 

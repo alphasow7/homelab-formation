@@ -31,14 +31,14 @@ bonus. Vault déjà déployé, initialisé et descellé (démo).
 
 3. **Bonus hygiène (écho cours 1, chapitre 6)** : range la clé d'unseal dans ton
    ansible-vault pour que le playbook la trouve tout seul — variable `vault_unseal_key`
-   dans `group_vars/vault/vault.yml`.
+   dans `inventory/group_vars/vault/vault.yml`.
 
 ## Critères de réussite
 
 - [ ] `vault kv get secret/lab/elastic` affiche le mot de passe elastic
 - [ ] Après reboot, `vault status` montre bien `Sealed  true`
 - [ ] `ansible-playbook vault-unseal.yml` se termine sur `sealed=false`
-- [ ] Bonus : `ansible-vault view group_vars/vault/vault.yml` montre `vault_unseal_key`,
+- [ ] Bonus : `ansible-vault view inventory/group_vars/vault/vault.yml` montre `vault_unseal_key`,
       et le playbook tourne **sans** demander la clé en ligne de commande
 
 ## Indices
@@ -47,7 +47,7 @@ bonus. Vault déjà déployé, initialisé et descellé (démo).
 <summary>Indice 1 — le playbook réclame `vault_unseal_key` ?</summary>
 
 `vault-unseal.yml` s'attend à trouver la variable `vault_unseal_key`. Tant qu'elle n'est
-pas dans un `group_vars/vault/vault.yml`, passe-la à la main pour tester :
+pas dans un `inventory/group_vars/vault/vault.yml`, passe-la à la main pour tester :
 `ansible-playbook playbooks/vault-unseal.yml -e vault_unseal_key=LA_CLE`. Le bonus (étape 3)
 consiste justement à la ranger dans l'ansible-vault pour ne plus avoir à la taper.
 </details>
@@ -56,7 +56,7 @@ consiste justement à la ranger dans l'ansible-vault pour ne plus avoir à la ta
 <summary>Indice 2 — créer le vault chiffré du groupe</summary>
 
 Depuis `cours-1-ansible/ansible/`, exactement comme au cours 1 :
-`ansible-vault create group_vars/vault/vault.yml`, puis à l'intérieur une ligne
+`ansible-vault create inventory/group_vars/vault/vault.yml`, puis à l'intérieur une ligne
 `vault_unseal_key: "LA_CLE_NOTEE_AU_INIT"`. Le playbook la déchiffrera tout seul au run
 (ton `.vault_pass` est déjà configuré).
 </details>

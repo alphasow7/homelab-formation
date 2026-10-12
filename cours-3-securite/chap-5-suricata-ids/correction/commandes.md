@@ -1,7 +1,7 @@
 # Correction TP chapitre 5 — Suricata IDS
 
 Étapes complètes. Adapte l'IP WAN d'OPNsense (`192.168.1.36`) et le relais syslog
-(`192.168.1.200:514`) à ton lab. `OPNsense.localdomain` est le hostname **par défaut**
+(`IP_DE_TON_NOEUD:514`) à ton lab. `OPNsense.localdomain` est le hostname **par défaut**
 d'OPNsense (celui qu'il écrit dans l'en-tête syslog, donc dans `syslog_hostname`) : adapte
 seulement si tu l'as changé à l'installation.
 
@@ -56,7 +56,7 @@ systemctl restart rsyslog
 
 **Côté OPNsense (GUI)** : `System > Settings > Logging / targets > Add`
 - Transport : `UDP(4)`
-- Hostname : `192.168.1.200:514` (l'IP du nœud sur le LAN de la box, port du relais)
+- Hostname : `IP_DE_TON_NOEUD:514` (l'IP du nœud sur le LAN de la box, port du relais)
 - Applications : tout (ou cibler `suricata`) — **Save**, **Apply**.
 
 ## 3. Déclencher l'alerte de test (depuis le POSTE)
@@ -85,7 +85,8 @@ Attendu : les alertes Suricata, avec leur signature, timestamp récent.
 ### Variante — vérifier directement dans Elasticsearch (curl --cacert)
 
 ```bash
-curl --cacert /etc/elasticsearch/certs/http_ca.crt \
+# depuis kibana-logstash (seule VM qui joint le 9200 après le chap. 4) ; CA du cours 2
+curl --cacert /etc/logstash/certs/ca.crt \
   -u elastic:LE_MDP \
   "https://10.10.99.11:9200/logstash-syslog-*/_search?pretty" \
   -H 'Content-Type: application/json' \

@@ -1,7 +1,8 @@
 # TP chapitre 3 — Le moindre privilège en action
 
-**Temps cible : 25 min.** Dans le GUI d'OPNsense (`https://192.168.99.1`, ou via ton
-tunnel SSH) + une VM du LAN pour tester.
+**Temps cible : 25 min.** Dans le GUI d'OPNsense (`https://localhost:8443` par le tunnel
+SSH de `lab-depart.md`) + la VM `lan-test` (`ssh alpha@192.168.99.10` depuis le nœud) pour
+tester.
 
 ## Contexte
 
@@ -19,8 +20,8 @@ On applique le **moindre privilège** : on ouvre juste Kibana, on ferme le reste
    **LAN net**, destination **`10.10.99.0/24`** (tout le segment), tous ports.
 3. **Range les deux règles dans le bon ordre** (c'est le cœur du TP — voir les indices) et
    fais **Apply changes**.
-4. **Teste** depuis une VM du LAN :
-   - Kibana joignable : `curl -k https://10.10.99.14:5601` → répond ;
+4. **Teste** depuis `lan-test` :
+   - Kibana joignable : `curl -k -o /dev/null -s -w '%{http_code}\n' https://10.10.99.14:5601` → `200`/`302` ;
    - un autre hôte/port du segment bloqué : `curl -k --max-time 5 https://10.10.99.11:9200`
      → **timeout / connexion refusée** (10.10.99.11 = un nœud Elasticsearch).
 

@@ -85,7 +85,7 @@ sudo nmap -sS -T4 -p 1-1000 192.168.1.36    # <-- IP WAN d'OPNsense (adapte-la)
 # System > Settings > Logging / targets > Add :
 #   Transport    : UDP(4)
 #   Applications : (tout, ou cibler suricata)
-#   Hostname     : 192.168.1.200:514   <-- relais Proxmox qui pousse vers Logstash 5514
+#   Hostname     : IP_DE_TON_NOEUD:514   <-- relais Proxmox qui pousse vers Logstash 5514
 #   Save, Apply.
 # (Côté console, si besoin de re-appliquer : configctl syslog restart)
 
@@ -98,8 +98,9 @@ sudo nmap -sS -T4 -p 1-1000 192.168.1.36    # <-- IP WAN d'OPNsense (adapte-la)
 # Attendu : les alertes Suricata, avec leur signature. Détecter ET garder la trace.
 
 # --- Variante : vérifier directement dans Elasticsearch (curl --cacert, TLS du cours 2) ---
-# À jouer depuis une machine qui joint ES (ex. le collecteur). Adapte l'URL/CA/index.
-#   curl --cacert /etc/elasticsearch/certs/http_ca.crt \
+# À jouer depuis kibana-logstash (après le chap. 4, seul Logstash joint le 9200) ; la CA
+# du cours 2 y est en /etc/logstash/certs/ca.crt (sur elastic-1 : /etc/elasticsearch/certs/ca/ca.crt).
+#   curl --cacert /etc/logstash/certs/ca.crt \
 #     -u elastic:LE_MDP \
 #     "https://10.10.99.11:9200/logstash-syslog-*/_search?pretty" \
 #     -H 'Content-Type: application/json' \

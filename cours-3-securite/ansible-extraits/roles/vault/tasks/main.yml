@@ -79,10 +79,13 @@
     - "{{ vault_tls_key }}"
 
 # ── VAULT_ADDR pour le CLI interactif sur la VM ────────────────────────────
-- name: Exporter VAULT_ADDR pour les shells interactifs
+# VAULT_CACERT : le cert est auto-signé ; sans lui, le CLI refuse la connexion
+# (x509: certificate signed by unknown authority) avant même le premier `init`.
+- name: Exporter VAULT_ADDR et VAULT_CACERT pour les shells interactifs
   ansible.builtin.copy:
     content: |
       export VAULT_ADDR="{{ vault_addr }}"
+      export VAULT_CACERT="{{ vault_tls_cert }}"
     dest: /etc/profile.d/vault.sh
     owner: root
     group: root

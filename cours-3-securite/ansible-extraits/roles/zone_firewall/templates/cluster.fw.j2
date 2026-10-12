@@ -1,0 +1,6 @@
+{#- Managed by Ansible (rôle zone_firewall). Interrupteur général du pare-feu   #}
+{#- Proxmox : sans enable: 1 ici, aucun <vmid>.fw n'est appliqué.                  #}
+{#- Le nœud lui-même reste joignable : Proxmox autorise d'office SSH (22) et le   #}
+{#- GUI (8006) depuis le réseau de management (celui de l'IP du nœud).           #}
+[OPTIONS]
+enable: 1

@@ -58,7 +58,7 @@ Vérification : `vault status` sur la VM → `Sealed  false`.
 Depuis `cours-1-ansible/ansible/` :
 
 ```bash
-ansible-vault create group_vars/vault/vault.yml
+ansible-vault create inventory/group_vars/vault/vault.yml
 ```
 
 Contenu :

@@ -71,10 +71,10 @@ Prix catalogue : 64,99 € — lancement à 16,99 € (bundle des 4 cours fortem
 ## Curriculum (sections = chapitres)
 
 1. Menaces & périmètre : le modèle de menace d'un homelab, la défense en profondeur — 20 min
-2. OPNsense : installation (+ 💥 la config qui ne survit pas au reboot) — 40 min
-3. LAN/WAN & règles (+ 💥 le LAN = l'adresse de la box qui casse tout) — 35 min
-4. Firewall par zone (+ 💥 le service joignable de nulle part) — 35 min
-5. Suricata IDS (+ 💥 les règles « téléchargées » mais 0 chargée) — 40 min
-6. HashiCorp Vault (+ 💥 scellé au reboot & les clés perdues) — 40 min
-7. Rotation & hygiène (+ 💥 le mot de passe par défaut oublié 3 semaines) — 30 min
-8. Projet final : l'attaque et sa trace — la boucle complète — 25 min + 45 min de projet
+2. OPNsense : installation (+ 💥 la config qui ne survit pas au reboot) — 28 minNone
+3. LAN/WAN & règles (+ 💥 le LAN = l'adresse de la box qui casse tout) — 30 minNone
+4. Firewall par zone (+ 💥 le service joignable de nulle part) — 25 minNone
+5. Suricata IDS (+ 💥 les règles « téléchargées » mais 0 chargée) — 35 minNone
+6. HashiCorp Vault (+ 💥 scellé au reboot & les clés perdues) — 25 minNone
+7. Rotation & hygiène (+ 💥 le mot de passe par défaut oublié 3 semaines) — 25 minNone
+8. Projet final : l'attaque et sa trace — la boucle complète — 30 min + 45 min de projet

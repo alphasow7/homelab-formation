@@ -7,6 +7,9 @@ net1→LAN bridge isolé `192.168.99.0/24`), ISO DVD montée, console noVNC ouve
 
 ### (a) Installation sur disque de bout en bout
 
+> **Avant tout** : crée le bridge `vmbr5` sur le nœud (bloc 0 de `demo.sh` : `192.168.99.254/24`,
+> `bridge-ports none`, `ifreload -a`). Sans lui, `qm set --net1 bridge=vmbr5` échoue.
+
 Dans la **console noVNC** de la VM :
 
 1. Boote sur l'ISO, connecte-toi à l'installeur : `installer` / `opnsense`.
@@ -23,10 +26,11 @@ Dans la **console noVNC** de la VM :
    login `root`) puis :
 
    ```
-   mount | grep conf
+   mount | head -1
    ```
 
-   `/conf` doit être sur `/dev/da0…` (UFS), **PAS sur `tmpfs`**.
+   La racine doit être sur **`/dev/gpt/rootfs`** (UFS, le disque) — **pas** sur un disque
+   mémoire (`/dev/md…`) ni sur le CD.
 3. **Reboote** la VM (`qm reboot 600` côté Proxmox, ou le menu console option `6`).
 4. Après le redémarrage, **reviens sur la console** et lis l'IP du LAN : elle doit
    **toujours** être `192.168.99.1`. Si elle est revenue à `192.168.1.1` → ta config n'a
@@ -34,18 +38,25 @@ Dans la **console noVNC** de la VM :
 
 ### (c) Accéder au GUI en https
 
-Depuis un poste sur le segment isolé (ton Proxmox est en `192.168.99.254` sur `vmbr5`) :
+Ton poste ne voit pas `192.168.99.0/24` ; le nœud, si (`192.168.99.254` sur `vmbr5`). Ouvre
+un tunnel SSH par le nœud, puis le navigateur :
+
+```bash
+ssh -L 8443:192.168.99.1:443 root@IP_DE_TON_NOEUD     # chemin A : -p 2222 root@localhost
+```
 
 ```
-https://192.168.99.1
+https://localhost:8443
 ```
+
+(Ce tunnel servira à tous les chapitres suivants — voir `lab-depart.md`.)
 
 Login : voir Indice 2. Change le mot de passe root à la première connexion.
 
 ## Critères de réussite (mesurables)
 
 - [ ] Au boot, la VM affiche `Root file system: /dev/gpt/rootfs` (démarrage disque, plus l'ISO)
-- [ ] `mount | grep conf` → `/conf` sur **UFS/`da0`**, jamais sur `tmpfs`
+- [ ] `mount | head -1` → racine sur **`/dev/gpt/rootfs`** (UFS), jamais sur un disque mémoire
 - [ ] **LAN persisté** : après reboot, l'IP LAN est **toujours `192.168.99.1`**
 - [ ] **GUI joignable après reboot** : `https://192.168.99.1` répond (HTTP 200, page de login)
 

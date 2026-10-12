@@ -4,6 +4,21 @@
 # L'installation elle-même se fait DANS LA CONSOLE noVNC (voir le bloc en bas).
 set -euo pipefail
 
+########## SUR LE NŒUD PROXMOX (root) — le bridge du LAN d'OPNsense ##########
+# vmbr5 n'existe pas encore : on le crée comme vmbr1 au cours 0 (chap. 4), sans port
+# physique. Le nœud y prend .254 : c'est par lui que ton poste atteindra le GUI.
+grep -q '^auto vmbr5' /etc/network/interfaces || cat >> /etc/network/interfaces <<'EOF'
+
+auto vmbr5
+iface vmbr5 inet static
+    address 192.168.99.254/24
+    bridge-ports none
+    bridge-stp off
+    bridge-fd 0
+EOF
+ifreload -a
+ip -4 addr show vmbr5        # attendu : 192.168.99.254/24
+
 ########## SUR LE NŒUD PROXMOX (root) — créer la VM OPNsense ##########
 # Adapte : VMID (600), les bridges, le chemin de l'ISO DVD téléchargée.
 VMID=600
@@ -53,6 +68,12 @@ qm reboot $VMID
 
 ########## DIAGNOSTIC DE LA PANNE — live-installer vs install disque ##########
 # Sur le shell OPNsense (menu console option 8, login root), la commande qui tranche :
-#   mount | grep conf
-#   -> /conf sur tmpfs  = ALERTE : live-system, la config sera PERDUE au reboot
-#   -> /conf sur /dev/da0 (UFS) = OK : la config PERSISTE sur disque
+#   mount | head -1          # sur quoi est montée la RACINE ?
+#   -> /dev/gpt/rootfs on / (ufs…)  = OK : installé, la config PERSISTE sur disque
+#   -> tout autre chose (disque mémoire /dev/md…, cd9660) = ALERTE : live-system,
+#      le système vit en RAM et la config sera PERDUE au reboot
+
+########## DEPUIS TON POSTE — ouvrir le GUI (tunnel par le nœud) ##########
+# Le GUI est sur le LAN d'OPNsense, que ton poste ne voit pas ; le nœud, si (vmbr5).
+#   ssh -L 8443:192.168.99.1:443 root@IP_DE_TON_NOEUD     # chemin A : -p 2222 root@localhost
+#   puis https://localhost:8443   (login root / opnsense — à changer tout de suite)

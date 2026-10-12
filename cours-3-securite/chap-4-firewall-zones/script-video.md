@@ -52,8 +52,17 @@ puis regarder le `defaults/main.yml` : la liste `zone_firewall_vms` avec elastic
 - `9200` (Elasticsearch) **uniquement depuis Logstash** (`10.10.99.14`) ;
 - `22` (SSH) **uniquement depuis le bastion** (`10.10.99.2`).
 
-Le template ajoute tout seul une règle ICMP (le ping, pour diagnostiquer) et la
-policy `DROP`. **Tout le reste du segment `10.10.99.0/24` est refusé.**
+Le template ajoute tout seul une règle ICMP (le ping, pour diagnostiquer), le SSH
+depuis le nœud (la console de secours : si une règle t'enferme, le nœud entre encore) et
+la policy `DROP`. **Tout le reste du segment `10.10.99.0/24` est refusé.**
+
+**Les trois verrous — à dire en montrant les tasks du rôle** : « Un fichier `.fw` parfait
+ne filtre RIEN tant que trois choses ne sont pas vraies : le pare-feu est activé au niveau
+du datacenter (`cluster.fw`, `enable: 1`), la carte réseau de la VM porte `firewall=1`, et
+le fichier de la VM a son `enable: 1`. Le rôle fait les trois, et il vérifie que ça compile
+(`pve-firewall compile`). Je l'ai appris en regardant un pare-feu "actif" laisser tout
+passer pendant une semaine. » Rassurer : « Et le nœud lui-même ? Proxmox garde d'office le
+SSH et le GUI ouverts depuis ton réseau de management. Tu ne te couperas pas la branche. »
 
 **Avant de lancer — déclarer le nœud** : le playbook fait `hosts: proxmox`, mais le
 nœud n'est pas dans le groupe `lab` (ce sont les VMs, jointes via le bastion). On
@@ -116,7 +125,7 @@ out`. Kibana est vide. Panique.
 
 ```bash
 # "C'est sûrement Elasticsearch qui est planté !"
-ssh alpha@10.10.99.11 'systemctl restart elasticsearch'   # ne change RIEN
+ssh alpha@10.10.99.11 'sudo systemctl restart elasticsearch'   # ne change RIEN
 ssh alpha@10.10.99.11 'journalctl -u elasticsearch -n 50' # tout va bien côté service !
 ```
 

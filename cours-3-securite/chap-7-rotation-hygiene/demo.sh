@@ -54,7 +54,7 @@ cd "$(dirname "$0")/../../cours-1-ansible/ansible"
 
 ########## POSTE — récupérer la CA interne (celle du cours 2) ##########
 # La CA qui signe les certs ELK vit sur le nœud Elasticsearch :
-# scp root@elastic-1:/etc/elasticsearch/certs/ca/ca.crt ~/homelab-ca.crt
+# ssh -J alpha@IP_DE_TON_BASTION alpha@10.10.99.11 'sudo cat /etc/elasticsearch/certs/ca/ca.crt' > ~/homelab-ca.crt
 #
 # Vérifier qu'on tient bien un certificat de CA :
 # openssl x509 -in ~/homelab-ca.crt -noout -subject -issuer
@@ -80,6 +80,6 @@ cd "$(dirname "$0")/../../cours-1-ansible/ansible"
 ########## NAVIGATEUR — vérifier que ça passe au vert ##########
 # Rafraîchir un service interne (redémarrer le navigateur si Firefox) :
 #   https://localhost:5601   (Kibana, tunnel ssh)   → cadenas VERT, plus d'avertissement
-#   https://10.10.99.12:8200 (Vault)                → cadenas VERT
-#   https://localhost:8443   (OPNsense, tunnel ssh) → cadenas VERT
-# Un seul import = confiance à TOUS les services signés par cette CA.
+#   https://10.10.99.12:8200 (Vault)                → toujours ORANGE (cert auto-signé par le rôle)
+#   https://localhost:8443   (OPNsense, tunnel ssh) → toujours ORANGE (cert auto-signé)
+# Un seul import = confiance à TOUS les services signés par cette CA — et à eux seuls.

@@ -12,12 +12,17 @@
 2. Dans `roles/zone_firewall/defaults/main.yml`, **ajoute une entrée** dans
    `zone_firewall_vms` pour le bastion :
    - `vmid: 9204`, `name: bastion` ;
-   - une seule règle : autoriser le `22` **uniquement depuis ton poste de
-     management** (utilise `zone_firewall_management_source`).
+   - une seule règle : autoriser le `22` **uniquement depuis ton réseau à toi** — celui
+     par lequel tu arrives sur `net0` du bastion. Renseigne `zone_firewall_admin_source`
+     (chemin B : le LAN de ta box, ex. `192.168.1.0/24` ; chemin A : `10.0.2.0/24`).
+     ⚠️ Pas `zone_firewall_management_source` : c'est l'adresse du bastion lui-même, tu
+     t'enfermerais dehors.
 3. Applique : `ansible-playbook playbooks/zone-firewall.yml` (il cible le NŒUD —
    le groupe `proxmox` de l'inventaire, déclaré à la démo du chapitre).
 4. **Prouve que le bastion reste joignable depuis toi** :
-   - `ssh alpha@10.10.99.2` depuis ton poste de management → tu entres.
+   - `ssh alpha@IP_DE_TON_BASTION hostname` depuis ton poste → `bastion` ;
+   - et à travers lui : `ssh -J alpha@IP_DE_TON_BASTION alpha@10.10.99.11 hostname` →
+     `elastic-1` (les autres zones autorisent le bastion).
 5. **Prouve qu'une VM du segment ne peut plus toucher le SSH du bastion** :
    - depuis dns-proxy (`10.10.99.12`) : `nc -vz -w 3 10.10.99.2 22` → **timed out**.
 

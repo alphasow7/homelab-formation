@@ -49,8 +49,8 @@ serait injoignable. C'est tout l'enjeu du *first match*.
 ## Test de validation
 
 ```sh
-# Depuis une VM du LAN :
-curl -k https://10.10.99.14:5601              # Kibana : répond (login page)
+# Depuis lan-test (ssh alpha@192.168.99.10, depuis le nœud) :
+curl -k -o /dev/null -s -w '%{http_code}\n' https://10.10.99.14:5601   # Kibana : 200/302
 curl -k --max-time 5 https://10.10.99.11:9200 # Elasticsearch : timeout (bloqué)
 ping -c 3 8.8.8.8                             # Internet : OK (règle par défaut intacte)
 ```

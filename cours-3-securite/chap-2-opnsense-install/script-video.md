@@ -156,12 +156,12 @@ RAM déguisée en dossier. Au reboot : page blanche.
 **Le diagnostic tient en une commande.** Sur le système, tu tapes :
 
 ```
-mount | grep conf
+mount | head -1
 ```
 
-Si tu vois `/conf` monté sur **`tmpfs`** → **ALERTE ROUGE** : tu es sur un live-system, ta
-config ne survivra PAS. Si tu vois `/conf` sur un vrai disque (`/dev/da0…`, UFS) → tu es
-tranquille, ça persiste.
+Sur quoi est montée la **racine** ? Si c'est un disque mémoire (`/dev/md…`) ou le CD →
+**ALERTE ROUGE** : tu es sur un live-system, tout vit en RAM, ta config ne survivra PAS.
+Si c'est `/dev/gpt/rootfs` en UFS → tu es tranquille, ça persiste sur le disque.
 
 **Le fix**, c'est exactement ce qu'on vient de faire ensemble : **installer sur disque**
 (`Install UFS`). Une fois installé, `/conf` vit sur le disque, et la config **survit au

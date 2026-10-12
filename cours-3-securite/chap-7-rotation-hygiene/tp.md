@@ -27,7 +27,7 @@ Puis range le nouveau dans ton trousseau chiffré :
 
 ```bash
 cd cours-1-ansible/ansible
-ansible-vault edit inventory/group_vars/opnsense/vault.yml
+ansible-vault create inventory/group_vars/opnsense/vault.yml   # (edit s'il existe déjà)
 #   vault_opnsense_root_password: "TON-NOUVEAU-MDP-FORT"
 ```
 
@@ -61,7 +61,8 @@ le **Save** du GUI (`System ▸ Access ▸ Users`) ou un `write_config()` en con
 
 C'est la CA que tu as créée au cours 2 (chap 3), celle qui signe les certs ELK. Elle vit sur
 le nœud Elasticsearch :
-`scp root@elastic-1:/etc/elasticsearch/certs/ca/ca.crt ~/homelab-ca.crt`.
+`ssh -J alpha@IP_DE_TON_BASTION alpha@10.10.99.11 'sudo cat /etc/elasticsearch/certs/ca/ca.crt' > ~/homelab-ca.crt`
+(ton poste ne voit pas le segment, et `root` n'a pas de clé : on passe par le bastion et `sudo`).
 Vérifie que c'est bien une racine auto-signée :
 `openssl x509 -in ~/homelab-ca.crt -noout -subject -issuer` (subject == issuer).
 </details>
