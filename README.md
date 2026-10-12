@@ -6,13 +6,16 @@ Matériel élève de la formation « Homelab DevSecOps » (Udemy + YouTube).
 
 | # | Cours | Statut |
 |---|---|---|
-| 0 | [Fondations : ton premier homelab avec Proxmox](cours-0-fondations/) | 📝 rédigé · revue de cohérence OK |
-| 1 | [Ansible : automatise ton infra comme un pro](cours-1-ansible/) | 📝 rédigé · revue de cohérence OK |
-| 2 | [ELK : ton propre SIEM/observabilité à la maison](cours-2-elk/) | 📝 rédigé · revue de cohérence OK |
-| 3 | [Sécurité : OPNsense, Suricata, Vault](cours-3-securite/) | 📝 rédigé · revue de cohérence OK |
+| 0 | [Fondations : ton premier homelab avec Proxmox](cours-0-fondations/) | 📝 rédigé · audité et corrigé le 12/10 · **à rejouer sur machine** |
+| 1 | [Ansible : automatise ton infra comme un pro](cours-1-ansible/) | 📝 rédigé · audité et corrigé le 12/10 · **à rejouer sur machine** |
+| 2 | [ELK : ton propre SIEM/observabilité à la maison](cours-2-elk/) | 📝 rédigé · audité et corrigé le 12/10 · **à rejouer sur machine** |
+| 3 | [Sécurité : OPNsense, Suricata, Vault](cours-3-securite/) | 📝 rédigé · audité et corrigé le 12/10 · **à rejouer sur machine** |
 
-**Pipeline** : 📝 rédigé → 🧪 bêta-test → 🎬 tournage → ✅ publié. Les 4 cours sont écrits et
-relus (fil rouge inter-cours vérifié : adressage, rôles Ansible, pannes, prérequis, quiz).
+**Pipeline** : 📝 rédigé → 🔁 rejoué sur machine → 🧪 bêta-test → 🎬 tournage → ✅ publié.
+Les 4 cours sont écrits, relus, et audités le 12/10/2026 : quatorze défauts qui empêchaient
+un élève d'aller au bout ont été corrigés et les 24 tags d'étape reposés — voir
+[`docs/evaluation-2026-10-12.md`](docs/evaluation-2026-10-12.md). Prochaine étape : rejouer
+chaque lab sur une vraie machine avant le bêta-test.
 
 **Réalignement du 11/10/2026** — le homelab qui sert de base a pivoté en août 2026
 (cluster Proxmox de 4 nœuds, plateforme de déploiement en VMs, ELK derrière OPNsense,

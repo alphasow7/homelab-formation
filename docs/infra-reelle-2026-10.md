@@ -267,10 +267,10 @@ réaligné le 11/10/2026 ».
 - Cours 3 : `chap-1`, `chap-2`, `chap-3`, `chap-4`, `chap-5`, `chap-6`, `chap-8`
   (`script-video.md`), `chap-8/projet.md`.
 
-**Non modifiés, volontairement** : tout le matériel élève (`demo.sh`, `tp.md`,
-`correction/`, `quiz.md` hors C0 ch.1, `lab-depart.md`, `labs/`), les extraits Ansible
-(`ansible-extraits/`, `cours-1-ansible/ansible/`) et les tags `c*-fin` — le lab élève est
-autonome et ne dépend pas du parc réel. Le matériel de bêta-test du cours 0 non plus.
+**Non modifiés le 11/10, volontairement** : tout le matériel élève, les extraits Ansible et
+les tags — le lab élève est autonome et ne dépend pas du parc réel. (Le 12/10, l'audit a
+ensuite corrigé le matériel élève pour ses défauts propres et reposé les tags : §8 et
+`evaluation-2026-10-12.md`.)
 
 ## 8. Journal des synchronisations avec le dépôt `homelab`
 
@@ -291,3 +291,9 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   courant, pin inerte posé avant l'installation, vmbr7 partagé). Mis à jour : §1
   (gitlab-vortex, paragraphe supervision), §4 (huit lignes), §5 décision 4, §6 ; encarts
   de C1 ch.2, C1 ch.8, C2 ch.2, C2 ch.9, C3 ch.1, C3 ch.6 et C3 ch.8.
+- **12/10/2026 (ter)** — audit complet de la formation contre sa spec et le homelab
+  (`docs/evaluation-2026-10-12.md`) : 14 bloquants élève corrigés, 24 tags reposés depuis
+  `main`, 4 encarts oubliés réalignés (C1 ch.1 et ch.6, C2 ch.2 et ch.4), quiz et durées.
+  Addendum de spec déposé côté homelab :
+  `docs/superpowers/specs/2026-10-12-formation-addendum-post-pivot.md`. Aucun commit
+  homelab nouveau : marqueur inchangé.
