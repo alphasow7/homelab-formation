@@ -18,8 +18,8 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: 3a7e8bf 830f78e 3e44693 2171609` — bastion (12/10 soir : Tailnet Lock,
-> alertes), supervision (08/10), runner GitHub (08/10), pièges de démarrage du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
+> `homelab-sync: 0972fa2 2171609` — `main` du 13/10 (bastion, supervision et runner GitHub
+> fusionnés : Kibana depuis l'iPhone par `tailscale serve`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
 
@@ -55,7 +55,7 @@
 | `rundeck-vortex` (VM 210) | Rundeck + **Vault principal** (auto-unseal par transit) | pve01 | .53 |
 | `gitlab-vortex` (VM 211) | GitLab CE + runner GitLab + **Vault unsealer** (:8210) + runner **GitHub Actions** (08/10, sortie HTTPS seule : la CI joue dans le lab sans port entrant) | pve02 | .54 |
 | `artifactory-vortex` (VM 212) | Artifactory OSS + moteur `vdp` + PKI Vault | pve01 | .55 |
-| `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes. **Tailnet Lock** actif (signataires Mac + iPhone, jamais le bastion). Filebeat + Metricbeat ; **un mail à chaque session depuis le tailnet** et un à 3 échecs du TOTP en 10 min — validé de bout en bout le 12/10 | pve03 | .56 |
+| `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes. **Tailnet Lock** actif (signataires Mac + iPhone, jamais le bastion). Filebeat + Metricbeat ; **un mail à chaque session depuis le tailnet** et un à 3 échecs du TOTP en 10 min — validé de bout en bout le 12/10. **Kibana depuis l'iPhone** par `tailscale serve` (proxy TLS de tailscaled, certificat Let's Encrypt, écoute tailnet seulement, téléphone seul autorisé) : aucun port ouvert, 13/10 | pve03 | .56 |
 | `vxse-lab-01` (VM 300) | cible VDP : stack ELK **7.17** (VXSE/VXLO/VXKI/VXFB), TLS par PKI Vault | pve, vmbr2 | 10.10.20.61 ↔ 192.168.1.61 |
 | OPNsense (VM 600) | pare-feu, `onboot: 1`, 2 vCPU / 4 Go ; LAN vmbr5, WAN vmbr0, patte vmbr2 | pve | 192.168.99.1 / DHCP box |
 | PBS (LXC 500) | PBS 3.4.8, datastore `vm-backups` sur HDD ~1 To | pve | 10.10.10.20 et 192.168.1.220 |
@@ -176,6 +176,11 @@ hors-série ou une V2.
 | C2 ch.9 | contrôle rapide d'ElastAlert sans lire ses logs : les index `elastalert_status` (alertes émises, `alert_sent`) et `elastalert_status_status` (runs, nombre de correspondances) | `3a7e8bf` |
 | C3 ch.8 / bastion | **Tailnet Lock** : aucun appareil n'entre dans le réseau maillé sans signature du Mac ou de l'iPhone — le bastion n'est jamais signataire ; deux secrets de désactivation sur papier. Pièges CLI : sans `--confirm`, `lock init` n'est qu'un aperçu et n'active rien ; `--gen-disablements N` ; `tailscale ping` répond « timed out » les premières secondes. Un bastion reconstruit reste « locked out » tant qu'il n'est pas signé | `39569d9`, `docs/acces-distant.md` |
 | C3 ch.8 / bastion | avant d'accuser le bastion : l'app Tailscale de l'iPhone était simplement déconnectée (le bastion la voyait hors ligne). Vérifier le client avant le serveur | `3a7e8bf` |
+| C2 ch.5 ✍️ · C3 ch.1 ✍️ | **Kibana sur le téléphone sans ouvrir un port** : `tailscale serve` sur le bastion proxifie Kibana en HTTPS sur l'adresse tailnet seulement ; l'appareil est authentifié par Tailscale + Tailnet Lock, la personne par la mire Kibana. Effet de bord accepté : le nom `bastion.<tailnet>.ts.net` apparaît dans les journaux de transparence des certificats (nom seul) | `bc422ec`, `docs/acces-distant.md` |
+| C2 ch.3 ✍️ | un processus Go (tailscaled) ne relit pas le magasin de confiance système : chaîne de CA installée, proxy qui refuse toujours Kibana — jusqu'au redémarrage du service (`flush_handlers` avant de configurer) | `bc422ec` |
+| C3 ch.8 / bastion | `tailscale serve` sans « Serve » activé sur le tailnet affiche un lien puis **attend sans fin** : play bloqué 10 min. Borné par `timeout 60 … --yes`, refus expliqué. Et `pkill -f "tailscale serve"` lancé via `ssh host '…'` tue la session ssh elle-même (le motif est dans la ligne de commande du shell distant) : ancrer avec `^` | `bc422ec` |
+| C3 ch.3 ✍️ | Safari envoie en **http (port 80)** quand on tape le nom sans `https://` ; la politique ne laisse passer que le 443 → « Kibana ne répond plus ». Journal tailscaled : `Drop: TCP{… > …:80} no rules matched`. Choix assumé : on n'ouvre pas le 80, même pour rediriger — on épingle l'URL complète | `8725bc7` |
+| C3 ch.7 | en réserve : des clés publiques dont le **commentaire** est un mot de passe (pve, VMs) — un secret qui se promène en clair dans `authorized_keys` | `docs/acces-distant.md` « Reprendre ici » |
 | C2 ch.9 ✍️ | **la panne d'un mois** (04/09 → 08/10) : certificats Metricbeat (TTL 72 h) expirés car le job de renouvellement avait disparu, jeton PKI mort, VM 300 sans `onboot` ; le chien de garde a vu la panne **391 fois** mais Rundeck n'avait pas de SMTP, chaque mail échouait. Qui surveille le surveillant ? Tester la chaîne d'alerte en la faisant **échouer** | `830f78e`, `docs/supervision.md` §8 quater |
 | C1 ch.8 ✍️ | un job Rundeck créé **à la main** le 02/08 (hors dépôt) a disparu à la reconstruction du 31/08 — et avec lui le renouvellement des certificats. Ce qui n'est pas dans le dépôt n'existe pas ; désormais importé par le rôle `vortex_rundeck_projet` | `830f78e` |
 | C3 ch.6 ✍️ | un jeton Vault **périodique** (720 h) ne se prolonge pas en servant : seul `renew-self` le fait. Mort début octobre, il bloquait même le renouvellement manuel. Timer systemd nocturne, `Persistent=true` | `830f78e` |
@@ -258,6 +263,8 @@ hors-série ou une V2.
 - Bastion : une session depuis le tailnet (Mac ou iPhone) déclenche le mail
   « connexion au bastion depuis le tailnet » dans les 2 minutes (règle ElastAlert, index
   `elastalert_status` à montrer). `tailscale lock status` = ENABLED sur le bastion.
+- iPhone : Kibana s'ouvre sur `https://bastion.<tailnet>.ts.net` (app Tailscale connectée),
+  mire de login puis « Homelab — Vue d'ensemble ». Le nom du tailnet ne passe pas à l'écran.
 - GitHub → Actions : dernier workflow `homelab-ansible` vert, runner `gitlab-vortex` *Idle*.
 
 ## 7. Fichiers modifiés le 11/10/2026
@@ -309,3 +316,7 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   Metricbeat sur le bastion, règles ElastAlert `bastion-connexion` / `bastion-echecs`,
   validées par mails reçus). Mis à jour : §1 (ligne bastion), §4 (cinq lignes), §6 ;
   encarts de C0 ch.7, C2 ch.9, C3 ch.5 et C3 ch.8. Matériel élève intact.
+- **13/10/2026** — `bc422ec`, `8725bc7`, puis fusion des branches dans `main` (`0972fa2`) :
+  Kibana depuis l'iPhone par `tailscale serve`, port 80 refusé par la politique. Mis à
+  jour : §1 (ligne bastion), §4 (cinq lignes), §6 ; encarts de C2 ch.3, C2 ch.5, C3 ch.1 et
+  C3 ch.3. Marqueur réduit à deux têtes (`main` + la branche docs Elastic). Matériel élève intact.

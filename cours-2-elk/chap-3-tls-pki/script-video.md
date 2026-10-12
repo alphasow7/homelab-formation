@@ -1,6 +1,6 @@
 # Chapitre 3 — TLS partout : ta propre autorité : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~35 min. Prérequis : chapitre 2 (Elasticsearch mono-nœud en http).
 > Rôle complet : `../ansible-extraits/roles/elk_certs/`. Commandes dans `demo.sh`.
@@ -53,8 +53,12 @@ PKI de Vault et le job Rundeck de renouvellement.
 importé une fois dans le navigateur, et tous les services internes deviennent verts. Chez
 moi, l'étage du dessus : la racine ne signe plus rien directement. C'est le moteur PKI de
 **Vault** — on le rencontre au cours 3 — qui émet des certificats **courts, 72 heures**,
-renouvelés tous les deux jours par un job automatique. Un cert qui expire vite, c'est un
-cert volé qui ne sert à rien longtemps. Ta CA à la main aujourd'hui, c'est la version
+renouvelés chaque nuit par un job automatique. Un cert qui expire vite, c'est un
+cert volé qui ne sert à rien longtemps. Et une leçon d'octobre, sur l'autre bout de la
+chaîne : installer ta CA dans le magasin de confiance d'une machine ne suffit pas, le
+**processus** qui doit lui faire confiance doit la relire — chez moi, un proxy refusait
+Kibana jusqu'au redémarrage de son service. Confiance posée ≠ confiance chargée. Ta CA à
+la main aujourd'hui, c'est la version
 junior de ça. »
 
 **💡 Une dette apprise sur le tas** (à garder pour la FAQ si le temps manque) : « Ma CA

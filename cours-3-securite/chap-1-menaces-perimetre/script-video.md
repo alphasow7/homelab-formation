@@ -1,6 +1,6 @@
 # Chapitre 1 — Menaces & périmètre : penser comme un attaquant : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~20 min. Prérequis élève : cours 0 (Proxmox), 1 (Ansible) et 2 (ELK)
 > terminés — un lab de 4 VMs sur le segment isolé 10.10.99.0/24, et un SIEM ELK
@@ -223,9 +223,11 @@
 - « Et pour piloter tout ça depuis l'extérieur — relancer un playbook, vérifier le parc
   pendant que je suis loin — je n'ouvre **aucun** port. Un petit agent dans le lab interroge
   GitHub en sortie, récupère le travail, l'exécute ici, et renvoie le résultat. C'est le
-  lab qui va chercher ses ordres, jamais l'inverse. Rappelle-toi le port "juste pour
-  tester" de tout à l'heure : la bonne question n'est pas "comment j'ouvre", c'est
-  "comment je n'ouvre pas". »
+  lab qui va chercher ses ordres, jamais l'inverse. Même logique pour voir mon SIEM depuis
+  mon téléphone : pas de port sur la box, c'est mon bastion qui sert Kibana en HTTPS sur le
+  réseau maillé, à mon téléphone et à lui seul. Rappelle-toi le port "juste pour tester"
+  de tout à l'heure : la bonne question n'est pas "comment j'ouvre", c'est "comment je
+  n'ouvre pas". »
 
 ---
 
