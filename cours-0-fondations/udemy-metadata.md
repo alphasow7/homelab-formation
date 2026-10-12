@@ -69,8 +69,8 @@ durée limitée pour amorcer les avis).
 
 0. Mise à niveau express (terminal, SSH, réseau) — 30 min
 1. C'est quoi un homelab ? (+ visite de mon infra réelle) — 15 min
-2. Installer Proxmox (+ 💥 la GUI ne répond pas) — 40 min
-3. Ta première VM cloud-init (+ 💥 la clé SSH périmée) — 40 min
+2. Installer Proxmox (+ 💥 la GUI ne répond pas) — 30 minNone
+3. Ta première VM cloud-init (+ 💥 la clé SSH périmée) — 30 minNone
 4. Le réseau : bridges et segmentation (+ 💥 « pas d'Internet » voulu) — 40 min
 5. Templates : clone ta première flotte — 30 min
 6. Snapshots & sauvegardes (+ 💥 la restauration jamais testée) — 35 min

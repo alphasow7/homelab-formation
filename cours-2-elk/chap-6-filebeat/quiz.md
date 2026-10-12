@@ -47,10 +47,6 @@
 
 ---
 
-**Réponses : 1-C, 2-B, 3-A, 4-C, 5-B.**
-
----
-
 ## Corrigé
 
 > Ne lis cette section qu'après avoir répondu aux 5 questions.

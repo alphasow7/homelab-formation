@@ -45,10 +45,6 @@
 
 ---
 
-**Réponses : 1-B, 2-C, 3-A, 4-D, 5-B.**
-
----
-
 ## Corrigé
 
 > Ne lis cette section qu'après avoir répondu aux 5 questions.

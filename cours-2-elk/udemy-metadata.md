@@ -72,9 +72,9 @@ Prix catalogue : 64,99 € — lancement à 16,99 € (bundle des 3 cours à pro
 1. Observabilité : pourquoi (logs, métriques, dispo ; l'archi ELK) — 20 min
 2. Elasticsearch : la bibliothèque (index, documents, le « yellow » démystifié) — 40 min
 3. TLS partout : ta propre autorité (+ 💥 la CA générée deux fois) — 35 min
-4. Logstash : le centre de tri (+ le moment grok : texte → données) — 40 min
-5. Kibana : la salle de lecture (+ 💥 l'import qui « réussit » sans rien faire) — 40 min
+4. Logstash : le centre de tri (+ le moment grok : texte → données) — 35 minNone
+5. Kibana : la salle de lecture (+ 💥 l'import qui « réussit » sans rien faire) — 35 minNone
 6. Filebeat : les facteurs (+ 💥 les dashboards vides / fichiers inexistants) — 35 min
-7. Syslog réseau : les équipements sans agent alimentent le SIEM — 30 min
-8. Dashboards de service : construis tes tableaux de bord (Lens) — 35 min
-9. Projet final : l'aiguille dans la botte de foin (< 10 min dans Kibana) — 20 min + 45 min de projet
+7. Syslog réseau : les équipements sans agent alimentent le SIEM — 25 minNone
+8. Dashboards de service : construis tes tableaux de bord (Lens) — 22 minNone
+9. Projet final : l'aiguille dans la botte de foin (< 10 min dans Kibana) — 18 min + 45 min de projet
