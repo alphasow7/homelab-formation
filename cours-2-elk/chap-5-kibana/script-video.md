@@ -75,11 +75,12 @@ connectes avec `elastic` (le super-utilisateur, mot de passe vaulté au chap. 2)
 3. **Une requête KQL** dans la barre :
 
    ```
-   machine: "dns-proxy"
+   tags : "http_error"
    ```
 
-   → seuls les événements de dns-proxy restent. « Voilà ton `grep`, mais visuel,
-   filtrable, et sur des millions de lignes. »
+   → seul le document en 404 du TP du chapitre 4 reste. « Voilà ton `grep`, mais visuel,
+   filtrable, et sur des millions de lignes. » Déplier le document : `response`,
+   `clientip`, `tags` — les champs que grok a posés sont devenus des colonnes.
 
 ### 2.4 Importer un tableau de bord tout prêt
 

@@ -11,7 +11,7 @@ cp ../../cours-2-elk/ansible-extraits/playbooks/kibana.yml playbooks/
 
 # Prérequis : le compte de service kibana_system doit avoir un mot de passe vaulté.
 #   Sur elastic-1 (ssh via bastion) :
-#     /usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system
+#     sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system
 #   Puis dans ton vault : vault_kibana_system_password: "<le mdp>"
 
 ########## SUR LE NŒUD PROXMOX (root) — masquerade ON (Kibana à télécharger) ##########

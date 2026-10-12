@@ -34,8 +34,8 @@ L'input `journald` reste en place à côté : on AJOUTE les logs nginx, on ne re
 cd cours-1-ansible/ansible
 ansible-playbook playbooks/filebeat.yml        # ne change que dns-proxy
 
-# sur dns-proxy (ou depuis le bastion) : écrire dans access.log
-for i in $(seq 1 10); do curl -s http://10.10.99.12/ >/dev/null; done   # dns-proxy = le nginx
+# depuis le bastion : écrire dans access.log (avec le secret du cours 1, sinon : 401)
+ssh alpha@IP_DE_TON_BASTION 'for i in $(seq 1 10); do curl -s -u admin:change-moi-Formation2026 http://10.10.99.12/ >/dev/null; done'
 ```
 
 ## 3. Retrouver les lignes dans Kibana

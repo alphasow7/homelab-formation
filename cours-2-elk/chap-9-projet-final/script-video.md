@@ -43,7 +43,7 @@ regarder.
 se passe. Un filtre `host.name` et tu as divisé le problème par quatre.
 
 **Enfin la NATURE — QUOI.** Là seulement tu descends dans Discover, avec ta fenêtre de
-temps et ta machine. Tu regardes `journald.unit`, `process.name`, le `message`. Tu LIS.
+temps et ta machine. Tu regardes `systemd.unit`, `process.name`, le `message`. Tu LIS.
 C'est là que l'incident se nomme.
 
 Temps, lieu, nature. Chaque étape est un filtre KQL — et ces filtres, tu les gardes : ce

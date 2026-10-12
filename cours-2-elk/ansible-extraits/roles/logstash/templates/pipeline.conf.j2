@@ -30,6 +30,11 @@ filter {
     grok {
       match => { "message" => "%{COMBINEDAPACHELOG}" }
       tag_on_failure => ["_nginxparsefailure"]
+      # Logstash ≥ 8 nomme les champs « à la ECS » par défaut
+      # ([http][response][status_code], [source][address]…). On garde ici les
+      # noms courts et lisibles (response, clientip, verb…) : ce sont ceux du
+      # cours. Sans cette ligne, rien de ce qui suit ne trouverait ses champs.
+      ecs_compatibility => disabled
     }
   } else {
     mutate {
@@ -57,8 +62,10 @@ filter {
 output {
   # Un index par FAMILLE de source (encart du chapitre 4) : le syslog réseau
   # dans `logstash-syslog-*`, le reste (Beats, tests) dans `logstash-*`.
+  # Seul ce que le grok syslog a SU LIRE va dans l'index syslog ; une ligne
+  # envoyée à la main par nc sans en-tête (chapitre 4) reste dans `logstash-*`.
   # La data view `logstash-*` de Kibana voit les deux.
-  if [type] == "syslog" {
+  if [type] == "syslog" and "_syslogparsefailure" not in [tags] {
     elasticsearch {
       hosts => ["{{ elasticsearch_host }}"]
       user => "{{ logstash_es_user }}"

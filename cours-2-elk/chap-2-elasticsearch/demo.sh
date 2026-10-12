@@ -25,7 +25,7 @@ ansible-playbook playbooks/elk.yml
 # iptables -t nat -D POSTROUTING -s 10.10.99.0/24 -o vmbr0 -j MASQUERADE
 
 ########## SUR LA VM elastic-1 (ssh via bastion) ##########
-# /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+# sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic   # root : il lit le keystore
 #   → note le mot de passe (remplace LE_MDP ci-dessous)
 
 # Premier contact — attendu : "You Know, for Search"

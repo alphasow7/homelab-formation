@@ -8,7 +8,7 @@
 Générer du trafic pour avoir de la matière :
 
 ```bash
-for i in $(seq 1 30); do curl -s http://10.10.99.12/ >/dev/null; done
+ssh alpha@IP_DE_TON_BASTION 'for i in $(seq 1 30); do curl -s -u admin:change-moi-Formation2026 http://10.10.99.12/ >/dev/null; done'
 ```
 
 Puis **Analytics > Dashboard > Create dashboard**. Data view : `logstash-*`. Fenêtre de
@@ -40,7 +40,8 @@ Attendu : une bosse de ~30 hits correspondant au `for`.
 
 Attendu : une part écrasante de **200**. Sur un lab sain, pas ou peu de 4xx/5xx — c'est le
 but : le camembert doit être quasi monochrome tant que tout va bien. (Ce panneau devient
-le détecteur du scénario "nginx 500" du chapitre 9.)
+le détecteur du scénario « scan d'URL » du chapitre 9 : une part de `404` et de `401` qui
+surgit.)
 
 ## Panneau (c) — Top des IP clientes (table)
 

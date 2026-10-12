@@ -11,8 +11,11 @@ Avant de construire, génère un peu de trafic pour avoir de quoi afficher (depu
 via le bastion) :
 
 ```bash
-for i in $(seq 1 30); do curl -s http://10.10.99.12/ >/dev/null; done
+ssh alpha@IP_DE_TON_BASTION 'for i in $(seq 1 30); do curl -s -u admin:change-moi-Formation2026 http://10.10.99.12/ >/dev/null; done'
 ```
+
+(Sans `-u`, la page protégée du cours 1 répond 401 : ton camembert serait rouge avant
+même l'incident.)
 
 ## Énoncé
 
@@ -45,7 +48,8 @@ la barre de recherche) le filtre KQL **`log_source : "nginx"`**.
 - [ ] Le dashboard "nginx — dns-proxy" existe et contient 3 panneaux
 - [ ] Les 3 panneaux ne montrent QUE des logs nginx (filtre `log_source : "nginx"`)
 - [ ] Le camembert des codes montre une écrasante majorité de `200`
-- [ ] La table des IP clientes affiche au plus 10 lignes, ton IP en tête après le `for`
+- [ ] La table des IP clientes affiche au plus 10 lignes, celle du bastion (`10.10.99.2`)
+      en tête après le `for`
 
 ## Indices
 

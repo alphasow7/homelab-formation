@@ -20,7 +20,11 @@ ansible-playbook playbooks/logstash.yml
 # iptables -t nat -D POSTROUTING -s 10.10.99.0/24 -o vmbr0 -j MASQUERADE
 
 ########## SUR LE BASTION — envoyer un événement de test ##########
+# nc n'est pas forcément là (image cloud minimale) ; le bastion a Internet par net0.
+command -v nc >/dev/null || sudo apt install -y netcat-openbsd
 # Une simple ligne de texte sur le port syslog 5514 de kibana-logstash.
+# (Elle entre par la porte « syslog » sans en-tête syslog : le document portera
+#  le tag _syslogparsefailure — on apprend à lire ce tag au chapitre 7.)
 echo "test $(date)" | nc 10.10.99.14 5514
 
 # LE moment : une VRAIE ligne de log nginx (format combined).

@@ -6,8 +6,8 @@ network.host: 0.0.0.0
 http.port: 9200
 
 # Mono-nœud : dit à ES de ne pas chercher de copains.
-# (L'infra réelle a 2 nœuds et utilise discovery.seed_hosts +
-#  cluster.initial_master_nodes à la place.)
+# (Un cluster multi-nœuds utilise discovery.seed_hosts +
+#  cluster.initial_master_nodes à la place — voir l'encart du chapitre.)
 discovery.type: single-node
 
 # Sécurité activée dès le premier jour (auth obligatoire).

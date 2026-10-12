@@ -88,4 +88,6 @@ on trace de bout en bout avec `logger` + un tag unique, puis on remonte
 les trois maillons : **(1)** le réseau/pare-feu laisse-t-il passer le 5514 ? **(2)**
 Logstash écoute-t-il bien (tcp ET udp) sur kibana-logstash ? **(3)** le format est-il du
 syslog standard ? — rsyslog l'émet par défaut, donc ce maillon est bon d'office avec lui ;
-sinon le document arrive quand même, tagué `_syslogparsefailure` et sans `syslog_hostname`.
+sinon le document arrive quand même, tagué `_syslogparsefailure` et sans `syslog_hostname`
+— et il reste dans `logstash-*` : l'index `logstash-syslog-*` ne reçoit que ce que le grok
+a su lire.

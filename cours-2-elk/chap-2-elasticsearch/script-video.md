@@ -1,5 +1,7 @@
 # Chapitre 2 — Elasticsearch : la bibliothèque : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 12/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~40 min. Prérequis : lab de départ vérifié (`../lab-depart.md` — la RAM !).
 > Toutes les commandes montrées sont dans `demo.sh` et rejouées avant tournage.
 > Le rôle complet est dans `../ansible-extraits/roles/elasticsearch/` — l'élève le
@@ -52,7 +54,7 @@ par paquet. »
 **À montrer** (sur la VM, via ssh) :
 
 ```bash
-/usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
 ```
 
 « Le mot de passe du super-utilisateur `elastic` — note-le, on le vaultera au TP. »
@@ -95,12 +97,17 @@ recherche. Tout le reste du cours, c'est industrialiser ça. »
 
 ## 3. Encart vrai matériel (2 min)
 
-**À filmer** : `_cluster/health` du cluster réel : `"status": "green", "number_of_nodes": 2,
-"active_shards": 150`.
+**À filmer** : `_cluster/health` de la stack réelle (VM 300, derrière le pare-feu, en
+`https://192.168.1.61:9200`) : `"number_of_nodes": 1`, `"status": "yellow"`. Puis, si le
+lab de certification tourne, le même appel sur `es-01` : `"number_of_nodes": 3`,
+`"status": "green"`.
 
-**À dire** : « Deux nœuds : les réplicas ont un deuxième nœud où vivre — d'où le green.
-Si un nœud meurt, l'autre a tout, et le cluster continue. C'est exactement ce que ton
-yellow t'explique en creux. »
+**À dire** : « Chez moi aussi, la stack qui surveille le parc est **mono-nœud et jaune** —
+comme la tienne. Un seul nœud derrière le pare-feu, dimensionné pour ce qu'il reçoit :
+les réplicas n'ont pas de deuxième nœud où vivre, ES le dit, et c'est acceptable tant
+qu'on le sait. Le green, je le montre sur mon lab d'entraînement à trois nœuds : là, si
+un nœud meurt, les autres ont tout, et le cluster continue. C'est exactement ce que ton
+yellow t'explique en creux — et ce que tu verras le jour où ton lab grandira. »
 
 ## 4. 💡 L'astuce du vrai monde (2 min)
 

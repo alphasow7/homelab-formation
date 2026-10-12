@@ -1,5 +1,7 @@
 # Chapitre 4 — Logstash : le centre de tri : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 12/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~35 min. Prérequis : chap 2 (ES mono-nœud, mot de passe elastic vaulté
 > sous `vault_elastic_password`) et chap 3 (TLS, CA dans `/etc/elasticsearch/certs/ca/`).
 > Toutes les commandes montrées sont dans `demo.sh` et rejouées avant tournage.
@@ -103,23 +105,33 @@ curl --cacert /etc/elasticsearch/certs/ca/ca.crt -u elastic:LE_MDP \
   `request`, **`response`**, `bytes`… « Je peux demander à ES *toutes les requêtes qui ont
   répondu 200*, ou *tout ce qui vient de 192.168.1.10*. Le texte brut est devenu une
   base de données interrogeable. C'est ça, grok. C'est ça, tout l'intérêt de Logstash. »
+- **Deux détails à ne pas laisser passer à l'écran** : (1) le document porte aussi le
+  tag `_syslogparsefailure` — il est entré par la porte syslog (port 5514) sans en-tête
+  syslog, et le pipeline le dit ; chapitre 7, on branchera du vrai syslog et ce tag
+  deviendra ton détecteur de lignes mal lues ; (2) dans le rôle, le grok porte
+  `ecs_compatibility => disabled` : « Logstash récent nomme les champs à la mode ECS —
+  `http.response.status_code` au lieu de `response`. Je garde les noms courts pour
+  apprendre ; retiens juste que ce réglage existe, tu le croiseras dès que tu liras un
+  pipeline écrit par quelqu'un d'autre. »
 
 ## 3. Encart vrai matériel (3 min)
 
-**À filmer** : sur le Logstash réel, le `conf.d/` avec le vrai pipeline, et la liste des
-index dans ES :
+**À filmer** : sur le Logstash réel (VM 300, derrière le pare-feu), le `conf.d/` avec le
+vrai pipeline, et la liste des index dans ES :
 
 ```bash
-curl -s -u elastic:*** "https://ELASTIC:9200/_cat/indices/logstash-*?v"
+curl -s -u elastic:*** "https://192.168.1.61:9200/_cat/indices/vortex-*?v"
 ```
 
-**À dire** : « En vrai on ne mélange pas tout dans un seul `logstash-*`. On route par type
-de source : `logstash-filebeat-*`, `logstash-metricbeat-*`, `logstash-syslog-*`… un index
-par famille de Beat. Pourquoi ? Pour éviter les conflits de *mapping* (deux sources qui
-appellent un champ pareil avec des types différents) et pour pouvoir purger/dimensionner
-chaque type indépendamment. Notre `logstash-%{+YYYY.MM.dd}` du lab est la version simple
-de cette idée : **un index par jour** — on verra tout de suite pourquoi. Et au chapitre 7,
-quand on branchera le syslog réseau, on lui donnera son propre index `logstash-syslog-*` :
+**À dire** : « En vrai on ne mélange pas tout dans un seul `logstash-*`. Chez moi, trois
+familles, trois index : `vortex-logs-*` pour les journaux (Filebeat et le syslog du
+pare-feu), `vortex-metrics-*` pour les mesures (Metricbeat), `vortex-uptime-*` pour les
+sondes de disponibilité (Heartbeat). Pourquoi ? Pour éviter les conflits de *mapping* (deux
+sources qui appellent un champ pareil avec des types différents) et pour pouvoir purger et
+dimensionner chaque famille indépendamment — les mesures se gardent moins longtemps que
+les journaux. Notre `logstash-%{+YYYY.MM.dd}` du lab est la version simple de cette idée :
+**un index par jour** — on verra tout de suite pourquoi. Et au chapitre 7, quand on
+branchera le syslog réseau, on lui donnera son propre index `logstash-syslog-*` :
 exactement cette idée, de tes mains. »
 
 ## 4. 💡 L'astuce du vrai monde (2 min)

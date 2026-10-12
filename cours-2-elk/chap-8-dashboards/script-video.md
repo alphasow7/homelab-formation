@@ -23,7 +23,7 @@ Les champs qui font un bon dashboard de logs, tu les connais déjà — ce sont 
 Filebeat et le pipeline ont posés :
 
 - `host.name` — **quelle machine** a émis la ligne ;
-- `journald.unit` — **quel service systemd** (nginx.service, ssh.service, cron.service…) ;
+- `systemd.unit` — **quel service systemd** (nginx.service, ssh.service, cron.service…) ;
 - `log.syslog.priority` ou le niveau — **la sévérité** (info, warning, error, critical) ;
 - `process.name` — **quel programme** a écrit.
 
@@ -68,7 +68,7 @@ part `error` gonfle, la géométrie du camembert change à l'œil nu. » **Save 
 **À montrer** : **Create visualization** → Lens.
 
 1. Type : **Table**.
-2. **Rows** : glisse **journald.unit** (ou `.keyword`), agrégation **Terms**, **taille 10**,
+2. **Rows** : glisse **systemd.unit** (ou `.keyword`), agrégation **Terms**, **taille 10**,
    trié par **Count** décroissant.
 3. Colonne métrique : **Count of records**.
 

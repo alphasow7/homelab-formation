@@ -11,6 +11,8 @@
 set -euo pipefail
 
 # --- Configuration (surchargeable par variables d'environnement) --------------
+# NGINX_PASSWORD : le mot de passe admin de la page de statut (vault du cours 1) ;
+# la valeur par défaut est celle de l'exemple vault.yml.example.
 INVENTORY="${INVENTORY:-../../cours-1-ansible/ansible/inventory/hosts.yml}"
 SOLUTION_FILE="${SOLUTION_FILE:-/tmp/solution-NEPASREGARDER.txt}"
 # Hôtes du lab (doivent correspondre à l'inventaire du cours 1)
@@ -53,13 +55,15 @@ case "$SCENARIO" in
      run "$HOST_ELASTIC" \
        "for i in \$(seq 1 6); do logger -p daemon.warning -t diskmon 'disk usage high on /tmp (ballast detected)'; sleep 2; done"
      ;;
-  4) # NGINX 500 : requêtes vers une URL qui renvoie 500 sur dns-proxy.
-     # -> Dans Kibana : le camembert des codes voit apparaître du 5xx là où il
-     #    n'y avait que du 200. response >= 500 dans les logs nginx.
-     LABEL="Erreurs 500 nginx : pic de codes 5xx sur $HOST_DNS"
-     # /nonexistent-boom force nginx à répondre en erreur ; on martèle l'URL.
+  4) # SCAN D'URL : un robot teste des chemins qui n'existent pas sur dns-proxy.
+     # -> Dans Kibana : le camembert des codes voit apparaître du 404 (et du 401
+     #    pour les requêtes sans mot de passe) là où il n'y avait que du 200 ;
+     #    tags:http_error (chap. 4) ou response >= 400 dans les logs nginx.
+     #    (nginx protège tout par auth_basic : un chemin inexistant donne 401 sans
+     #    -u, 404 avec — les deux sont des 4xx, les deux sont « anormaux ».)
+     LABEL="Scan d'URL : rafale de 404/401 nginx sur $HOST_DNS"
      run "$HOST_DNS" \
-       "for i in \$(seq 1 25); do curl -s -o /dev/null 'http://localhost/nonexistent-boom-500' || true; done"
+       "for p in admin .env wp-login.php phpmyadmin backup.zip .git/config api/v1/users; do curl -s -o /dev/null \"http://localhost/\$p\" || true; curl -s -o /dev/null -u admin:${NGINX_PASSWORD:-change-moi-Formation2026} \"http://localhost/\$p\" || true; done"
      ;;
 esac
 

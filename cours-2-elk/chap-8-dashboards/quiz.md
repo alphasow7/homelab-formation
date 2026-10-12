@@ -21,7 +21,7 @@
 ## Question 3 — Quel champ des logs journald/syslog porte la SÉVÉRITÉ d'une ligne ?
 
 - A. `host.name`
-- B. `journald.unit`
+- B. `systemd.unit`
 - C. `log.syslog.priority` (le niveau : info, warning, error…)
 - D. `process.name`
 
@@ -38,7 +38,7 @@
 
 ## Question 5 — Quel champ répond à « quel service systemd a émis cette ligne ? »
 
-- A. `journald.unit`
+- A. `systemd.unit`
 - B. `log.syslog.priority`
 - C. `host.name`
 - D. `message`
@@ -70,7 +70,7 @@ Le langage de requête, c'est KQL ; la réception des logs, c'est Logstash/Beats
 ### Question 3 — réponse C
 
 la sévérité vit dans `log.syslog.priority` (ou le champ de niveau selon
-le pipeline). `host.name` = la machine, `journald.unit` = le service systemd, `process.name`
+le pipeline). `host.name` = la machine, `systemd.unit` = le service systemd, `process.name`
 = le programme. Quatre champs, quatre questions différentes.
 
 ### Question 4 — réponse C
@@ -82,6 +82,6 @@ camembert de sévérité.
 
 ### Question 5 — réponse A
 
-`journald.unit` porte l'unité systemd (`nginx.service`, `ssh.service`,
+`systemd.unit` porte l'unité systemd (`nginx.service`, `ssh.service`,
 `cron.service`…). C'est le champ du panneau « top 10 des unités bavardes » — et celui qui,
 au chapitre 9, trahira un service tué ou un service qui s'affole.

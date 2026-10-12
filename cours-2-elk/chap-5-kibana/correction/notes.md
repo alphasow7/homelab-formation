@@ -5,16 +5,17 @@
 > les ids que Kibana génère à la création via l'UI sont des UUID aléatoires — c'est normal
 > que les tiens diffèrent. Ce qui compte, c'est la **cohérence des références**.
 
-## 1. La visu "top 5 des machines par volume" (Lens)
+## 1. La visu "top 5 des tags du pipeline" (Lens)
 
 - Ouvrir **Visualize/Lens > Create > Lens**, data view `logstash-*`.
 - Type **Bar horizontal** (ou Pie).
 - **Vertical axis / Size** : `Count of records`.
-- **Horizontal axis / Slice by** : `Top values of machine.keyword`, **Number of values = 5**.
-- Save, titre : `Top 5 machines par volume`, "Add to dashboard: Lab — Observabilité".
+- **Horizontal axis / Slice by** : `Top values of tags.keyword`, **Number of values = 5**.
+- Save, titre : `Top 5 tags du pipeline`, "Add to dashboard: Lab — Observabilité".
 
-Si `machine.keyword` n'existe pas → utiliser `host.name` (dépend de ce que Logstash a
-produit au chap. 4). Vérifier le nom réel dans **Discover** en dépliant un document.
+Attendu à ce stade : `_syslogparsefailure` (les lignes envoyées par `nc` au chap. 4),
+`non_nginx`, `http_error` (le 404 du TP). Vérifier les noms réels dans **Discover** en
+dépliant un document — un champ qui n'est pas dans le document n'est pas dans Lens.
 
 ## 2. Ajout au dashboard + sauvegarde
 

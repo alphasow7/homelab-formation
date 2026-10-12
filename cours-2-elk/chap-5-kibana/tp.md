@@ -5,11 +5,14 @@ avoir importé le bundle `lab-observabilite.ndjson`.
 
 ## Énoncé
 
-1. **Construis une 2ᵉ visualisation en Lens** : *top 5 des machines par volume*.
+1. **Construis une 2ᵉ visualisation en Lens** : *top 5 des tags du pipeline* — ce que
+   Logstash a su lire (`http_error`, `non_nginx`) et ce qu'il n'a pas su lire
+   (`_syslogparsefailure`, `_nginxparsefailure`). Un panneau de santé du pipeline.
    - Type : barres horizontales (ou camembert).
    - Métrique (axe vertical / taille) : **Count** (nombre d'enregistrements).
    - Découpage (axe horizontal / tranches) : agrégation **Terms** sur le champ
-     `machine.keyword` (ou `host.name` selon ce que Logstash a produit), **taille 5**.
+     `tags.keyword`, **taille 5**. (`host.name` n'existe pas encore : il arrive avec
+     Filebeat, au chapitre 6.)
 2. **Ajoute-la au dashboard** "Lab — Observabilité" (Edit > Add from library, ou "Save and
    return to dashboard"). Sauvegarde le dashboard.
 3. **Ré-exporte** le dashboard en NDJSON : **Stack Management > Saved Objects**, coche le

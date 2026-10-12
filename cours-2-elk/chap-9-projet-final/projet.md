@@ -45,10 +45,10 @@ Attends ~1 minute que les logs remontent (Filebeat → Logstash → ES), puis ou
    soudain de logs d'authentification.
 3. **Un disque qui se remplit** — une VM se met à manquer d'espace disque et le crie dans
    ses logs à intervalle régulier.
-4. **Des erreurs 500 nginx** — le serveur web se met à renvoyer des erreurs serveur. Pic
-   de codes 5xx dans les logs nginx.
+4. **Un scan d'URL sur nginx** — quelqu'un teste des dizaines de chemins qui n'existent
+   pas, et sans mot de passe. Pic de codes 4xx (`404`, `401`) dans les logs nginx.
 
-> **Prérequis du scénario 4** : les codes 5xx vivent dans l'`access.log` de nginx, pas
+> **Prérequis du scénario 4** : les codes 4xx vivent dans l'`access.log` de nginx, pas
 > dans journald. Il faut donc l'input **filestream nginx** de `dns-proxy` (le TP du
 > chapitre 6, champ `log_source: nginx`). Si tu ne l'as pas posé, refais ce TP avant —
 > sinon ce scénario reste invisible dans Kibana.
@@ -65,7 +65,7 @@ et resserre :
 2. **OÙ** — quelle machine. Le panneau "volume par `host.name`" ou un filtre `host.name`
    te dit sur quelle VM ça se passe.
 3. **QUOI** — quel service, quel événement. Descends dans **Discover** : filtre sur
-   l'heure + la machine, regarde `journald.unit`, `process.name`, le `message`. Lis les
+   l'heure + la machine, regarde `systemd.unit`, `process.name`, le `message`. Lis les
    lignes. C'est là que l'incident se nomme.
 
 Chaque resserrement est un filtre KQL. Garde-les : ils sont ta preuve.
@@ -76,7 +76,7 @@ Rends ta réponse AVANT d'ouvrir la solution :
 
 - [ ] **La machine** (`host.name`) exacte
 - [ ] **Le service / le type d'incident** (nom du service, ou "brute-force SSH", "disque
-      plein", "erreurs 500")
+      plein", "scan d'URL")
 - [ ] **L'heure** approximative de début (à quelques minutes près)
 - [ ] **Les requêtes KQL** que tu as utilisées pour y arriver (capture d'écran ou
       copier-coller — c'est la partie "je sais faire", pas juste "j'ai deviné")
@@ -91,7 +91,7 @@ Puis, et seulement puis : `cat /tmp/solution-NEPASREGARDER.txt` pour te corriger
 
 Sur "Santé du lab", la couleur `dns-proxy` **maigrit ou disparaît** du panneau volume
 (nginx ne loggue plus). Dans le top des unités, `nginx.service` **chute**. Signal
-révélateur : dans Discover, `host.name : "dns-proxy" and journald.unit : "nginx.service"`
+révélateur : dans Discover, `host.name : "dns-proxy" and systemd.unit : "nginx.service"`
 montre un **log d'arrêt** (`Stopped ...` / `Deactivated`) puis **plus rien**. QUAND = juste
 après ce dernier log. QUOI = nginx arrêté. OÙ = dns-proxy.
 
@@ -103,7 +103,7 @@ top des unités et les creux, pas seulement les pics.
 <summary>Scénario 2 — Brute-force SSH (sur le bastion)</summary>
 
 **Pic de volume** franc sur la machine ciblée, sévérité qui monte. Dans Discover :
-`process.name : "sshd"` (ou `journald.unit : "ssh.service"`) sur la fenêtre du pic →
+`process.name : "sshd"` (ou `systemd.unit : "ssh.service"`) sur la fenêtre du pic →
 une **rafale** de `Failed password` / `Invalid user baduser` / `authentication failure`,
 toutes en quelques secondes. QUAND = la salve. QUOI = brute-force SSH. OÙ = la machine du
 pic (le bastion). Le nombre de tentatives rapprochées est la signature.
@@ -120,12 +120,15 @@ elastic-1. La répétition régulière d'un même message d'alerte est la signat
 </details>
 
 <details>
-<summary>Scénario 4 — Erreurs 500 nginx (sur dns-proxy)</summary>
+<summary>Scénario 4 — Scan d'URL sur nginx (sur dns-proxy)</summary>
 
 Ton dashboard "nginx — dns-proxy" (TP chap. 8) est fait pour ça : le **camembert des codes
-de réponse** voit une part **`500`** apparaître là où il n'y avait que du `200`. Dans
-Discover : `log_source : "nginx" and response >= 500` → les requêtes fautives, avec l'heure
-et l'URL. QUAND = début du pic 5xx. QUOI = erreurs serveur nginx. OÙ = dns-proxy.
+de réponse** voit une part **`404`** (et un peu de `401`) apparaître là où il n'y avait
+que du `200`. Dans Discover : `log_source : "nginx" and tags : "http_error"` (le tag que
+tu as créé au chap. 4) ou `response >= 400` → les requêtes fautives, avec l'heure et des
+URL qui n'existent pas (`/admin`, `/.env`, `/wp-login.php`…). QUAND = début du pic 4xx.
+QUOI = scan d'URL, la signature d'un robot qui cherche une porte. OÙ = dns-proxy. C'est
+exactement ce que les bots du cours 3 font sur Internet, à longueur de journée.
 </details>
 
 ## Et après ?

@@ -22,11 +22,14 @@ ls -l /var/log/nginx/*.log        # access.log, error.log doivent être là
 3. **Redéploie** Filebeat, puis **génère du trafic** pour écrire dans access.log :
 
 ```bash
-for i in $(seq 1 10); do curl -s http://10.10.99.12/ >/dev/null; done   # dns-proxy = le nginx
+# depuis le bastion (ton poste ne voit pas le segment) ; la page est protégée depuis
+# le cours 1 : sans -u, nginx loggerait dix 401, pas dix 200.
+ssh alpha@IP_DE_TON_BASTION 'for i in $(seq 1 10); do curl -s -u admin:change-moi-Formation2026 http://10.10.99.12/ >/dev/null; done'
 ```
 
 4. **Retrouve dans Kibana → Discover** les lignes taguées : filtre KQL
-   `log_source : "nginx"`. Tu dois voir tes requêtes (méthode GET, code 200, l'IP…).
+   `log_source : "nginx"`. Tu dois voir tes requêtes (méthode GET, code 200, l'IP du
+   bastion `10.10.99.2`…).
 
 ## Critères de réussite
 
