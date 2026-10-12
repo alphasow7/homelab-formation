@@ -27,8 +27,11 @@ les snapshots `fin-cours-0` : c'est ton point de départ officiel des cours suiv
 ## 3. Le résultat attendu (5 min)
 
 **À montrer** : sur le lab du formateur, le résultat final — `qm list` avec les 4 VMs,
-le ping des 4 IP, et LE test signature : ssh vers le bastion, puis DU bastion vers
-elastic-1. « Ton poste ne voit pas 10.10.99.11. Ton bastion, si. C'est exactement le but. »
+le ping des 4 IP, et LE test signature, **depuis le poste** : `ssh alpha@IP_DE_TON_BASTION
+hostname`, puis `ssh -J alpha@IP_DE_TON_BASTION alpha@10.10.99.11 hostname` → `elastic-1`.
+« Ton poste ne voit pas 10.10.99.11. Ton bastion, si. C'est exactement le but. » En
+chemin A, le bastion a une adresse fixe `10.0.2.20` et VirtualBox redirige `localhost:2223`
+vers lui — montrer la règle, c'est la seule nouveauté réseau du chapitre.
 
 ## 4. Célébration et suite (5 min)
 

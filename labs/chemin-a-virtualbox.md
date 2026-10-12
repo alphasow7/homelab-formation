@@ -67,12 +67,15 @@ Va dans **Configuration → Réseau** de la VM `proxmox-lab` :
 1. **Adaptateur 1** : mode **« NAT »** (attention : « NAT » tout court, pas « Réseau NAT », qui est un autre mode). Ta VM vivra dans un petit réseau privé `10.0.2.0/24` (« /24 » = masque 255.255.255.0, soit les 254 adresses de ton réseau) que VirtualBox fabrique pour elle.
 2. Toujours sur l'Adaptateur 1, clique sur **Avancé → Redirection de ports** et ajoute deux règles :
 
-| Nom | Port hôte | Port invité | Pourquoi |
-|---|---|---|---|
-| gui | 8006 | 8006 | L'interface web de Proxmox |
-| ssh | 2222 | 22 | L'accès SSH (utile plus tard) |
+| Nom | Port hôte | IP invité | Port invité | Pourquoi |
+|---|---|---|---|---|
+| gui | 8006 | *(vide)* | 8006 | L'interface web de Proxmox |
+| ssh | 2222 | *(vide)* | 22 | L'accès SSH au nœud (dès le chapitre 2) |
+| bastion | 2223 | `10.0.2.20` | 22 | L'accès SSH au **bastion** que tu créeras au chapitre 7 |
 
 **À quoi ça sert ?** Ta VM est enfermée dans son réseau privé : ton PC ne peut pas la joindre directement. La redirection de port fait le pont : quand tu tapes `localhost:8006` sur ton PC, VirtualBox transmet à la VM sur son port 8006. Sans ces règles, l'interface Proxmox restera inaccessible.
+
+**La troisième règle** vise une adresse précise, `10.0.2.20` : ce n'est pas la VM Proxmox (elle, c'est `10.0.2.15`), mais une VM **à l'intérieur** de Proxmox — le bastion du chapitre 7 — qui vivra dans le même réseau privé. Tu peux l'ajouter dès maintenant, elle ne gêne rien tant que le bastion n'existe pas. Dans les cours 1 à 3, « l'adresse de ton bastion » sera donc `localhost`, port `2223`.
 
 ---
 
@@ -136,6 +139,9 @@ Clique sur **Login**. Une fenêtre te dit que tu n'as pas de licence (« No vali
 Message du genre `KVM virtualisation not available` ou erreur mentionnant `kvm`. Deux causes possibles :
 - Tu as sauté l'étape 3 → lance la commande `VBoxManage modifyvm "proxmox-lab" --nested-hw-virt on` (VM éteinte), puis redémarre-la.
 - **VT-x / AMD-V est désactivé dans le BIOS de ton PC.** Redémarre le PC, entre dans le BIOS (souvent touche `Suppr`, `F2` ou `F10` au démarrage), cherche « Intel VT-x », « Intel Virtualization Technology » ou « SVM Mode », mets sur **Enabled**, sauvegarde.
+
+**2 bis. `ssh -p 2223 alpha@localhost` ne répond pas (à partir du chapitre 7)**
+Vérifie la règle **bastion** : port hôte `2223`, **IP invité `10.0.2.20`** (le champ n'est pas optionnel ici), port invité `22`. Puis, dans Proxmox, que la VM 9204 a bien `ip=10.0.2.20/24,gw=10.0.2.2` sur `net0` (GUI → VM 9204 → Cloud-Init). Un changement d'IP cloud-init ne prend effet qu'après **stop puis start** de la VM.
 
 **2. `https://localhost:8006` ne répond pas**
 Tu as oublié la redirection de port (étape 4). Vérifie **Configuration → Réseau → Adaptateur 1 → Avancé → Redirection de ports** : il faut la règle hôte **8006** → invité **8006**. Vérifie aussi que l'Adaptateur 1 est bien en mode **« NAT »** (pas « Réseau NAT »), que la VM est bien démarrée et que l'installation est terminée.

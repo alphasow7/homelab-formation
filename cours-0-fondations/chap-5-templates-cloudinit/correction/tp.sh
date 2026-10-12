@@ -7,15 +7,24 @@ qm create 9000 --name debian-gold --memory 1024 --cores 1 --net0 virtio,bridge=v
 qm importdisk 9000 /var/lib/vz/template/iso/debian-12-cloud.qcow2 local-lvm
 qm set 9000 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-9000-disk-0
 qm set 9000 --ide2 local-lvm:cloudinit --boot order=scsi0 --serial0 socket
-qm set 9000 --ciuser alpha --sshkeys ~/.ssh/id_ed25519.pub
+qm set 9000 --ciuser alpha --sshkeys /root/.ssh/lab-keys.pub
 
-# 2. Un boot de mise à jour avec IP temporaire
+# 2. Un boot de mise à jour avec IP temporaire — vmbr1 n'a pas d'Internet :
+#    masquerade temporaire (chap. 4, bloc 5) LE TEMPS de la mise à jour.
+WAN_IF="$(ip route | awk '/default/{print $5;exit}')"
+nat_on()  { sysctl -w net.ipv4.ip_forward=1; iptables -t nat -A POSTROUTING -s 10.10.99.0/24 -o "$WAN_IF" -j MASQUERADE; }
+nat_off() { iptables -t nat -D POSTROUTING -s 10.10.99.0/24 -o "$WAN_IF" -j MASQUERADE; sysctl -w net.ipv4.ip_forward=0; }
 qm set 9000 --ipconfig0 ip=10.10.99.99/24,gw=10.10.99.254
 qm start 9000
 sleep 45
+nat_on
+trap nat_off EXIT     # quoi qu'il arrive ensuite, la porte se referme
+# Pas de "|| true" : si la mise à jour échoue, on veut le savoir, pas un moule périmé.
 ssh -o StrictHostKeyChecking=accept-new alpha@10.10.99.99 \
-  'sudo apt update && sudo apt -y upgrade && sudo poweroff' || true
+  'sudo apt update && sudo apt -y upgrade'
+ssh alpha@10.10.99.99 'sudo poweroff' || true     # la connexion tombe : normal
 sleep 20
+nat_off; trap - EXIT
 
 # 3. Neutraliser la config réseau puis figer le moule
 qm set 9000 --ipconfig0 ip=dhcp

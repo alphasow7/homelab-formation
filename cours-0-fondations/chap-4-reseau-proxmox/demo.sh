@@ -29,8 +29,17 @@ ssh -o StrictHostKeyChecking=accept-new alpha@10.10.99.10 \
   'ping -c2 -W2 8.8.8.8 || echo "PAS D INTERNET — normal, segment isolé !"'
 
 # 5. Masquerade NAT temporaire : on ouvre, on prouve, on REFERME
+#    Deux verrous à ouvrir : le nœud doit ACCEPTER de router (ip_forward, à 0 par
+#    défaut sur Proxmox) ET réécrire l'adresse source (MASQUERADE). L'un sans l'autre
+#    ne donne rien — et une règle NAT oubliée est une porte ouverte.
 WAN_IF="$(ip route | awk '/default/{print $5;exit}')"
+sysctl -w net.ipv4.ip_forward=1
 iptables -t nat -A POSTROUTING -s 10.10.99.0/24 -o "$WAN_IF" -j MASQUERADE
-ssh alpha@10.10.99.10 'ping -c2 8.8.8.8 && echo "INTERNET OK (temporaire)"'
+ssh alpha@10.10.99.10 'ping -c2 8.8.8.8' \
+  && echo "INTERNET OK (temporaire)" \
+  || echo "toujours pas d'Internet — vérifie l'interface de sortie : WAN_IF=$WAN_IF"
+# On referme TOUJOURS, même si le test a échoué (d'où le || au-dessus : avec set -e,
+# un ping raté aurait arrêté le script ici et laissé la porte ouverte).
 iptables -t nat -D POSTROUTING -s 10.10.99.0/24 -o "$WAN_IF" -j MASQUERADE
+sysctl -w net.ipv4.ip_forward=0
 ssh alpha@10.10.99.10 'ping -c2 -W2 8.8.8.8 || echo "refermé — le segment est de nouveau isolé"'

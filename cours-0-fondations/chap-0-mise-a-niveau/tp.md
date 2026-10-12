@@ -10,8 +10,9 @@ Il te faut une machine Linux accessible en SSH, n'importe laquelle :
 - **N'importe quel autre Linux accessible** : un Raspberry Pi, un vieux portable sous
   Linux, un petit serveur loué… tout compte.
 - **Chemin A (VirtualBox) et pas d'autre machine sous la main ?** Pas de panique : ce TP
-  se fera naturellement au **chapitre 3**, avec ta première VM. Lis-le quand même, fais le
-  quiz, et passe au chapitre suivant.
+  se fera naturellement au **chapitre 2**, sur ton nœud Proxmox fraîchement installé
+  (`ssh-copy-id -p 2222 root@localhost`, étape D du TP). Lis-le quand même, fais le quiz,
+  et passe au chapitre suivant.
 
 > **⚠️ Poste sous Windows ?** `ssh-copy-id` n'existe pas dans le OpenSSH natif de Windows.
 > Deux options : utiliser **Git Bash** ou **WSL** (qui l'ont), ou copier la clé à la main

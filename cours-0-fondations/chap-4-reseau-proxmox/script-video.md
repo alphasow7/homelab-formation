@@ -69,9 +69,13 @@ chez moi, c'est un rôle Ansible qui pose le masquerade le temps d'installer des
 puis le **retire**, exactement comme on va le faire. Réponse complète au cours 1 : un
 proxy apt dédié sur le nœud. »
 
-**À montrer** : bloc 5 — le masquerade NAT temporaire : on ouvre (`iptables -t nat -A
-POSTROUTING ... MASQUERADE`), la VM sort (`INTERNET OK`), et surtout **on referme**
-(`-D`) et on re-prouve l'isolement.
+**À montrer** : bloc 5 — le masquerade NAT temporaire. Deux verrous : d'abord le nœud
+doit **accepter de router** (`sysctl -w net.ipv4.ip_forward=1` — à 0 par défaut, c'est
+le verrou que le TP te fera manipuler), puis réécrire l'adresse de sortie (`iptables -t
+nat -A POSTROUTING ... MASQUERADE`). La VM sort (`INTERNET OK`), et surtout **on referme
+les deux** (`-D`, puis `ip_forward=0`) et on re-prouve l'isolement. « Remarque le `||`
+dans le script : si le test échoue, on referme quand même. Un script qui s'arrête en
+plein milieu avec la porte ouverte, c'est la vraie panne. »
 
 **Morale** : « Un accès temporaire, ça se referme. Et "pas d'Internet" n'est pas toujours
 une panne — parfois c'est une décision de sécurité. Apprends à distinguer les deux. »

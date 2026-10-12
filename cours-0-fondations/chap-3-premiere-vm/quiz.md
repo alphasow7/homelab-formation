@@ -23,7 +23,7 @@
 ## Question 3 — Dans `qm set 9001 --sshkeys ...`, quel fichier passes-tu ?
 
 - A. Ta clé privée (`id_ed25519`)
-- B. Ta clé publique (`id_ed25519.pub`)
+- B. Un fichier de clés **publiques** — le trousseau du lab (`lab-keys.pub`)
 - C. Le fichier `known_hosts`
 - D. N'importe lequel des deux, c'est pareil
 
@@ -70,7 +70,9 @@ l'applique dans la VM ; la RAM et le CPU, c'est `qm` qui les fixe côté hypervi
 ### Question 3 — réponse B
 
 la publique se dépose sur les serveurs (le cadenas) ; la privée ne
-quitte JAMAIS ton poste (la clé). En passer une privée à `--sshkeys` = la divulguer.
+quitte JAMAIS ton poste (la clé). En passer une privée à `--sshkeys` = la divulguer. Et le
+trousseau contient DEUX publiques — la tienne et celle du nœud — pour que l'un comme
+l'autre puisse entrer.
 
 ### Question 4 — réponse C
 

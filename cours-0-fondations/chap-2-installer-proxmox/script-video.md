@@ -144,6 +144,25 @@ free -h
 **Attendu** : lignes Mem/Swap. « `available`, c'est ce qui reste pour tes futures VMs.
 C'est ton budget RAM : chaque VM va piocher dedans. »
 
+### 2.4 — Le trousseau SSH du lab (3 min, bloc 6 de `demo.sh`)
+
+**À dire** : « Dernière chose, et elle conditionne TOUT le cours. Tes futures VMs n'auront
+pas de mot de passe : on y entre par clé. Alors, QUELLES clés ? Deux. La tienne — celle de
+ton poste, que tu as apprise à fabriquer au chapitre 0 — et celle du nœud, parce que c'est
+lui qui ira parler aux VMs dans les démos. On range les deux dans un seul fichier, le
+**trousseau du lab**, et c'est ce fichier-là, toujours lui, qu'on donnera à cloud-init. »
+
+**À montrer** : (1) depuis le poste, `ssh-copy-id -p 2222 root@localhost` (chemin A) —
+« exactement le geste du chapitre 0, vers le nœud cette fois » ; (2) sur le nœud,
+`ssh-keygen -t ed25519 -N '' -f /root/.ssh/id_ed25519` ; (3) `cat … > /root/.ssh/lab-keys.pub`
+puis `cat /root/.ssh/lab-keys.pub` → **deux lignes**. « Retiens le chemin :
+`/root/.ssh/lab-keys.pub`. Tu le retaperas trois fois dans ce cours. »
+
+**Piège à annoncer** : « Si tu changes de poste, ou si tu passes de PowerShell à WSL, ta
+clé change. Le réflexe : refaire ces trois lignes, puis redonner le trousseau aux VMs
+existantes avec `qm set <id> --sshkeys /root/.ssh/lab-keys.pub` et un stop/start — on
+reverra ce stop/start au chapitre 3, c'est la panne du chapitre. »
+
 ---
 
 ## 3. Encart vrai matériel (3 min)
