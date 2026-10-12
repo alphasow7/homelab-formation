@@ -95,8 +95,12 @@ français — c'est notre playbook qui se lit tout seul. Et le récap final, le
 
 ```
 PLAY RECAP *********************************************************
-dns-proxy : ok=4  changed=3  unreachable=0  failed=0  ...
+dns-proxy : ok=5  changed=4  unreachable=0  failed=0  ...
 ```
+
+(`ok=5` = la collecte des facts + 3 tasks + le handler `Restart nginx`, réveillé par la
+page déposée. Si tu lis `changed=3`, c'est que nginx était déjà démarré et activé par son
+paquet : normal. Ce qui compte : `failed=0`, et un `changed` non nul — on a construit.)
 
 **À dire** : « Décodons : `ok` = les tasks qui se sont bien passées (y compris la
 collecte des facts, d'où le 4). `changed=3` = trois tasks ont réellement MODIFIÉ
@@ -214,7 +218,7 @@ d'étages. Rien de magique : des plays, des tasks, des handlers. »
 **À dire** : « À toi de jouer : tu vas ENRICHIR la page de statut. Objectif :
 afficher l'IP de la machine et son uptime, et installer `htop` au passage —
 trois modifications de playbook. Deux pièges t'attendent, ils sont documentés
-dans `tp.md` : les facts de ces VMs n'ont PAS de `default_ipv4` — segment sans
+dans `tp.md` : `default_ipv4` n'existe que si la VM a une passerelle — pas garanti sur un segment
 passerelle par défaut oblige — et l'uptime demandera un `register`. Le critère de
 réussite est non négociable : après ta modification, un **deuxième run doit
 afficher `changed=0`**. Si ça re-change à chaque run, ce n'est pas idempotent,

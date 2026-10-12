@@ -27,8 +27,8 @@ cd "$(dirname "$0")/../ansible"
 # ============================================================================
 
 # 1. Run 1 : la construction.
-#    Attendu : PLAY RECAP → ok=4 changed=3 failed=0
-#    (nginx installé, page déposée, service activé — on part de zéro).
+#    Attendu : PLAY RECAP → ok=5 changed=4 failed=0 (ou changed=3 si apt a déjà
+#    démarré nginx) : nginx installé, page déposée, handler réveillé — on part de zéro.
 ansible-playbook playbooks/web-status.yml
 
 # 2. La preuve : on demande au bastion (qui a un pied dans le segment)

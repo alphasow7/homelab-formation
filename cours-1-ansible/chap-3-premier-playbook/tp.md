@@ -15,12 +15,13 @@ Et ajouter :
 
 ## ⚠️ Les deux pièges (lis AVANT de commencer)
 
-- **L'IP** : sur ces VMs, `ansible_facts['default_ipv4']` **n'existe PAS** — pas
-  de passerelle par défaut sur un segment isolé, donc pas d'« IPv4 par défaut ».
-  Si tu l'utilises, le playbook plantera. Utilise plutôt
-  `ansible_facts['all_ipv4_addresses'][0]` : la liste de toutes les IPv4 de la
-  machine (tu l'as vue au chapitre 2 avec le module `setup`), dont on prend la
-  première.
+- **L'IP** : `ansible_facts['default_ipv4']` n'existe que si la machine a une
+  **passerelle par défaut**. Tes VMs en ont une (`10.10.99.254`, le nœud), donc ça
+  marcherait ici — mais sur une machine d'un segment vraiment isolé, sans passerelle,
+  le fact n'existe pas et le playbook plante. Prends l'habitude de
+  `ansible_facts['all_ipv4_addresses'][0]` : la liste de toutes les IPv4 de la machine
+  (tu l'as vue au chapitre 2 avec le module `setup`), dont on prend la première — ça
+  marche dans les deux cas.
 - **L'uptime** : il n'y a pas de fact tout prêt et fiable pour un uptime lisible.
   La méthode : exécuter la commande `uptime -p` avec le module
   `ansible.builtin.command`, capturer sa sortie avec `register`, puis l'injecter

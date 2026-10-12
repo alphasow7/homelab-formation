@@ -124,7 +124,10 @@ La panne concerne le second — mais la morale s'applique aux deux.
   complète du serveur. Par chance, il était encore vide — trois semaines plus
   tard, ç'aurait été la perte de tous les secrets de l'infra.
 - **Depuis :** la clé est chiffrée dans l'ansible-vault du repo, dans la
-  **même minute** que sa génération.
+  **même minute** que sa génération. Et depuis septembre 2026, un cran plus loin : le
+  Vault principal se descelle tout seul grâce à un second Vault (auto-unseal par
+  « transit »), et n'a plus **aucune** clé sur son disque — tu verras ça au cours 3,
+  chapitre 6. La clé Shamir chiffrée dans le dépôt est devenue la clé de secours.
 
 **La morale, à faire répéter :** « Un secret qui n'existe que dans un
 terminal fermé N'EXISTE PAS. Le réflexe : **généré → chiffré → versionné**,

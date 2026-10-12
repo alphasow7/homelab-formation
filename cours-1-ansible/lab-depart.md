@@ -25,6 +25,28 @@ Rattrapage express (~1 h 30) :
 
 Tu rateras le POURQUOI de chaque brique — le cours 0 reste le vrai chemin.
 
+## Le masquerade temporaire (tu t'en serviras à chaque installation de paquet)
+
+Le segment `10.10.99.0/24` n'a **pas d'Internet** — c'est un choix (cours 0, chapitre 4).
+Chaque fois qu'un playbook doit installer un paquet, on ouvre une sortie NAT **sur le
+nœud**, le temps du playbook, puis on la referme. Deux verrous à chaque fois : le routage
+et la réécriture d'adresse.
+
+```bash
+# SUR LE NŒUD PROXMOX, en root — ON (avant le playbook)
+WAN_IF="$(ip route | awk '/default/{print $5;exit}')"
+sysctl -w net.ipv4.ip_forward=1
+iptables -t nat -A POSTROUTING -s 10.10.99.0/24 -o "$WAN_IF" -j MASQUERADE
+
+# OFF (après le playbook) — un accès temporaire, ÇA SE REFERME
+iptables -t nat -D POSTROUTING -s 10.10.99.0/24 -o "$WAN_IF" -j MASQUERADE
+sysctl -w net.ipv4.ip_forward=0
+```
+
+Les `demo.sh` qui en ont besoin le signalent par un bloc « MASQUERADE ON/OFF ». La
+réponse propre — un proxy apt sur le nœud — est évoquée dans les encarts ; elle n'est
+pas au programme de ce cours.
+
 ## Installer Ansible sur TON poste
 
 Ton poste devient le **contrôleur** : c'est lui qui pilote les VMs (Ansible n'installe
@@ -34,15 +56,20 @@ rien sur les machines gérées — juste SSH).
 - **Debian/Ubuntu** : `sudo apt install ansible`
 - **Windows** : Ansible ne pilote pas depuis Windows natif → **WSL obligatoire**
   (`wsl --install`, puis dans Ubuntu : `sudo apt install ansible`). Ta clé SSH doit être
-  DANS le WSL (`ssh-keygen` dedans + recopier la clé publique sur les VMs, chapitre 0 du
-  cours 0).
+  DANS le WSL : si tu as fait le cours 0 depuis PowerShell, refais depuis WSL l'étape D du
+  chapitre 2 (`ssh-keygen` + `ssh-copy-id` vers le nœud + trousseau), puis redonne le
+  trousseau aux 4 VMs : `qm set <id> --sshkeys /root/.ssh/lab-keys.pub` et stop/start.
 
 ## ✅ Vérifications avant le chapitre 1
 
 ```bash
 ansible --version        # ≥ 2.16 (ansible-core 2.15 n'est plus maintenu)
-ssh alpha@IP_DE_TON_BASTION hostname    # → bastion, sans mot de passe
+ssh alpha@IP_DE_TON_BASTION hostname                       # → bastion, sans mot de passe
+ssh -J alpha@IP_DE_TON_BASTION alpha@10.10.99.11 hostname  # → elastic-1, à travers le bastion
 ```
 
-`IP_DE_TON_BASTION` : chemin A = l'IP de la patte vmbr0 du bastion (visible GUI > VM 9204
-> Summary) ; chemin B = son IP sur ton LAN. Note-la — on s'en sert dès le chapitre 2.
+`IP_DE_TON_BASTION` : **chemin B** = l'IP de la patte `net0` du bastion sur ton LAN ;
+**chemin A** = `localhost`, port `2223` (la règle de redirection VirtualBox « bastion » →
+`10.0.2.20:22`, voir `labs/chemin-a-virtualbox.md`), ce qui s'écrit `alpha@localhost:2223`
+dans un `-J` et, dans l'inventaire du chapitre 2, `ansible_host: localhost` +
+`ansible_port: 2223`. Note-la — on s'en sert dès le chapitre 2.

@@ -5,8 +5,10 @@
 # le bastion, comme d'habitude. Remplace IP_DE_TON_BASTION avant de lancer.
 #
 # Prérequis : chapitre 5 fait (group_vars du groupe lab en place, site.yml
-# fonctionne). nginx est déjà sur dns-proxy ; apache2-utils s'installe via
-# apt interne → si le paquet manque, masquerade temporaire (cf. lab-depart.md).
+# fonctionne). Le bloc 5 installe apache2-utils (htpasswd) et site.yml joue
+# aussi common (fail2ban, chrony…) : des paquets à télécharger sur un segment
+# sans Internet → MASQUERADE ON sur le nœud avant le bloc 5, OFF après
+# (le bloc exact est dans lab-depart.md, « Le masquerade temporaire »).
 set -euo pipefail
 
 # On se place dans le dossier ansible/ (là où vit ansible.cfg).
@@ -78,7 +80,9 @@ git check-ignore -v inventory/group_vars/lab/vault.yml
 # Le rôle web_status installe apache2-utils, génère /etc/nginx/.htpasswd
 # (no_log : le mot de passe n'apparaît jamais dans la sortie, même en -vvv)
 # et déploie la conf nginx avec auth_basic.
+#   >>> SUR LE NŒUD, AVANT : masquerade ON (lab-depart.md) <<<
 ansible-playbook playbooks/site.yml --limit dns-proxy
+#   >>> SUR LE NŒUD, APRÈS : masquerade OFF <<<
 
 # Sans mot de passe : la porte est fermée. Attendu : 401.
 ssh alpha@IP_DE_TON_BASTION "curl -s -o /dev/null -w '%{http_code}\n' http://10.10.99.12/"

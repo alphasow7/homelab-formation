@@ -29,9 +29,11 @@ Deux vérifications, deux preuves :
 
 1. L'historique Git ne contient AUCUN vault en clair :
    ```bash
-   git log --all -p -- '**/vault.yml'
+   git log --all -p -- '**/group_vars/**/vault.yml'
    ```
-   Attendu : **rien** — le fichier n'a jamais été suivi par Git.
+   Attendu : **rien** — le fichier n'a jamais été suivi par Git. (Le motif vise les
+   `vault.yml` des `group_vars` : le dépôt contient aussi un *playbook* nommé
+   `vault.yml` au cours 3, qui n'est pas un secret.)
 2. Git ignore bien les deux fichiers sensibles :
    ```bash
    git check-ignore -v .vault_pass inventory/group_vars/lab/vault.yml

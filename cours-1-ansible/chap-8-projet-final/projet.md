@@ -18,11 +18,15 @@ Avant de détruire, on fige la preuve « avant ». Depuis ton poste, **garde ces
 (copie-les dans un fichier `avant.txt`) :
 
 ```bash
-# La page de statut (avec le secret vaulté du chap. 6)
-curl -s http://10.10.99.12/        # via le bastion si besoin : ssh -J alpha@<bastion> ...
+# Ton poste ne voit pas le segment : les deux commandes passent PAR le bastion.
+# La page de statut est protégée (chap. 6) : sans -u, tu photographierais un 401.
+ssh alpha@IP_DE_TON_BASTION "curl -s -u admin:change-moi-Formation2026 http://10.10.99.12/"
 # Le DNS du lab
-dig @10.10.99.12 elastic-1.lab.local +short    # attendu : 10.10.99.11
+ssh alpha@IP_DE_TON_BASTION "dig @10.10.99.12 elastic-1.lab.local +short"   # attendu : 10.10.99.11
 ```
+
+(Chemin A : `ssh -p 2223 alpha@localhost "…"`. Le mot de passe est celui de ton
+`vault.yml` — `change-moi-Formation2026` est la valeur de l'exemple.)
 
 Sans photo « avant », pas de preuve « après ». C'est ton témoin.
 
@@ -38,6 +42,10 @@ qm stop 9203 && qm destroy 9203
 mort : `dig @10.10.99.12 ...` → `connection timed out` ; le `curl` échoue. Ta seule VM
 de service DNS/web vient de disparaître. Respire : regarde ton dépôt Git — tout est là.
 
+**Pendant que la VM est morte, prépare la sortie Internet** : `site.yml` va réinstaller
+bind9, nginx, fail2ban, chrony… sur une VM neuve, et le segment n'a pas d'Internet. Sur le
+nœud : **masquerade ON** (bloc de `lab-depart.md`). Tu le refermeras à l'étape 4.
+
 ## Étape 3 — La renaissance chronométrée (15 min)
 
 **Objectif : < 5 minutes entre le `qm clone` et le `dig` qui répond.** Lance un chrono
@@ -48,7 +56,7 @@ de service DNS/web vient de disparaître. Respire : regarde ton dépôt Git — 
    ```bash
    qm clone 9000 9203 --name dns-proxy
    qm set 9203 --memory 1024 --ipconfig0 ip=10.10.99.12/24,gw=10.10.99.254
-   # user alpha + ta clé : déjà dans le template ; sinon : qm set 9203 --ciuser alpha --sshkeys <fichier>
+   # user alpha + trousseau : déjà dans le template ; sinon : qm set 9203 --ciuser alpha --sshkeys /root/.ssh/lab-keys.pub
    qm start 9203
    ```
 
@@ -61,7 +69,8 @@ de service DNS/web vient de disparaître. Respire : regarde ton dépôt Git — 
    ⚠️ Si SSH répond `REMOTE HOST IDENTIFICATION HAS CHANGED` : normal — la VM renée a de
    nouvelles clés d'hôte. `ssh-keygen -R 10.10.99.12` sur ton poste et ça repart.
 
-3. **Depuis ton poste** — la commande magique, celle du chapitre 1 :
+3. **Depuis ton poste** — la commande magique, celle du chapitre 1 (masquerade ouvert
+   sur le nœud, voir étape 2) :
 
    ```bash
    cd cours-1-ansible/ansible
@@ -76,9 +85,12 @@ de service DNS/web vient de disparaître. Respire : regarde ton dépôt Git — 
 Rejoue **exactement** les commandes de l'étape 1 et compare avec `avant.txt` :
 
 ```bash
-curl -s http://10.10.99.12/                       # même page, même secret
-dig @10.10.99.12 elastic-1.lab.local +short       # 10.10.99.11
+ssh alpha@IP_DE_TON_BASTION "curl -s -u admin:change-moi-Formation2026 http://10.10.99.12/"   # même page, même secret
+ssh alpha@IP_DE_TON_BASTION "dig @10.10.99.12 elastic-1.lab.local +short"                    # 10.10.99.11
 ```
+
+Puis, sur le nœud : **masquerade OFF**. Le segment redevient étanche — et le second run
+ci-dessous n'a plus besoin d'Internet : rien à installer, tout est là.
 
 Puis la preuve reine — relance le playbook une seconde fois :
 

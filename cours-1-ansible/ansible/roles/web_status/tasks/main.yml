@@ -15,13 +15,24 @@
   notify: Restart nginx
 
 # no_log: true → le mot de passe ne doit JAMAIS apparaître dans la sortie
-# d'Ansible (ni en -v, ni dans les logs CI). changed_when: true car htpasswd
-# réécrit toujours le fichier : on assume un "changed" à chaque run.
-- name: Créer le fichier htpasswd (utilisateur admin)
+# d'Ansible (ni en -v, ni dans les logs CI).
+# Idempotence d'une commande : on VÉRIFIE d'abord (htpasswd -v, lecture seule,
+# rc=0 si le mot de passe du fichier est déjà le bon), on n'écrit QUE si besoin.
+# Un htpasswd -b lancé à chaque run réécrirait le fichier (sel aléatoire) et
+# rendrait "changed" à chaque passage : adieu le changed=0.
+- name: Vérifier le mot de passe admin déjà en place
+  ansible.builtin.command: >-
+    htpasswd -vb /etc/nginx/.htpasswd admin {{ web_status_users_password }}
+  register: web_status_htpasswd_check
+  changed_when: false
+  failed_when: false
+  no_log: true
+
+- name: Créer ou mettre à jour le fichier htpasswd (utilisateur admin)
   ansible.builtin.command: >-
     htpasswd -bc /etc/nginx/.htpasswd admin {{ web_status_users_password }}
+  when: web_status_htpasswd_check.rc != 0
   no_log: true
-  changed_when: true
 
 - name: Déployer la conf nginx (page protégée par mot de passe)
   ansible.builtin.template:

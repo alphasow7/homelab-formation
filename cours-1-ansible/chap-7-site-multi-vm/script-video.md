@@ -23,8 +23,8 @@
   (fail2ban), la bannière de connexion. Le second transforme dns-proxy en serveur
   DNS + page de statut. **L'ordre compte** : le socle d'abord, les métiers ensuite —
   comme on coule les fondations avant de monter les murs. »
-- « Un nouveau rôle apparaît ici : `common`. C'est tout ce qu'une machine doit avoir
-  QUEL QUE SOIT son métier. Sur mon infra réelle, c'est le rôle le plus joué :
+- « Le rôle `common` — `site.yml` le jouait déjà au chapitre 6, sans qu'on s'y arrête —
+  prend ici toute sa place. C'est tout ce qu'une machine doit avoir QUEL QUE SOIT son métier. Sur mon infra réelle, c'est le rôle le plus joué :
   chaque machine le reçoit en premier. »
 - Les trois options qui sauvent (les écrire à l'écran) :
   - **`--limit dns-proxy`** — « ne joue la partition QUE pour ce pupitre. Tu as

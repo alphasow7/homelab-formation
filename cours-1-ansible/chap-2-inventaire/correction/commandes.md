@@ -66,8 +66,8 @@ ansible lab -m setup -a "filter=ansible_memtotal_mb"
 `filter=` ne collecte/affiche que le fact demandé au lieu des centaines
 habituels.
 
-**Sortie attendue** — 3 blocs `SUCCESS` (les valeurs dépendent de tes VMs, ici
-un exemple avec 4 Go pour elastic-1 et 2 Go pour les autres) :
+**Sortie attendue** — 3 blocs `SUCCESS` (les valeurs dépendent de tes VMs : 4 Go pour
+elastic-1, 2 Go pour kibana-logstash, 1 Go pour dns-proxy — le noyau en retient un peu) :
 
 ```
 elastic-1 | SUCCESS => {
@@ -84,7 +84,7 @@ kibana-logstash | SUCCESS => {
 }
 dns-proxy | SUCCESS => {
     "ansible_facts": {
-        "ansible_memtotal_mb": 1963
+        "ansible_memtotal_mb": 977
     },
     "changed": false
 }

@@ -133,9 +133,11 @@ que tu vois dans les encarts "vrai matériel" depuis le cours 0. Et elle illustr
 numéro 1 de l'IaC — celui dans lequel tout le monde tombe une fois. Une seule fois, en
 général, parce que ça vaccine. »
 
-**Le contexte (à raconter)** : « Sur mon infra, il y a un serveur DNS — **BIND**, le
-logiciel de référence pour ça, tu le connaîtras bien dans ce cours. Il est géré par
-Ansible : sa configuration vit dans du code, versionnée dans Git. Tout est propre. Sauf
+**Le contexte (à raconter)** : « Sur mon infra, il y avait un serveur DNS — **BIND**, le
+logiciel de référence pour ça, tu le connaîtras bien dans ce cours. (Aujourd'hui ce rôle
+est archivé : depuis le pivot d'août 2026, c'est le pare-feu qui fait DNS chez moi — mais
+l'histoire, elle, n'a pas pris une ride.) Il était géré par Ansible : sa configuration
+vivait dans du code, versionnée dans Git. Tout est propre. Sauf
 qu'un jour, pressé, j'ai eu besoin d'une zone DNS de plus — une zone, c'est un domaine
 que le serveur connaît, ici "alphahome" pour mon réseau maison. Et qu'est-ce que j'ai
 fait ? Je l'ai ajoutée À LA MAIN, direct dans le fichier de conf sur le serveur. Deux
@@ -182,8 +184,8 @@ terminé : tout passe par le code. »
 
 - « Voilà pour la vision. Concrètement, le programme, chapitre par chapitre, une phrase
   chacun : »
-  - **Chapitre 2** : on installe Ansible sur ton poste et on écrit l'**inventaire** — la
-    liste de tes 4 VMs, avec le bastion en passe-plat SSH.
+  - **Chapitre 2** : Ansible installé sur ton poste (c'est fait, `lab-depart.md`), on
+    écrit l'**inventaire** — la liste de tes 4 VMs, avec le bastion en passe-plat SSH.
   - **Chapitre 3** : ton premier **playbook** — tu configures une vraie chose sur une
     vraie VM, en code.
   - **Chapitre 4** : les **rôles** — ranger ton code en briques réutilisables, comme les

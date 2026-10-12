@@ -2,6 +2,12 @@
 # Le domaine interne du lab. Tout ce qui suit se termine en .lab.local.
 dns_domain: lab.local
 
+# Le Serial de la zone (format AAAAMMJJnn). Le protocole DNS veut qu'il AUGMENTE
+# à chaque modification de la zone : c'est toi qui le montes, ici, quand tu
+# touches dns_records. Surtout pas une date calculée à chaque run : le fichier
+# changerait à chaque passage et le rôle ne serait plus jamais idempotent.
+dns_zone_serial: 2026101201
+
 # Où BIND transmet les questions qu'il ne connaît pas (ex. google.com).
 dns_forwarders:
   - 1.1.1.1

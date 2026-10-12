@@ -104,8 +104,11 @@ démo, tes machines auront des NOMS. »
   nom → IP des 4 machines. C'est ÇA, la donnée. Le reste n'est que mécanique. »
 - `templates/zone.j2` : « le fichier de zone, l'annuaire au format DNS. La boucle
   `{% raw %}{% for record in dns_records %}{% endraw %}` fabrique une ligne
-  `nom IN A ip` par machine. Le Serial utilise `ansible_date_time.epoch` : chaque
-  déploiement produit un numéro de version croissant, comme le veut le protocole DNS. »
+  `nom IN A ip` par machine. Le Serial vient d'une variable, `dns_zone_serial`, que TU
+  montes quand la zone change — le protocole DNS veut un numéro croissant. Pourquoi pas la
+  date du jour, calculée à chaque run ? Parce que le fichier changerait à chaque passage,
+  et ton rôle ne répondrait plus jamais `changed=0` : tu perdrais l'idempotence pour un
+  numéro que personne ne lit. »
 - `templates/named.conf.options.j2` : « la config du serveur : écoute partout
   (`any`), répond à tous (lab isolé, on assume), et **forwarders** : les questions
   qu'il ne connaît pas — google.com — sont transmises à 1.1.1.1. »
