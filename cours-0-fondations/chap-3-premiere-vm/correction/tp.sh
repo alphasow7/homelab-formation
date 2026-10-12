@@ -8,7 +8,7 @@ qm create 9002 --name demo-vm2 --memory 1024 --cores 1 --net0 virtio,bridge=vmbr
 qm importdisk 9002 /var/lib/vz/template/iso/debian-12-cloud.qcow2 local-lvm
 qm set 9002 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-9002-disk-0
 qm set 9002 --ide2 local-lvm:cloudinit --boot order=scsi0 --serial0 socket
-qm set 9002 --ciuser alpha --sshkeys ~/.ssh/id_ed25519.pub \
+qm set 9002 --ciuser alpha --sshkeys /root/.ssh/lab-keys.pub \
   --ipconfig0 ip=10.0.2.50/24,gw=10.0.2.2
 qm start 9002
 

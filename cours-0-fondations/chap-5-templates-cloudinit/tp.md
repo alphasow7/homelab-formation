@@ -13,9 +13,11 @@ a déjà vécu).
 1. Crée une VM **9000** depuis l'image cloud Debian 12 (méthode du chapitre 3), nommée
    `debian-gold`, 1 Go RAM, 1 vCPU, `vmbr1`, cloud-init : utilisateur `alpha`, ta clé,
    `ip=dhcp` (chaque clone recevra SA config — le moule reste neutre).
-2. Démarre-la UNE fois avec une IP temporaire statique (ex. `10.10.99.99/24`), connecte-toi
-   et mets-la à jour : `sudo apt update && sudo apt -y upgrade`, puis éteins-la proprement
-   (`sudo poweroff`).
+2. Démarre-la UNE fois avec une IP temporaire statique (ex. `10.10.99.99/24`,
+   gw `10.10.99.254`). Elle est sur `vmbr1` : **pas d'Internet** (chapitre 4). Ouvre donc le
+   masquerade temporaire du chapitre 4 (bloc 5 : `ip_forward=1` + règle `MASQUERADE`),
+   connecte-toi et mets-la à jour : `sudo apt update && sudo apt -y upgrade`, éteins-la
+   proprement (`sudo poweroff`)… et **referme** le masquerade.
 3. Remets `ip=dhcp` (neutre), puis fige : `qm template 9000`.
 4. Vérifie en clonant un jetable : clone 9199 avec une IP du segment, il doit répondre en
    SSH ; puis détruis-le (`qm stop 9199 && qm destroy 9199`).
@@ -23,6 +25,9 @@ a déjà vécu).
 ## Critères de réussite
 
 - [ ] `qm config 9000` montre `template: 1`, `ciuser: alpha`, `ipconfig0: ip=dhcp`
+- [ ] La mise à jour a **réellement** eu lieu (`apt upgrade` sans erreur réseau — un
+      `Temporary failure resolving` veut dire que le masquerade n'était pas ouvert)
+- [ ] `iptables -t nat -L POSTROUTING` ne montre plus la règle MASQUERADE
 - [ ] Le clone de test répondait en SSH avant destruction
 - [ ] Tu sais expliquer pourquoi le moule reste en `ip=dhcp`
 
@@ -31,9 +36,9 @@ a déjà vécu).
 <details>
 <summary>Indice 1 — l'ordre des opérations</summary>
 
-créer (chap. 3, blocs 2-3 avec id 9000) → démarrer avec IP temporaire → apt upgrade →
-poweroff → `qm set 9000 --ipconfig0 ip=dhcp` → `qm template 9000`. Le template se fige en
-DERNIER.
+créer (chap. 3, blocs 2-3 avec id 9000) → démarrer avec IP temporaire → masquerade ON
+→ apt upgrade → poweroff → masquerade OFF → `qm set 9000 --ipconfig0 ip=dhcp` →
+`qm template 9000`. Le template se fige en DERNIER.
 </details>
 
 <details>

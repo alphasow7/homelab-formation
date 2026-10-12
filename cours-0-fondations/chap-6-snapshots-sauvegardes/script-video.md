@@ -1,5 +1,7 @@
 # Chapitre 6 — Snapshots & sauvegardes : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~35 min. Prérequis : chapitre 5 (clones 9101-9103 en marche).
 > Toutes les commandes montrées sont dans `demo.sh`, rejouées sur le lab avant tournage.
 
@@ -55,13 +57,31 @@ démarre et répond en SSH. **Attendu** : `RESTAURATION VERIFIEE`.
 
 ## 4. Encart vrai matériel (3 min)
 
-**À filmer** : la GUI PBS (Proxmox Backup Server) de l'infra réelle : le datastore, les
-sauvegardes des 10 VMs, la déduplication (montrer le ratio).
+**À filmer** : la GUI PBS (Proxmox Backup Server) de l'infra réelle
+(`https://192.168.1.220:8007`) : le datastore `vm-backups`, les sauvegardes de la nuit
+(toutes les VMs du cluster, 2 h du matin), la déduplication (montrer le ratio), le
+verify-job du lundi. Puis Datacenter > Backup dans Proxmox : le job **natif du cluster**,
+« toutes les VMs », et son mail en cas d'échec.
 
 **À dire** : « Version industrielle : PBS, un serveur dédié aux sauvegardes.
-Déduplication — les blocs identiques ne sont stockés qu'une fois : 10 VMs Debian quasi
+Déduplication — les blocs identiques ne sont stockés qu'une fois : des VMs quasi
 identiques, ça compresse très fort. Rétention automatique, vérification d'intégrité
-planifiée. Hors périmètre du cours 0, mais tu sais maintenant POURQUOI ça existe. »
+planifiée, et un mail SEULEMENT en cas d'échec — un mail par nuit réussie finit ignoré,
+et l'échec avec lui. Hors périmètre du cours 0, mais tu sais maintenant POURQUOI ça
+existe. »
+
+**Deux histoires vraies à raconter ici** (elles paient la morale du chapitre) :
+- Pendant **un mois**, ma sauvegarde nocturne a échoué toutes les nuits : le script
+  listait des numéros de VMs qui n'existaient plus depuis une refonte du parc
+  (« unable to find VM »). Personne ne lisait l'erreur. Une liste de VMs écrite en dur,
+  c'est exactement ce qui périme — d'où le job « toutes les VMs du cluster ».
+- Pendant **deux mois**, la sauvegarde d'un composant critique (le coffre qui descelle
+  Vault) visait une adresse qui, entre-temps, était devenue… un hyperviseur. Échec chaque
+  nuit, en silence. Morale, encore : une sauvegarde qui n'alerte pas quand elle échoue
+  vaut zéro — et une restauration testée reste le seul vrai test.
+- Et l'honnêteté : mon PBS est sur un disque **de la même machine** que ce qu'il
+  sauvegarde. Le feu, le vol, la panne d'alim : non couverts. Sache-le quand tu
+  dimensionneras le tien.
 
 ## 5. Annonce du TP (2 min)
 

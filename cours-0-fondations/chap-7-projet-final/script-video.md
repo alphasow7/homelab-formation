@@ -1,5 +1,7 @@
 # Chapitre 7 — Projet final : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~20 min de vidéo (le gros du chapitre, c'est le projet de l'élève, 45 min).
 > Format différent : pas de nouvelle notion — on cadre le projet, on montre le résultat
 > attendu, on donne la méthode de travail. Dérogation au gabarit assumée.
@@ -25,8 +27,11 @@ les snapshots `fin-cours-0` : c'est ton point de départ officiel des cours suiv
 ## 3. Le résultat attendu (5 min)
 
 **À montrer** : sur le lab du formateur, le résultat final — `qm list` avec les 4 VMs,
-le ping des 4 IP, et LE test signature : ssh vers le bastion, puis DU bastion vers
-elastic-1. « Ton poste ne voit pas 10.10.99.11. Ton bastion, si. C'est exactement le but. »
+le ping des 4 IP, et LE test signature, **depuis le poste** : `ssh alpha@IP_DE_TON_BASTION
+hostname`, puis `ssh -J alpha@IP_DE_TON_BASTION alpha@10.10.99.11 hostname` → `elastic-1`.
+« Ton poste ne voit pas 10.10.99.11. Ton bastion, si. C'est exactement le but. » En
+chemin A, le bastion a une adresse fixe `10.0.2.20` et VirtualBox redirige `localhost:2223`
+vers lui — montrer la règle, c'est la seule nouveauté réseau du chapitre.
 
 ## 4. Célébration et suite (5 min)
 
@@ -38,4 +43,10 @@ encarts. Au cours 1, on ajoute le super-pouvoir : Ansible — détruire et recon
 ça en UNE commande. La première chose qu'on fera ? Détruire dns-proxy. À très vite. »
 
 **À filmer (encart final)** : l'infra réelle en guise de « voilà où ce chemin mène » —
-la GUI avec les 10 VMs + un dashboard Kibana.
+la vue Datacenter du cluster (4 nœuds et leurs VMs) + le tableau de bord Kibana
+« Homelab — Vue d'ensemble ». Et un clin d'œil : chez moi aussi il y a un **bastion**
+(VM 220, 1 vCPU, 2 Go) — même rôle que ton 9204, la seule porte SSH vers le lab, avec
+Tailscale et un second facteur en plus, et depuis mon Mac comme depuis mon téléphone.
+Un point commun avec le tien à souligner : **le bastion ne garde aucune clé**. Il
+rebondit, c'est tout — c'est ton appareil qui s'authentifie jusqu'à la machine du fond.
+« Ce que tu viens de poser, c'est la version junior d'une vraie brique de sécurité. »

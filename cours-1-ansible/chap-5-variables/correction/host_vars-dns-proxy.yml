@@ -1,0 +1,8 @@
+---
+# Correction TP chapitre 5 — à placer dans :
+#   ansible/inventory/host_vars/dns-proxy.yml
+# (le nom du fichier = le nom de l'hôte dans hosts.yml, c'est ce qui fait le lien)
+#
+# « L'exception d'une machine » : cette valeur écrase group_vars/lab.yml
+# pour dns-proxy, et SEULEMENT pour lui.
+web_status_title: "dns-proxy — l'exception de la machine (host_vars)"

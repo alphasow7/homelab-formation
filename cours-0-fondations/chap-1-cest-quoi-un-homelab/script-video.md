@@ -1,5 +1,7 @@
 # Chapitre 1 — C'est quoi un homelab ? : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~15 min. **Chapitre narratif** : pas de demo.sh ni de TP (dérogation
 > assumée au gabarit). Objectif : donner envie, montrer la destination, présenter le fil
 > rouge et les deux chemins de lab. Les plans à filmer sur l'infra réelle sont détaillés
@@ -37,19 +39,20 @@ montre le mien. »
 > Dérouler les plans 1 à 6 de `plan-tournage-infra-reelle.md`, dans l'ordre, avec la voix
 > off indiquée. Résumé du parcours :
 
-- **Le physique d'abord** : le boîtier du serveur Proxmox (« ce PC banal fait tourner
-  toute mon infra »), le switch TP-Link et ses câbles (« cinq ports, ça suffit largement
-  pour commencer »), les deux mini-PCs Lenovo (« un cluster Kubernetes tient sur une
-  étagère »).
-- **Puis les écrans** : la GUI Proxmox avec les 10 VMs qui tournent (« chaque ligne verte
-  est un faux PC dans le vrai »), un dashboard Kibana avec les logs qui défilent (« tout
-  ce qui se passe sur le lab est enregistré et visualisé ici »), la GUI OPNsense avec les
-  alertes Suricata (« et voilà le pare-feu qui monte la garde — il détecte même les
-  tentatives d'intrusion »).
+- **Le physique d'abord** : la tour Proxmox (« ce PC banal a d'abord fait tourner toute
+  mon infra tout seul »), le switch et ses câbles (« cinq ports, ça suffit largement
+  pour commencer »), les trois mini-PCs Lenovo (« trois hyperviseurs de plus : un cluster
+  Proxmox de quatre nœuds tient sur une étagère »).
+- **Puis les écrans** : la vue Datacenter du cluster, ses 4 nœuds et leurs VMs (« chaque
+  ligne verte est un faux PC dans le vrai »), le tableau de bord Kibana « Homelab — Vue
+  d'ensemble » (« tout ce qui se passe sur le lab est enregistré et visualisé ici »), la
+  GUI OPNsense avec les alertes Suricata (« et voilà le pare-feu qui monte la garde — il
+  détecte même les tentatives d'intrusion »).
 
-**À dire en conclusion du tour** : « Retiens l'idée principale : tout ça, c'est UN serveur
-à 200 balles d'occasion, deux mini-PCs et un switch à 15 euros. Pas un datacenter. Et
-chaque brique que tu viens de voir, on va la construire ensemble, une par une. »
+**À dire en conclusion du tour** : « Retiens l'idée principale : tout ça, c'est UN PC
+à 200 balles d'occasion, trois mini-PCs d'occasion et un switch à 15 euros. Pas un
+datacenter. Et chaque brique que tu viens de voir, on va la construire ensemble, une par
+une — en commençant par UN seul serveur, comme j'ai commencé. »
 
 ---
 
@@ -64,43 +67,46 @@ de haut en bas) :
                         └──────┬───────┘
                                │ (box)
                         ┌──────┴───────┐
-                        │    SWITCH    │  TP-Link 5 ports
-                        └──┬───────┬───┘
-                           │       │
-           ┌───────────────┴──┐   ┌┴──────────────────┐
-           │     PROXMOX      │   │   2 mini-PCs      │
-           │  192.168.1.200   │   │   Lenovo (K3S)    │
-           │                  │   │ cluster Kubernetes│
-           │  VMs internes    │   └───────────────────┘
-           │  (réseaux 10.10.x)
-           │  ┌────────────┐  │
-           │  │  OPNsense  │  │  ← pare-feu, la porte d'entrée des VMs
-           │  ├────────────┤  │
-           │  │ ELK        │  │  ← les logs de tout le monde
-           │  │ GitLab     │  │  ← le code et l'automatisation
-           │  │ Vault      │  │  ← les secrets (mots de passe, clés)
-           │  │ DNS        │  │  ← l'annuaire interne
-           │  │ proxy      │  │  ← la porte d'entrée web des services
-           │  └────────────┘  │
-           └──────────────────┘
+                        │    SWITCH    │  5 ports, non managé
+                        └──────┬───────┘
+                               │
+        ┌──────────────────────────────────────────────────┐
+        │   CLUSTER PROXMOX — 4 nœuds, une seule interface │
+        │   tour 192.168.1.200  +  3 mini-PCs .50 .51 .52  │
+        │                                                  │
+        │  ┌──────────────┐    ┌─────────────────────────┐ │
+        │  │  OPNsense    │    │ Rundeck + Vault         │ │  ← l'automate et les secrets
+        │  │  le pare-feu │    │ GitLab                  │ │  ← le code
+        │  ├──────────────┤    │ Artifactory             │ │  ← les livrables
+        │  │  ELK         │    │ bastion                 │ │  ← la porte d'entrée SSH
+        │  │  les logs,   │    └─────────────────────────┘ │
+        │  │  derrière le │    ┌─────────────────────────┐ │
+        │  │  pare-feu    │    │ PBS                     │ │  ← les sauvegardes
+        │  └──────────────┘    └─────────────────────────┘ │
+        └──────────────────────────────────────────────────┘
 ```
 
 **À dire, en pointant le schéma** :
 - « En haut, Internet, qui arrive par la box. En dessous, le switch — la multiprise
   réseau — qui relie tout le monde. »
-- « À gauche, la star : le serveur **Proxmox**, en `192.168.1.200`. C'est un hyperviseur —
-  souviens-toi du chapitre 0 : le logiciel qui découpe un vrai PC en plusieurs faux. À
-  l'intérieur, chaque service est une VM. »
-- « Détail qui a son importance : les VMs ne sont PAS sur le réseau de la maison. Elles
-  vivent sur des réseaux internes en `10.10.x` — des rues privées, à l'intérieur du
-  serveur — et c'est **OPNsense**, le pare-feu, qui contrôle qui entre et qui sort.
-  Pourquoi séparer ? Pour la même raison qu'on ne met pas la porte du labo directement
-  dans le salon : si une VM se fait compromettre, elle reste enfermée dans sa rue. Ça
-  s'appelle la **segmentation**, et on y reviendra tout au long de la série. »
-- « À droite, les deux mini-PCs : un cluster **K3S**, du Kubernetes léger. Ça, c'est pour
-  bien plus tard — sache juste qu'ils existent. »
-- Passer une ligne sur chaque VM avec sa phrase : ELK « les logs », GitLab « le code »,
-  Vault « les secrets », DNS « l'annuaire interne », proxy « la porte d'entrée web ».
+- « Puis la star : **Proxmox**. Chez moi aujourd'hui c'est un cluster de quatre nœuds —
+  la tour en `192.168.1.200` et trois mini-PCs — mais c'est UNE seule interface, et tout
+  ce que je te montre dans ce cours se fait sur UN nœud. Un hyperviseur — souviens-toi
+  du chapitre 0 : le logiciel qui découpe un vrai PC en plusieurs faux. À l'intérieur,
+  chaque service est une VM. »
+- « Détail qui a son importance : la VM la plus exposée — la stack de logs, ELK — n'est
+  PAS sur le réseau de la maison. Elle vit sur un réseau interne en `10.10.x`, une rue
+  privée à l'intérieur du serveur, et c'est **OPNsense**, le pare-feu, qui contrôle qui
+  entre et qui sort : cinq ports autorisés, rien d'autre. Pourquoi séparer ? Pour la même
+  raison qu'on ne met pas la porte du labo directement dans le salon : si une VM se fait
+  compromettre, elle reste enfermée dans sa rue. Ça s'appelle la **segmentation**, et on
+  y reviendra tout au long de la série. »
+- « Le reste, ce sont les outils du métier : **Vault** pour les secrets, **GitLab** pour
+  le code, **Artifactory** pour les livrables, **Rundeck** l'automate qui, en un clic,
+  reconstruit la stack ELK de zéro. Et un **bastion** : la seule porte d'entrée SSH quand
+  je ne suis pas à la maison. Tu auras le tien dès la fin de ce cours. »
+- « Et **PBS**, le serveur de sauvegarde : chaque VM est sauvegardée toutes les nuits, et
+  la restauration a été testée — on en reparle au chapitre 6. »
 
 ---
 
@@ -109,9 +115,10 @@ de haut en bas) :
 **À dire (phrase clé à l'écran)** :
 > « À la fin de la série, tu auras construit ÇA — version allégée. »
 
-- « C'est le contrat entre toi et moi. Pas une copie exacte — tu n'as pas besoin de
-  10 VMs ni de deux mini-PCs — mais la même architecture : un hyperviseur, des VMs, des
-  réseaux séparés, un pare-feu, des services qui tournent et des logs qu'on regarde. »
+- « C'est le contrat entre toi et moi. Pas une copie exacte — tu n'as pas besoin d'un
+  cluster de quatre nœuds ni de trois mini-PCs — mais la même architecture : un
+  hyperviseur, des VMs, des réseaux séparés, un pare-feu, des services qui tournent et
+  des logs qu'on regarde. »
 - « Et surtout : chaque chapitre te fait construire une brique DE ce schéma. À chaque fois
   qu'on ajoute quelque chose, je remontrerai ce schéma avec la brique qui s'allume. Tu
   sauras toujours où tu en es. »
@@ -137,12 +144,12 @@ c'est là qu'on commence à s'en servir. »
 **À dire (slide avec les 4 titres)** : « Cette formation est une série de quatre cours :
 1. **Cours 0 — Fondations** : celui-ci. Proxmox, tes premières VMs, le réseau, les
    snapshots et sauvegardes. À la fin : un mini-homelab qui tourne.
-2. **Cours 1 — Réseau et sécurité** : OPNsense, la segmentation, le pare-feu, le VPN.
-   Ton lab devient une vraie infrastructure défendue.
-3. **Cours 2 — Services et supervision** : DNS, proxy, ELK — héberger des services et
-   VOIR ce qui se passe dessus.
-4. **Cours 3 — Automatisation** : Ansible, GitLab, Vault — tout reconstruire en une
-   commande, comme les pros.
+2. **Cours 1 — Ansible** : automatiser — inventaire, playbooks, rôles, secrets. Détruire
+   une VM et la faire renaître en une commande, comme les pros.
+3. **Cours 2 — ELK** : Elasticsearch, Logstash, Kibana, Filebeat — VOIR tout ce qui se
+   passe sur ton lab. Ton propre SIEM.
+4. **Cours 3 — Sécurité** : OPNsense, le pare-feu par zone, l'IDS Suricata, Vault — ton
+   lab devient une vraie infrastructure défendue.
 
 Rendez-vous au chapitre 2 : on installe Proxmox. D'ici là, choisis ton chemin de lab —
 et fais le quiz, il est court. »

@@ -1,5 +1,7 @@
 # Chapitre 2 — Installer Proxmox : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. Prérequis élève : Proxmox fraîchement installé via un des deux
 > guides labs/ (chemin A VirtualBox → `https://localhost:8006`, chemin B PC dédié →
 > `https://192.168.1.240:8006`).
@@ -142,22 +144,47 @@ free -h
 **Attendu** : lignes Mem/Swap. « `available`, c'est ce qui reste pour tes futures VMs.
 C'est ton budget RAM : chaque VM va piocher dedans. »
 
+### 2.4 — Le trousseau SSH du lab (3 min, bloc 6 de `demo.sh`)
+
+**À dire** : « Dernière chose, et elle conditionne TOUT le cours. Tes futures VMs n'auront
+pas de mot de passe : on y entre par clé. Alors, QUELLES clés ? Deux. La tienne — celle de
+ton poste, que tu as apprise à fabriquer au chapitre 0 — et celle du nœud, parce que c'est
+lui qui ira parler aux VMs dans les démos. On range les deux dans un seul fichier, le
+**trousseau du lab**, et c'est ce fichier-là, toujours lui, qu'on donnera à cloud-init. »
+
+**À montrer** : (1) depuis le poste, `ssh-copy-id -p 2222 root@localhost` (chemin A) —
+« exactement le geste du chapitre 0, vers le nœud cette fois » ; (2) sur le nœud,
+`ssh-keygen -t ed25519 -N '' -f /root/.ssh/id_ed25519` ; (3) `cat … > /root/.ssh/lab-keys.pub`
+puis `cat /root/.ssh/lab-keys.pub` → **deux lignes**. « Retiens le chemin :
+`/root/.ssh/lab-keys.pub`. Tu le retaperas trois fois dans ce cours. »
+
+**Piège à annoncer** : « Si tu changes de poste, ou si tu passes de PowerShell à WSL, ta
+clé change. Le réflexe : refaire ces trois lignes, puis redonner le trousseau aux VMs
+existantes avec `qm set <id> --sshkeys /root/.ssh/lab-keys.pub` et un stop/start — on
+reverra ce stop/start au chapitre 3, c'est la panne du chapitre. »
+
 ---
 
 ## 3. Encart vrai matériel (3 min)
 
 **À dire** : « Tout ce qu'on vient de faire, tu l'as fait sur un lab tout neuf. Voilà à
-quoi ressemble le MÊME Proxmox après quelques mois de vie : le mien, bare-metal, un i7
-avec 31 Go de RAM, qui fait tourner 10 VMs. Rien de magique : c'est exactement la même
-interface, le même `pveversion`, le même port 8006. La seule différence, c'est le temps et
-les chapitres qu'on va passer ensemble. On le verra grandir pendant toute la formation. »
+quoi ressemble le MÊME Proxmox après quelques mois de vie : le mien. Il a commencé comme
+le tien — une seule machine, un i7 avec 31 Go de RAM — et c'est aujourd'hui un **cluster
+de quatre nœuds** : la tour plus trois mini-PCs. Rien de magique : c'est exactement la
+même interface, le même `pveversion`, le même port 8006. La seule différence, c'est le
+temps et les chapitres qu'on va passer ensemble. On le verra grandir pendant toute la
+formation. »
 
 **Plans à filmer sur l'infra réelle (192.168.1.200)** :
-1. La GUI : arborescence Datacenter → nœud avec les 10 VMs dépliées (comparaison visuelle
-   avec l'arbre vide de l'élève).
-2. Le résumé du nœud : jauges CPU / RAM 31 Go / uptime.
-3. Shell sur le nœud réel : `pveversion` puis `free -h` — « mêmes commandes, autre échelle ».
-4. (Optionnel, plan B-roll) la machine physique elle-même, pour ancrer le « bare-metal ».
+1. La GUI : arborescence Datacenter → `vortex-cluster` → les 4 nœuds dépliés avec leurs
+   VMs (comparaison visuelle avec l'arbre vide de l'élève, qui n'a qu'un nœud et rien
+   dessous).
+2. Le résumé de la tour : jauges CPU / RAM 31 Go / uptime — puis celui d'un Lenovo
+   (16 Go) : « même écran, deux machines très différentes ».
+3. Shell sur la tour : `pveversion` puis `free -h` — « mêmes commandes, autre échelle ».
+   La version a bougé entre l'écriture du cours et le tournage (9.1 en juillet, 9.2 en
+   octobre) : lire la valeur à l'écran, ne pas en citer une de mémoire.
+4. (Optionnel, plan B-roll) la tour et les trois mini-PCs, pour ancrer le « bare-metal ».
 
 ---
 

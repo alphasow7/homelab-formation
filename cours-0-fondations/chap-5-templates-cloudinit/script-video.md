@@ -1,5 +1,7 @@
 # Chapitre 5 — Templates & cloud-init : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. Prérequis : chapitres 3-4 (VM 9001 cloud-init sur vmbr1).
 > Chapitre volontairement court et jouissif : le « payoff » des efforts des chapitres
 > précédents. Pas de « panne du vrai monde » dédiée (dérogation assumée) — remplacée par
@@ -45,10 +47,18 @@ clone toujours depuis un template cloud-init. »
 
 ## 3. Encart vrai matériel (2 min)
 
-**À filmer** : la GUI réelle — le template 9000 et les VMs du lab.
+**À filmer** : la GUI réelle — le template `901` (`template-debian12`) sur la tour
+(vérifier qu'il existe encore : `qm list` sur la tour), et le dossier des images cloud
+(`/var/lib/vz/template/iso/` : Debian 12, Rocky 9, Rocky 10, Ubuntu 24.04).
 
-**À dire** : « Les 10 VMs de l'infra réelle viennent toutes du même moule. Et au cours 1,
-tu verras encore mieux : Ansible qui clone ET configure tout seul. Le moule + le robot. »
+**À dire** : « Chez moi, le moule existe aussi — un template Debian 12, le jumeau du
+tien. Mais regarde les images à côté : Rocky 9 pour la plateforme, Rocky 10 et Ubuntu
+pour les labs. Un moule par famille d'OS. Et une subtilité apprise à mes dépens : sur ZFS,
+les VMs de ma plateforme ne sont PAS clonées depuis un template mais importées directement
+depuis l'image (`import-from`) — un `qm clone` d'image cloud y a produit des kernel
+panic. Le principe reste le même : une image de référence, cloud-init, et jamais
+d'installateur. Au cours 1, tu verras encore mieux : Ansible qui crée ET configure tout
+seul. Le moule + le robot. »
 
 ## 4. Annonce du TP (2 min)
 

@@ -1,5 +1,7 @@
 # Chapitre 3 — Ta première VM : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~30 min. Prérequis élève : Proxmox 9 post-installé (chapitre 2), dépôts
 > no-subscription, système à jour. Chemin A : VirtualBox, réseau NAT 10.0.2.0/24, GUI via
 > `https://localhost:8006`. Chemin B : PC dédié sur le LAN 192.168.1.0/24. Bridge par
@@ -122,19 +124,22 @@ apparu.
 
 ```bash
 qm set 9001 --ide2 local-lvm:cloudinit --boot order=scsi0 --serial0 socket
-qm set 9001 --ciuser alpha --sshkeys ~/.ssh/id_ed25519.pub --ipconfig0 ip=dhcp
+qm set 9001 --ciuser alpha --sshkeys /root/.ssh/lab-keys.pub --ipconfig0 ip=dhcp
 ```
 
 **À dire** : « Le cœur du chapitre. Première ligne : on ajoute un mini-lecteur CD spécial
 (`ide2`) — c'est le support physique de l'étiquette cloud-init, que Proxmox regénère à
 chaque démarrage de la VM. Deuxième ligne : on écrit l'étiquette elle-même :
-`--ciuser alpha` crée l'utilisateur, `--sshkeys` colle ta clé SSH, `--ipconfig0 ip=dhcp`
-demande une IP automatique. »
+`--ciuser alpha` crée l'utilisateur, `--sshkeys` colle le **trousseau du lab** — ta clé
+de poste et celle du nœud, le fichier du chapitre 2 —, `--ipconfig0 ip=dhcp` demande une
+IP automatique. »
 
-**⚠️ Insister lourdement (zoom écran)** : « `--sshkeys` prend le **chemin du fichier de
-clé PUBLIQUE** — celui qui finit en `.pub`. Pas le contenu de la clé, et surtout PAS la
-clé privée : la privée ne quitte JAMAIS ton poste. Si tu n'as pas de clé sur le nœud,
-`ssh-keygen -t ed25519` t'en fait une (chapitre 0). »
+**⚠️ Insister lourdement (zoom écran)** : « `--sshkeys` prend le **chemin d'un fichier de
+clés PUBLIQUES** — des lignes qui commencent par `ssh-ed25519`. Pas le contenu, et surtout
+PAS une clé privée : la privée ne quitte JAMAIS ton poste. Et pas la clé du nœud toute
+seule non plus : si tu donnais `~/.ssh/id_ed25519.pub` du nœud, le nœud entrerait, mais
+TOI, depuis ton poste, tu resterais à la porte — `Permission denied`. C'est pour ça que
+le trousseau contient les deux. »
 
 **Résultat attendu** : pas de sortie (silence = succès). Montrer dans la GUI : VM 9001 a
 maintenant un onglet **Cloud-Init** qui affiche user `alpha`, la clé, `ip=dhcp`. « Cet
@@ -144,18 +149,18 @@ onglet, c'est l'étiquette vue depuis la GUI — retiens où il est, il resservi
 
 ```bash
 qm start 9001
-sleep 20
-qm guest cmd 9001 network-get-interfaces 2>/dev/null \
-  || echo "agent pas encore prêt — l'IP est visible dans la GUI (VM 9001 > Summary)"
+qm terminal 9001        # console série : cloud-init affiche l'IP au boot (Ctrl+O pour sortir)
 ```
 
 **À dire** : « On démarre. Cloud-init lit son étiquette pendant ce premier boot : il crée
-l'utilisateur `alpha`, installe ta clé, demande une IP au DHCP. On attend 20 secondes,
-puis on demande son IP à l'agent invité. » **Résultat attendu** : soit un JSON avec les
-interfaces et l'adresse IP, soit — très probable au premier boot, l'agent n'est pas
-encore prêt — le message de repli : l'IP se lit alors dans la GUI (VM 9001 → Summary) ou
-dans la Console (`ip a` après login). Ne pas paniquer à l'écran : « les deux chemins
-mènent à l'IP ».
+l'utilisateur `alpha`, installe le trousseau, demande une IP au DHCP. Et où lit-on cette
+IP ? Pas dans la GUI : l'image cloud n'embarque pas l'agent invité de QEMU, donc Summary
+affiche "No Guest Agent configured" — ce n'est pas une panne. On ouvre la **console
+série** : cloud-init y écrit, pendant le boot, un tableau `ci-info: Net device info` avec
+l'adresse reçue. » **Résultat attendu** : le tableau, avec `eth0` et une IP (`10.0.2.x` en
+chemin A, `192.168.1.x` en chemin B). « Pas de login à taper : on lit, on note, on sort
+avec Ctrl+O. » Variante pour les curieux, dans `demo.sh` : retrouver la VM dans la table
+ARP du nœud par son adresse MAC.
 
 #### Vérification finale — la connexion SSH
 
@@ -174,19 +179,33 @@ pourquoi c'est LA méthode. »
 ## 3. Encart vrai matériel (3 min)
 
 **À dire** : « Tu te demandes peut-être si cette méthode cloud-init, c'est un truc de
-formation. Réponse : sur mon infra réelle, les 10 VMs que tu as vues au chapitre 2 sont
-TOUTES nées exactement comme ça — image cloud + cloud-init, orchestrées par un outil
-d'automatisation qui s'appelle Ansible (on le croisera plus tard). Personne, jamais, n'a
-cliqué dans un installateur Debian sur cette machine. La méthode que tu viens d'apprendre,
-c'est la méthode de production. »
+formation. Réponse : sur mon infra réelle, TOUTES les VMs que tu as vues au chapitre 2
+sont nées exactement comme ça — image cloud + cloud-init, orchestrées par un outil
+d'automatisation qui s'appelle Ansible (on le croisera plus tard). Les trois VMs de ma
+plateforme de déploiement sont des Rocky Linux créées depuis une image cloud ; et la stack
+de logs, c'est encore mieux : un job la **détruit et la recrée de zéro** à la demande.
+Personne, jamais, n'a cliqué dans un installateur sur ces machines. La méthode que tu
+viens d'apprendre, c'est la méthode de production. »
 
 **Plans à filmer sur l'infra réelle (192.168.1.200)** :
-1. GUI : cliquer sur 2-3 VMs différentes → onglet **Cloud-Init** : montrer que chacune a
-   son user, sa clé, son ipconfig — « même étiquette, valeurs différentes ».
-2. Shell du nœud réel : `qm cloudinit dump <vmid> user` sur une vraie VM — « la même
+1. GUI : cliquer sur 2-3 VMs différentes (210, 211, 300…) → onglet **Cloud-Init** :
+   montrer que chacune a son user, sa clé, son ipconfig — « même étiquette, valeurs
+   différentes ».
+2. Shell de la tour : `qm cloudinit dump <vmid> user` sur une vraie VM — « la même
    commande que celle qu'on va utiliser dans deux minutes pour diagnostiquer une panne ».
-3. (Optionnel, B-roll) faire défiler la liste des 10 VMs : « dix étiquettes, zéro clic
-   d'installateur ».
+3. (Optionnel, B-roll) la vue Datacenter : « des étiquettes, zéro clic d'installateur ».
+
+**Deux leçons de plus, apprises sur ces VMs depuis juillet** (à glisser ici, ou à garder
+pour la FAQ) :
+- Sur une image cloud Rocky, cloud-init **régénère `/etc/hosts` à chaque démarrage** : un
+  bloc ajouté à la main disparaît au reboot, en silence. Et déclarer
+  `manage_etc_hosts: false` ne suffit pas — la valeur vient de la user-data injectée par
+  Proxmox, qui a priorité ; il faut retirer le module `update_etc_hosts` de `cloud.cfg`.
+  Morale : ce qui est posé par cloud-init appartient à cloud-init.
+- Le modèle de CPU par défaut de Proxmox (`kvm64`) n'expose pas `x86-64-v2` : une image
+  Rocky 9 ou 10 **panique au boot** (« Fatal glibc error: CPU does not support
+  x86-64-v2 »). Debian 12 s'en moque, d'où le silence dans ce cours — mais le jour où tu
+  crées une Rocky, ajoute `--cpu host`.
 
 ---
 
@@ -195,7 +214,9 @@ c'est la méthode de production. »
 > Incident réellement vécu sur le chantier de l'infra du formateur — on le rejoue tel quel.
 
 **Mise en scène** : « Situation : tu changes de poste — nouveau PC, ou tu as regénéré ta
-clé SSH avec `ssh-keygen`. Ta VM 9001 tourne toujours, tu veux t'y connecter… »
+clé SSH avec `ssh-keygen`. Tu as bien refait le trousseau du chapitre 2 (`ssh-copy-id`
+vers le nœud, puis `cat … > lab-keys.pub`). Ta VM 9001 tourne toujours, tu veux t'y
+connecter… »
 
 **Symptôme (à montrer)** :
 
@@ -216,8 +237,9 @@ VM ? »
    ```bash
    qm cloudinit dump 9001 user
    ```
-   → dans la sortie YAML, section `ssh_authorized_keys` : c'est **l'ANCIENNE clé**.
-   Comparer à l'écran avec `cat ~/.ssh/id_ed25519.pub` (la nouvelle) : elles diffèrent.
+   → dans la sortie YAML, section `ssh_authorized_keys` : c'est **l'ANCIEN trousseau**.
+   Comparer à l'écran avec `cat /root/.ssh/lab-keys.pub` (le nouveau) : la clé de ton
+   poste n'y est pas la même.
 3. Le déclic : « Mais attends — je peux juste mettre à jour l'étiquette, non ? Oui, MAIS :
    cloud-init n'applique son étiquette **qu'au démarrage** de la VM. Changer l'étiquette
    d'une VM qui tourne ne change rien en vol. »
@@ -225,7 +247,7 @@ VM ? »
 **Fix (à montrer)** :
 
 ```bash
-qm set 9001 --sshkeys ~/.ssh/id_ed25519.pub     # la NOUVELLE clé publique
+qm set 9001 --sshkeys /root/.ssh/lab-keys.pub   # le NOUVEAU trousseau
 qm stop 9001 && qm start 9001                   # stop/start, PAS reboot !
 ```
 

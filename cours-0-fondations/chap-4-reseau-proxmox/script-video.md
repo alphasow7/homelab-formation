@@ -1,5 +1,7 @@
 # Chapitre 4 — Le réseau Proxmox : script vidéo
 
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+
 > Durée cible : ~40 min. Prérequis : chapitres 2-3 (Proxmox post-installé, VM 9001
 > existante). Toutes les commandes montrées sont dans `demo.sh` et doivent être rejouées
 > sur le lab avant tournage. Schémas à l'écran : `schema-bridges.md`.
@@ -59,27 +61,42 @@ construit.** » (plot twist assumé)
 **Diagnostic guidé** : `ip route` dans la VM (une seule route, pas de sortie), le schéma
 à l'écran, et la question à se poser AVANT de dépanner : « est-ce un bug ou un choix ? »
 
-**À dire** : « Sur l'infra réelle de ce cours, les VMs ELK, GitLab et Vault n'ont PAS
-d'Internet, par choix. Alors comment elles font leurs mises à jour ?? Voilà LA bonne
-question. Réponse courte aujourd'hui : le nœud peut jouer les passeurs. Réponse complète
-au cours 1 : un proxy apt dédié. »
+**À dire** : « Sur l'infra réelle de ce cours, les segments internes de la tour n'ont PAS
+d'Internet, par choix — la stack ELK vit sur l'un d'eux, derrière le pare-feu, et mes
+labs d'entraînement sur d'autres. Alors comment ces machines font leurs mises à jour ??
+Voilà LA bonne question. Réponse courte aujourd'hui : le nœud peut jouer les passeurs —
+chez moi, c'est un rôle Ansible qui pose le masquerade le temps d'installer des paquets,
+puis le **retire**, exactement comme on va le faire. Réponse complète au cours 1 : un
+proxy apt dédié sur le nœud. »
 
-**À montrer** : bloc 5 — le masquerade NAT temporaire : on ouvre (`iptables -t nat -A
-POSTROUTING ... MASQUERADE`), la VM sort (`INTERNET OK`), et surtout **on referme**
-(`-D`) et on re-prouve l'isolement.
+**À montrer** : bloc 5 — le masquerade NAT temporaire. Deux verrous : d'abord le nœud
+doit **accepter de router** (`sysctl -w net.ipv4.ip_forward=1` — à 0 par défaut, c'est
+le verrou que le TP te fera manipuler), puis réécrire l'adresse de sortie (`iptables -t
+nat -A POSTROUTING ... MASQUERADE`). La VM sort (`INTERNET OK`), et surtout **on referme
+les deux** (`-D`, puis `ip_forward=0`) et on re-prouve l'isolement. « Remarque le `||`
+dans le script : si le test échoue, on referme quand même. Un script qui s'arrête en
+plein milieu avec la porte ouverte, c'est la vraie panne. »
 
 **Morale** : « Un accès temporaire, ça se referme. Et "pas d'Internet" n'est pas toujours
 une panne — parfois c'est une décision de sécurité. Apprends à distinguer les deux. »
 
 ## 4. Encart vrai matériel (3 min)
 
-**À filmer** : la GUI de l'infra réelle, Datacenter > pve > Network : les bridges
-vmbr0-vmbr5. Puis un schéma des 4 segments (Management 10.10.10.x, ELK 10.10.20.x,
-DevSecOps 10.10.30.x, Services 10.10.40.x).
+**À filmer** : la GUI de l'infra réelle, Datacenter > `pve` (la tour) > Network : les
+bridges `vmbr0` à `vmbr8`. Puis la même page sur `pve01` : **un seul** bridge, `vmbr0`.
+Enfin un schéma : le LAN `192.168.1.0/24` (où vivent les 4 nœuds et la plateforme), le
+segment ELK `10.10.20.0/24` derrière OPNsense, les segments de labs `10.10.99.0/24` et
+`10.10.98.0/24`.
 
-**À dire** : « Sur l'infra réelle : 4 segments isolés + le LAN + un bridge dédié au
-pare-feu. ELK n'a jamais vu Internet de sa vie — et il indexe pourtant les logs de tout
-le lab. Tu construiras cette mécanique complète dans les cours 1 et 2. »
+**À dire** : « Sur la tour : le LAN, quatre segments internes historiques, deux bridges
+pour le pare-feu, deux pour mes labs d'entraînement — neuf bridges, tous virtuels sauf le
+premier. Sur les mini-PCs : un seul, le LAN. Pourquoi ? Un bridge sans port physique
+n'existe QUE sur son nœud : une VM posée dessus y est clouée. C'est un choix assumé chez
+moi — et une vraie question d'architecture que tu rencontreras. Et ELK ? Il vit sur le
+segment `10.10.20.x`, derrière le pare-feu : le reste du parc le joint par UNE adresse
+sur le LAN, traduite par OPNsense, et seuls cinq ports passent. Il n'a jamais vu Internet
+de sa vie — et il indexe pourtant les logs de tout le lab. Tu construiras cette mécanique
+complète dans les cours 1 à 3. »
 
 ## 5. Annonce du TP (2 min)
 

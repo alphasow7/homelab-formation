@@ -9,7 +9,9 @@ chemin B : `https://192.168.1.240:8006`). Les commandes s'exécutent sur le nœu
 À la fin de ce TP :
 - ton Proxmox est à jour et utilise les dépôts communautaires ;
 - tu as un utilisateur `eleve@pve` qui voit tout mais ne peut rien modifier ;
-- tu as constaté par toi-même la différence entre root et un compte en lecture seule.
+- tu as constaté par toi-même la différence entre root et un compte en lecture seule ;
+- le **trousseau SSH du lab** (`/root/.ssh/lab-keys.pub`) existe sur le nœud : c'est lui que
+  recevront toutes les VMs des chapitres suivants.
 
 ## Étape A — Post-installation complète
 
@@ -39,12 +41,35 @@ chemin B : `https://192.168.1.240:8006`). Les commandes s'exécutent sur le nœu
    - essaie de créer une VM (bouton « Create VM » en haut à droite) : le bouton est grisé
      ou la création est refusée. Normal : auditor = lecture seule.
 
+## Étape D — Le trousseau SSH du lab
+
+Les VMs que tu créeras à partir du chapitre 3 n'auront **pas de mot de passe** : on y
+entre par clé, et uniquement par clé. Il faut donc décider maintenant QUELLES clés auront
+le droit d'entrer. Deux : celle de ton poste (c'est toi), et celle du nœud (c'est lui qui
+se connecte aux VMs dans les démos).
+
+1. **Depuis ton poste** — dépose ta clé sur le nœud (c'est le TP du chapitre 0, appliqué
+   au nœud) : chemin A `ssh-copy-id -p 2222 root@localhost`, chemin B
+   `ssh-copy-id root@192.168.1.240`. Vérifie : `ssh root@… hostname` répond `pve-lab`
+   sans mot de passe. Sous Windows, fais-le depuis Git Bash ou WSL — et garde ce même
+   environnement pour tout le cours, c'est cette clé qui compte.
+2. **Sur le nœud** — crée-lui sa propre clé : `ssh-keygen -t ed25519 -N '' -f /root/.ssh/id_ed25519`.
+3. **Sur le nœud** — assemble le trousseau :
+   `cat /root/.ssh/authorized_keys /root/.ssh/id_ed25519.pub > /root/.ssh/lab-keys.pub`.
+
+Ce fichier est le seul argument que tu donneras à `--sshkeys` au chapitre 3. Si un jour
+tu changes de poste, tu refais l'étape 1, puis l'étape 3 — et les VMs déjà créées
+reçoivent le nouveau trousseau par `qm set <id> --sshkeys /root/.ssh/lab-keys.pub` suivi
+d'un stop/start.
+
 ## ✅ Critères de réussite
 
 - [ ] `apt update` sans erreur 401
 - [ ] `pveversion` affiche la version
 - [ ] Connexion GUI avec `eleve@pve` (realm PVE) fonctionne
 - [ ] Impossible de créer une VM avec `eleve@pve`
+- [ ] Depuis ton poste : `ssh root@<nœud> hostname` sans mot de passe
+- [ ] `cat /root/.ssh/lab-keys.pub` montre **2 lignes** `ssh-ed25519`
 
 ---
 

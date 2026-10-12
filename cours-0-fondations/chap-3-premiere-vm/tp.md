@@ -14,19 +14,22 @@ puis prouver qu'elle marche avec une connexion SSH par clé.
 1. Reprends la méthode du chapitre (image cloud déjà téléchargée : pas besoin de refaire
    le `wget`) pour créer la VM **9002**, nommée `demo-vm2`, 1 Go de RAM, 1 vCPU, sur
    `vmbr0`.
-2. Configure cloud-init : utilisateur `alpha`, ta clé publique, et l'**IP statique** selon
-   ton chemin :
+2. Configure cloud-init : utilisateur `alpha`, le trousseau du lab
+   (`--sshkeys /root/.ssh/lab-keys.pub`, chapitre 2), et l'**IP statique** selon ton chemin :
    - **Chemin A (VirtualBox)** : `--ipconfig0 ip=10.0.2.50/24,gw=10.0.2.2`
    - **Chemin B (PC dédié)** : `--ipconfig0 ip=192.168.1.245/24,gw=192.168.1.1`
      (vérifie que cette IP est libre et hors plage DHCP de ta box)
 3. Démarre la VM.
-4. **Preuve finale** depuis le nœud (ou ton poste pour le chemin B) :
+4. **Preuve finale**, depuis le nœud (sa clé est dans le trousseau) :
 
 ```bash
 ssh alpha@10.0.2.50 hostname      # chemin A (192.168.1.245 pour le chemin B)
 ```
 
-**Attendu** : la commande répond `demo-vm2` **sans demander de mot de passe**.
+**Attendu** : la commande répond `demo-vm2` **sans demander de mot de passe**. En chemin B,
+refais-la **depuis ton poste** : ta clé est dans le même trousseau, elle doit passer aussi.
+(En chemin A, ton poste ne voit pas `10.0.2.50` : la VM vit dans le réseau privé de
+VirtualBox — c'est le rôle du bastion, au chapitre 7, de t'y faire entrer.)
 
 ## Critères de réussite
 
