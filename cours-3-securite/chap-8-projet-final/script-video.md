@@ -161,9 +161,11 @@ Sois fier. Vraiment. Peu de gens vont au bout de ces quatre cours. Toi, tu l'as 
 - **Haute disponibilité** — plusieurs nœuds, de la réplication, que rien ne tombe. Chez
   moi : un cluster Proxmox de quatre nœuds, né de trois mini-PCs d'occasion.
 - **Accès distant durci** — rejoindre ton lab de l'extérieur, en sécurité. Chez moi : un
-  bastion dédié, joignable uniquement par un VPN maillé, clé liée à l'appareil ET code à
-  usage unique, depuis le Mac comme depuis le téléphone — ton bastion du cours 0, version
-  adulte. Et chaque compromis est écrit noir sur blanc dans la doc, avec sa compensation.
+  bastion dédié, joignable uniquement par un VPN maillé **verrouillé** (aucun appareil n'y
+  entre sans la signature de mon Mac ou de mon téléphone — jamais celle du bastion), clé
+  liée à l'appareil ET code à usage unique, et un mail à chaque session — ton bastion du
+  cours 0, version adulte. Et chaque compromis est écrit noir sur blanc dans la doc, avec
+  sa compensation.
 - **Orchestration** — Kubernetes, les conteneurs à l'échelle : deux VMs et `kubeadm`
   suffisent pour apprendre — c'est comme ça que je m'entraîne.
 

@@ -18,8 +18,8 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: 2d42e71 830f78e 3e44693 2171609` — bastion (12/10), supervision (08/10),
-> runner GitHub (08/10), pièges de démarrage du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
+> `homelab-sync: 3a7e8bf 830f78e 3e44693 2171609` — bastion (12/10 soir : Tailnet Lock,
+> alertes), supervision (08/10), runner GitHub (08/10), pièges de démarrage du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
 
@@ -55,7 +55,7 @@
 | `rundeck-vortex` (VM 210) | Rundeck + **Vault principal** (auto-unseal par transit) | pve01 | .53 |
 | `gitlab-vortex` (VM 211) | GitLab CE + runner GitLab + **Vault unsealer** (:8210) + runner **GitHub Actions** (08/10, sortie HTTPS seule : la CI joue dans le lab sans port entrant) | pve02 | .54 |
 | `artifactory-vortex` (VM 212) | Artifactory OSS + moteur `vdp` + PKI Vault | pve01 | .55 |
-| `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes | pve03 | .56 |
+| `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes. **Tailnet Lock** actif (signataires Mac + iPhone, jamais le bastion). Filebeat + Metricbeat ; **un mail à chaque session depuis le tailnet** et un à 3 échecs du TOTP en 10 min — validé de bout en bout le 12/10 | pve03 | .56 |
 | `vxse-lab-01` (VM 300) | cible VDP : stack ELK **7.17** (VXSE/VXLO/VXKI/VXFB), TLS par PKI Vault | pve, vmbr2 | 10.10.20.61 ↔ 192.168.1.61 |
 | OPNsense (VM 600) | pare-feu, `onboot: 1`, 2 vCPU / 4 Go ; LAN vmbr5, WAN vmbr0, patte vmbr2 | pve | 192.168.99.1 / DHCP box |
 | PBS (LXC 500) | PBS 3.4.8, datastore `vm-backups` sur HDD ~1 To | pve | 10.10.10.20 et 192.168.1.220 |
@@ -171,6 +171,11 @@ hors-série ou une V2.
 | C3 ch.8 / bastion | compromis assumé et écrit : la clé de l'iPhone (Termius) est exportable, celle du Mac (Secure Enclave) non ; compensé par Face ID, TOTP et bientôt Tailnet Lock. Élargir la politique Tailscale (téléphone → 22 **et** 443) impose de réécrire ses `tests` — c'est le but | `50213c4`, `docs/tailscale-policy.hujson` |
 | C0 ch.7 · C1 ch.2 | le bastion ne détient **aucune clé** : la clé de l'appareil est posée sur les hôtes internes (rôle `cles_distantes`, `exclusive: false` pour ne pas écraser celles de cloud-init et du moteur vdp) et l'authentification part du téléphone jusqu'à la machine cible, en rebond. Piège client : `IdentitiesOnly yes` avec un agent (Secretive) exige un `IdentityFile` pointant sur la **clé publique**, sinon la clé n'est jamais proposée | `84ed3d3`, `docs/acces-distant.md` |
 | C3 ch.7 | les clés **publiques** des appareils sont versionnées en clair (`scripts/keys/*.pub`) et chargées par `lookup('file')` ; les privées ne quittent jamais l'appareil — l'exact inverse du trousseau `ansible-vault` | `50213c4` |
+| C2 ch.9 ✍️ · C3 ch.5 ✍️ | **un détecteur sans liste d'IP** : depuis le tailnet sshd exige clé PUIS TOTP, depuis le LAN clé seule ; « `Accepted keyboard-interactive/pam` » n'apparaît donc QUE pour une session venue de l'extérieur. Règle ElastAlert `bastion-connexion` : un mail par session (`realert: 0`), `bastion-echecs` : 3 échecs en 10 min (`realert: 30`). Testée en vrai depuis l'iPhone : 2 sessions 23:28-23:29, règle exécutée 23:30, mails reçus | `39569d9`, `3a7e8bf`, `docs/acces-distant.md` phase 4 |
+| C2 ch.6 | sur Rocky l'unité s'appelle `sshd`, pas `ssh` : `journalctl -u ssh` rend une sortie **vide sans erreur**. Même famille que « rules download OK, 0 règle » : une commande qui réussit sans rien dire | `3a7e8bf` |
+| C2 ch.9 | contrôle rapide d'ElastAlert sans lire ses logs : les index `elastalert_status` (alertes émises, `alert_sent`) et `elastalert_status_status` (runs, nombre de correspondances) | `3a7e8bf` |
+| C3 ch.8 / bastion | **Tailnet Lock** : aucun appareil n'entre dans le réseau maillé sans signature du Mac ou de l'iPhone — le bastion n'est jamais signataire ; deux secrets de désactivation sur papier. Pièges CLI : sans `--confirm`, `lock init` n'est qu'un aperçu et n'active rien ; `--gen-disablements N` ; `tailscale ping` répond « timed out » les premières secondes. Un bastion reconstruit reste « locked out » tant qu'il n'est pas signé | `39569d9`, `docs/acces-distant.md` |
+| C3 ch.8 / bastion | avant d'accuser le bastion : l'app Tailscale de l'iPhone était simplement déconnectée (le bastion la voyait hors ligne). Vérifier le client avant le serveur | `3a7e8bf` |
 | C2 ch.9 ✍️ | **la panne d'un mois** (04/09 → 08/10) : certificats Metricbeat (TTL 72 h) expirés car le job de renouvellement avait disparu, jeton PKI mort, VM 300 sans `onboot` ; le chien de garde a vu la panne **391 fois** mais Rundeck n'avait pas de SMTP, chaque mail échouait. Qui surveille le surveillant ? Tester la chaîne d'alerte en la faisant **échouer** | `830f78e`, `docs/supervision.md` §8 quater |
 | C1 ch.8 ✍️ | un job Rundeck créé **à la main** le 02/08 (hors dépôt) a disparu à la reconstruction du 31/08 — et avec lui le renouvellement des certificats. Ce qui n'est pas dans le dépôt n'existe pas ; désormais importé par le rôle `vortex_rundeck_projet` | `830f78e` |
 | C3 ch.6 ✍️ | un jeton Vault **périodique** (720 h) ne se prolonge pas en servant : seul `renew-self` le fait. Mort début octobre, il bloquait même le renouvellement manuel. Timer systemd nocturne, `Persistent=true` | `830f78e` |
@@ -250,6 +255,9 @@ hors-série ou une V2.
   `ssh pve01-ts hostname` en rebond. Adresse `100.x` jamais à l'écran.
 - Rundeck : le job `vdp/renew-certs-nova` a tourné cette nuit (succès), et un job d'échec
   jetable produit un **mail reçu** — pas seulement « envoyé ».
+- Bastion : une session depuis le tailnet (Mac ou iPhone) déclenche le mail
+  « connexion au bastion depuis le tailnet » dans les 2 minutes (règle ElastAlert, index
+  `elastalert_status` à montrer). `tailscale lock status` = ENABLED sur le bastion.
 - GitHub → Actions : dernier workflow `homelab-ansible` vert, runner `gitlab-vortex` *Idle*.
 
 ## 7. Fichiers modifiés le 11/10/2026
@@ -297,3 +305,7 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   Addendum de spec déposé côté homelab :
   `docs/superpowers/specs/2026-10-12-formation-addendum-post-pivot.md`. Aucun commit
   homelab nouveau : marqueur inchangé.
+- **12/10/2026 (quater)** — `39569d9`, `3a7e8bf` (bastion : Tailnet Lock, Filebeat +
+  Metricbeat sur le bastion, règles ElastAlert `bastion-connexion` / `bastion-echecs`,
+  validées par mails reçus). Mis à jour : §1 (ligne bastion), §4 (cinq lignes), §6 ;
+  encarts de C0 ch.7, C2 ch.9, C3 ch.5 et C3 ch.8. Matériel élève intact.

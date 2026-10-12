@@ -49,4 +49,6 @@ la vue Datacenter du cluster (4 nœuds et leurs VMs) + le tableau de bord Kibana
 Tailscale et un second facteur en plus, et depuis mon Mac comme depuis mon téléphone.
 Un point commun avec le tien à souligner : **le bastion ne garde aucune clé**. Il
 rebondit, c'est tout — c'est ton appareil qui s'authentifie jusqu'à la machine du fond.
+Et chaque session ouverte depuis l'extérieur m'arrive **par mail**, dans les deux minutes :
+une porte d'entrée, ça se surveille (cours 2).
 « Ce que tu viens de poser, c'est la version junior d'une vraie brique de sécurité. »

@@ -227,6 +227,11 @@ message "succès", vérifie que la chose a **réellement** eu lieu. »
 
 **À dire** : « C'est en place pour de vrai : le pare-feu de périmètre détecte les
 intrusions ET les envoie au SIEM. Détecter + garder la trace, sur le vrai matériel. »
+Et une signature maison, pour fixer l'idée : « Suricata reconnaît des *motifs* dans le
+trafic. Sur mon bastion j'en ai écrit une à moi, en une ligne de journal : depuis
+l'extérieur, sshd exige clé puis code à usage unique ; `Accepted keyboard-interactive/pam`
+ne peut donc venir que de dehors. Une règle d'alerte dessus, et chaque entrée me vaut un
+mail. Une signature, c'est ça : un motif qui ne peut exister que si l'événement a eu lieu. »
 
 **💡 Une leçon de plus, payée en septembre** : « Cette VM était en `onboot: 0`. Au
 prochain redémarrage de la tour, toute ma détection aurait disparu — et rien ne l'aurait
