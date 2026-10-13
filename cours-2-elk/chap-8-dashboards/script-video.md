@@ -1,6 +1,6 @@
 # Chapitre 8 — Dashboards de service : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~22 min. Prérequis : l'ELK complet du cours (Filebeat journald sur les 4
 > VMs, syslog de l'hyperviseur, data view `logstash-*` dans Kibana).
@@ -101,7 +101,9 @@ décline à l'infini : même recette, un dashboard par service. »
 - « Une sonde de disponibilité rapportait **down depuis 1 217 contrôles** d'affilée —
   en ICMP vers une machine derrière un pare-feu qui ne laisse passer que du TCP. Rien
   n'était en panne. Une alerte qui sonne toujours est pire qu'absente : on apprend à
-  l'ignorer. Passée en TCP sur le port 22. »
+  l'ignorer. Passée en TCP sur le port 22. Et l'inverse m'est arrivé en octobre : le ping
+  passait, mais une route de travers perdait les gros paquets — TLS muet, ICMP vert. Une
+  sonde doit tester **ce que le service fait**, pas s'il respire. »
 - « Mon moteur d'alertes alertait… sur les conséquences de sa propre installation : ses
   index internes naissaient avec un réplica impossible à placer sur un seul nœud, le
   cluster restait jaune, et la règle "cluster dégradé" hurlait en permanence. Même

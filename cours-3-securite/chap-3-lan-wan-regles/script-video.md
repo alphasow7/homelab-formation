@@ -105,6 +105,17 @@ ses bridges »), et dans OPNsense une **route statique** `10.10.99.0/24` via le 
 derrière la box : il faut le lui dire, sinon il enverra ces paquets à la box, qui les
 jettera. » `netstat -rn | grep 10.10.99` sur OPNsense : la route est là.
 
+**💥 Et la route que je n'avais PAS écrite, 13 octobre** : « Le soir où toute ma maison
+est passée par le Pi-hole, OPNsense a reçu lui aussi, par DHCP, le Pi-hole comme serveur
+DNS. Or OPNsense — comme pfSense — pose tout seul une route /32 vers chacun de ses
+serveurs DNS, **par sa passerelle WAN**. Résultat : tout ce qui allait vers le Pi-hole
+partait vers la box. Les petits paquets revenaient par ce détour, les gros se perdaient.
+Le ping passait ; la poignée de main TLS de Filebeat, jamais. Ce qui a tranché :
+`tcpdump -e` sur la tour — les paquets vers le Pi-hole étaient adressés à l'adresse MAC
+de la box. Regarde ta table de routage avec cette question en tête : *qu'est-ce qui est
+là que je n'ai pas écrit ?* » (Remède chez moi : une option DHCP ciblée qui sert la box
+en DNS à OPNsense. Et c'est l'alerte « silence DNS » du cours 2 qui a vu la coupure.)
+
 ### 2.3 Vérifier qu'une machine du LAN sort sur Internet (via le NAT par défaut)
 
 **À montrer** : depuis `lan-test` (`ssh alpha@192.168.99.10` depuis le nœud) :

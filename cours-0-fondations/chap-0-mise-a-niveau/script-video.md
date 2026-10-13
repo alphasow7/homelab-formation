@@ -185,7 +185,11 @@ demi-douzaine, des `23.x` — les sites sérieux ont plusieurs adresses, on y re
 « `dig` interroge
 l'annuaire ; `+short` lui demande de répondre juste l'essentiel : l'adresse. Sans le
 `+short`, tu verrais toute la conversation technique — utile plus tard, illisible
-aujourd'hui. »
+aujourd'hui. » Et le réflexe à garder pour toute la formation : « *Si l'adresse répond
+et pas le nom, c'est l'annuaire.* Ça m'est arrivé la semaine dernière sur mon téléphone —
+un site "introuvable", le serveur ne voyait aucun paquet ; par son adresse IP, il
+répondait. Le DNS du téléphone s'était désactivé tout seul. Dix secondes de diagnostic
+quand on connaît la règle, une heure quand on ne la connaît pas. »
 
 ### 2.5 ping — « est-ce que tu m'entends ? » (2 min)
 

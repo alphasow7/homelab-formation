@@ -18,7 +18,7 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: 1f5ec90 3e44693 2171609` — branche Pi-hole du 13/10 (contient `main`),
+> `homelab-sync: dea2880 3e44693 2171609` — branche Pi-hole du 13/10 soir (contient `main`),
 > runner GitHub (08/10, toujours hors `main`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
@@ -187,6 +187,8 @@ hors-série ou une V2.
 | C3 ch.4 ✍️ | **le chemin qu'on n'a pas filtré** : la Livebox annonce des résolveurs IPv6 (RDNSS) ; les appareils les préfèrent, le DNS manuel d'iOS ne les remplace pas — le Pi-hole n'a jamais vu l'iPhone. IPv6 coupé sur le LAN de la box. Contrôle : `scutil --dns` sans résolveur IPv6 | `f8b1bd4`, `0c2dbf7` |
 | C2 ch.8 ✍️ | **le silence est un signal** : un Pi-hole vivant mais ignoré ne produit aucune erreur. Règle ElastAlert `flatline` « une heure sans requête », mail, `realert` 6 h ; sondes `pihole-dns` (TCP 53) et `pihole` (HTTP) avec remédiation Rundeck ; tableau de bord « Foyer — DNS » (part bloquée, top domaines, top clients). Agrégations sur `monitor.name`, `dns.verdict` : champs `text` → `.keyword` | `bebfa1e`, `f5115ab` |
 | C3 ch.1 ✍️ | **une défense pour les gens** : Pi-hole + Unbound (DNSSEC, qname-minimisation) pour tout le foyer sans rien installer sur les appareils ; listes « deux grandes + télémétrie par fabricant », pas trente (chaque liste ajoute plus de faux positifs que de protection) ; liste blanche vide, un domaine n'y entre que quand un usage réel casse, et par le dépôt | spec `2026-10-13-pihole-foyer-design.md` |
+| C3 ch.3 ✍️ · C2 ch.8 ✍️ | **la route qu'on n'a pas écrite** : OPNsense (comme pfSense) pose une route /32 vers chaque serveur DNS reçu par DHCP, via sa passerelle WAN. Après la bascule DHCP il a reçu le Pi-hole en DNS : tout ce qui allait vers `192.168.1.5` partait vers la Livebox — les petits paquets revenaient par ce détour, les gros se perdaient. Symptôme : Filebeat/Metricbeat du Pi-hole ne joignaient plus Logstash (derrière OPNsense), poignée de main TLS sans réponse, **ping OK**. Diagnostic décisif : `tcpdump -e` sur la tour, paquets vers `.5` adressés à la MAC de la Livebox. Remède versionné : option DHCP ciblée (`dhcp-host=MAC,set:dns-livebox` + `dhcp-option=tag:…,option:dns-server`) qui sert la Livebox en DNS à OPNsense. **L'alerte « silence DNS » a détecté la coupure** | `f218529`, `docs/pihole.md` |
+| C0 ch.0 · C3 ch.8 | **si l'IP répond et pas le nom, c'est le DNS** : Kibana « serveur introuvable » sur l'iPhone, aucun paquet côté bastion — l'option « Use Tailscale DNS » de l'app iOS s'était désactivée après une reconnexion, et rien d'autre ne résout les noms `ts.net`. Test qui tranche : `https://100.x.y.z` répond (avec avertissement), pas le nom | `dea2880`, `docs/acces-distant.md` |
 | C1 ch.4 / ch.5 | en réserve : installeur Pi-hole v6 rendu non interactif en posant la configuration (`pihole.toml`) **avant** de le lancer ; une tâche sautée qui `register` écrase la variable (relire inconditionnellement) ; `chronyd` ne règle pas l'horloge d'un conteneur non privilégié (`common_manage_chrony: false`) ; le template LXC Debian n'a pas `sudo` — paquets d'abord, `set -e` à l'intérieur du `bash -c` | `docs/pihole.md` « Pièges » |
 | C2 ch.9 ✍️ | **la panne d'un mois** (04/09 → 08/10) : certificats Metricbeat (TTL 72 h) expirés car le job de renouvellement avait disparu, jeton PKI mort, VM 300 sans `onboot` ; le chien de garde a vu la panne **391 fois** mais Rundeck n'avait pas de SMTP, chaque mail échouait. Qui surveille le surveillant ? Tester la chaîne d'alerte en la faisant **échouer** | `830f78e`, `docs/supervision.md` §8 quater |
 | C1 ch.8 ✍️ | un job Rundeck créé **à la main** le 02/08 (hors dépôt) a disparu à la reconstruction du 31/08 — et avec lui le renouvellement des certificats. Ce qui n'est pas dans le dépôt n'existe pas ; désormais importé par le rôle `vortex_rundeck_projet` | `830f78e` |
@@ -337,3 +339,6 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   fait lire le journal systemd à fail2ban (image cloud Debian 12 sans rsyslog — le défaut
   était aussi dans le lab), tags reposés. Mis à jour : §1 (pve03, pihole), §4 (sept lignes),
   §6 ; encarts de C0 ch.7, C1 ch.1, C1 ch.7, C2 ch.8, C3 ch.1 et C3 ch.4.
+- **13/10/2026 (ter)** — `f218529`, `dea2880` : OPNsense routait le Pi-hole par sa
+  passerelle WAN (route /32 par serveur DNS), option DHCP ciblée ; « Use Tailscale DNS »
+  désactivé sur iOS. Mis à jour : §4 (deux lignes) ; encarts de C0 ch.0, C2 ch.8 et C3 ch.3.
