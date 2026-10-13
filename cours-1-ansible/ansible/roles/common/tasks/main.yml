@@ -16,6 +16,18 @@
     state: started
     enabled: true
 
+# Sans rsyslog (image cloud Debian 12), fail2ban ne trouve pas /var/log/auth.log
+# et refuse de démarrer : on lui fait lire le journal systemd. Posé AVANT de
+# démarrer le service, sinon la task suivante échoue sur une machine neuve.
+- name: Faire lire le journal systemd à fail2ban (pas de rsyslog sur l'image cloud)
+  ansible.builtin.template:
+    src: fail2ban-journald.conf.j2
+    dest: /etc/fail2ban/jail.d/10-journald.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart fail2ban
+
 - name: Démarrer et activer fail2ban (anti brute-force SSH)
   ansible.builtin.service:
     name: fail2ban

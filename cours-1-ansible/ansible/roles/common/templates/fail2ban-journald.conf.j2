@@ -1,0 +1,11 @@
+# {{ ansible_managed }} — rôle common
+# Debian 12 (image cloud) n'installe plus rsyslog : /var/log/auth.log n'existe
+# pas. fail2ban, qui le cherche pour la prison sshd, refuse alors de démarrer
+# (« Have not found any log file for sshd jail ») — et un « service failed »
+# aurait fait échouer tout site.yml. Le journal systemd, lui, est toujours là :
+# on le lit directement. Leçon payée sur l'infra réelle le 13/10/2026.
+[DEFAULT]
+backend = systemd
+
+[sshd]
+enabled = true
