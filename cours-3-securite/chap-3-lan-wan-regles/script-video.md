@@ -1,6 +1,6 @@
 # Chapitre 3 — LAN, WAN & premières règles : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~30 min. Prérequis : le lab de départ du cours 3 (`../lab-depart.md`) — la
 > VM OPNsense installée au chapitre 2, 2 NICs (WAN côté Internet, LAN sur bridge isolé),
@@ -136,6 +136,13 @@ https://10.10.99.14:5601` → `200` (ou `302`) : Kibana répond à travers le pa
 nœud et le segment.
 « Ta première règle explicite vit. Retiens la forme — action, source, destination, port —
 on la réutilise au TP pour faire du *moindre privilège*. »
+
+**💡 Une miette d'octobre, à glisser ici** : « Les règles, c'est aussi ce qu'on refuse
+exprès. Mon téléphone n'a droit qu'au 443 vers mon bastion. Un soir, "Kibana ne répond
+plus" : Safari, quand on tape un nom sans `https://`, part en **http sur le port 80** — et
+la politique l'a jeté, proprement, avec une ligne de journal `no rules matched`. Je n'ai
+pas ouvert le 80 "pour rediriger" : j'ai épinglé l'URL complète. Une règle qui refuse ce
+que tu n'as pas prévu, c'est une règle qui marche. »
 
 ## 3. 💥 La panne du vrai monde — LAN = 192.168.1.1 = la box (7 min)
 

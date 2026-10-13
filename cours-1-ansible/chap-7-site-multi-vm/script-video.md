@@ -134,6 +134,15 @@ mois, après une refonte du parc, il orchestrait encore **12 groupes qui n'exist
 plus** — il n'était plus jouable, et c'est la porte d'entrée du dépôt. Un `site.yml`
 qu'on ne rejoue pas régulièrement ment. Rejoue-le, en `--check`, souvent. »
 
+**💡 Et une leçon d'octobre, dans ton rôle `common`** : « Regarde la task "Faire lire le
+journal systemd à fail2ban". Elle n'était pas là au départ. Sur mon infra, j'ai posé le
+socle commun dans un conteneur Debian 12 neuf : fail2ban a refusé de démarrer — *Have not
+found any log file for sshd jail*. Debian 12 n'installe plus rsyslog, donc pas de
+`/var/log/auth.log`, et fail2ban le cherchait encore. Tes VMs sortent de la même image
+cloud : sans cette task, ton `site.yml` serait tombé au premier play, sur les quatre
+machines. Une ligne, `backend = systemd`, et le journal est lu à la source. Un rôle
+"socle", c'est ça : chaque cicatrice y reste, pour toutes les machines à venir. »
+
 **Plans à filmer sur l'infra réelle** :
 1. Scroll lent du `site.yml` réel, en-tête compris, du play 1 au dernier.
 2. `grep -c '^- name:' playbooks/site.yml` → le nombre de plays, en une commande.

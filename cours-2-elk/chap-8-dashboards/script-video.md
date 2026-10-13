@@ -106,6 +106,13 @@ décline à l'infini : même recette, un dashboard par service. »
   index internes naissaient avec un réplica impossible à placer sur un seul nœud, le
   cluster restait jaune, et la règle "cluster dégradé" hurlait en permanence. Même
   famille de panne. Le signal, c'est ce qui change. »
+- « Et la plus récente, d'octobre : le DNS de ma maison. Un Pi-hole en bonne santé, que
+  plus personne n'interroge — parce que la box a repris la main, ou qu'un appareil passe
+  par un autre chemin — ne produit **aucune erreur**. Il se tait. Alors la règle d'alerte
+  ne cherche pas une erreur : elle cherche **l'absence** — une heure sans une seule
+  requête, et un mail. Un tableau de bord "Foyer — DNS" à côté, pour voir la part bloquée
+  et les clients. Retiens : le silence est un signal, et il faut une règle dédiée pour
+  l'entendre. »
 
 ## 4. 💡 L'astuce du vrai monde (1 min)
 

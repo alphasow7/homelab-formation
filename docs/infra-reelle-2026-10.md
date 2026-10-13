@@ -18,8 +18,8 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: 2d42e71 830f78e 3e44693 2171609` — bastion (12/10), supervision (08/10),
-> runner GitHub (08/10), pièges de démarrage du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
+> `homelab-sync: 1f5ec90 3e44693 2171609` — branche Pi-hole du 13/10 (contient `main`),
+> runner GitHub (08/10, toujours hors `main`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
 
@@ -51,11 +51,12 @@
 | Machine | Rôle | Vit sur | Adresse |
 |---|---|---|---|
 | `pve` | tour, nœud « routeur » : seuls bridges internes, apt-cacher-ng, relais syslog, PBS | — | 192.168.1.200 |
-| `pve01` / `pve02` / `pve03` | les 3 Lenovo M715q, réinstallés en hyperviseurs le 31/08/2026 | — | .50 / .51 / .52 |
+| `pve01` / `pve02` / `pve03` | les 3 Lenovo M715q, réinstallés en hyperviseurs le 31/08/2026. **pve03 reste allumé en permanence** (bastion + Pi-hole) : garde de quorum `pve-quorum-seul` (3 min sans quorum ni autre nœud joignable → `pvecm expected 1`, relance des invités `onboot`) | — | .50 / .51 / .52 |
 | `rundeck-vortex` (VM 210) | Rundeck + **Vault principal** (auto-unseal par transit) | pve01 | .53 |
 | `gitlab-vortex` (VM 211) | GitLab CE + runner GitLab + **Vault unsealer** (:8210) + runner **GitHub Actions** (08/10, sortie HTTPS seule : la CI joue dans le lab sans port entrant) | pve02 | .54 |
 | `artifactory-vortex` (VM 212) | Artifactory OSS + moteur `vdp` + PKI Vault | pve01 | .55 |
-| `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes | pve03 | .56 |
+| `pihole` (LXC 230) | **DNS filtrant et DHCP de la maison** (13/10) : Pi-hole v6 + Unbound récursif DNSSEC, listes StevenBlack + hagezi, journal DNS dans `vortex-logs-*` (`application: pihole`), sondes Heartbeat, alerte de silence, tableau de bord « Foyer — DNS ». Le lab, lui, interroge toujours la box | pve03 | 192.168.1.5 |
+| `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes. **Tailnet Lock** actif (signataires Mac + iPhone, jamais le bastion). Filebeat + Metricbeat ; **un mail à chaque session depuis le tailnet** et un à 3 échecs du TOTP en 10 min — validé de bout en bout le 12/10. **Kibana depuis l'iPhone** par `tailscale serve` (proxy TLS de tailscaled, certificat Let's Encrypt, écoute tailnet seulement, téléphone seul autorisé) : aucun port ouvert, 13/10 | pve03 | .56 |
 | `vxse-lab-01` (VM 300) | cible VDP : stack ELK **7.17** (VXSE/VXLO/VXKI/VXFB), TLS par PKI Vault | pve, vmbr2 | 10.10.20.61 ↔ 192.168.1.61 |
 | OPNsense (VM 600) | pare-feu, `onboot: 1`, 2 vCPU / 4 Go ; LAN vmbr5, WAN vmbr0, patte vmbr2 | pve | 192.168.99.1 / DHCP box |
 | PBS (LXC 500) | PBS 3.4.8, datastore `vm-backups` sur HDD ~1 To | pve | 10.10.10.20 et 192.168.1.220 |
@@ -171,6 +172,22 @@ hors-série ou une V2.
 | C3 ch.8 / bastion | compromis assumé et écrit : la clé de l'iPhone (Termius) est exportable, celle du Mac (Secure Enclave) non ; compensé par Face ID, TOTP et bientôt Tailnet Lock. Élargir la politique Tailscale (téléphone → 22 **et** 443) impose de réécrire ses `tests` — c'est le but | `50213c4`, `docs/tailscale-policy.hujson` |
 | C0 ch.7 · C1 ch.2 | le bastion ne détient **aucune clé** : la clé de l'appareil est posée sur les hôtes internes (rôle `cles_distantes`, `exclusive: false` pour ne pas écraser celles de cloud-init et du moteur vdp) et l'authentification part du téléphone jusqu'à la machine cible, en rebond. Piège client : `IdentitiesOnly yes` avec un agent (Secretive) exige un `IdentityFile` pointant sur la **clé publique**, sinon la clé n'est jamais proposée | `84ed3d3`, `docs/acces-distant.md` |
 | C3 ch.7 | les clés **publiques** des appareils sont versionnées en clair (`scripts/keys/*.pub`) et chargées par `lookup('file')` ; les privées ne quittent jamais l'appareil — l'exact inverse du trousseau `ansible-vault` | `50213c4` |
+| C2 ch.9 ✍️ · C3 ch.5 ✍️ | **un détecteur sans liste d'IP** : depuis le tailnet sshd exige clé PUIS TOTP, depuis le LAN clé seule ; « `Accepted keyboard-interactive/pam` » n'apparaît donc QUE pour une session venue de l'extérieur. Règle ElastAlert `bastion-connexion` : un mail par session (`realert: 0`), `bastion-echecs` : 3 échecs en 10 min (`realert: 30`). Testée en vrai depuis l'iPhone : 2 sessions 23:28-23:29, règle exécutée 23:30, mails reçus | `39569d9`, `3a7e8bf`, `docs/acces-distant.md` phase 4 |
+| C2 ch.6 | sur Rocky l'unité s'appelle `sshd`, pas `ssh` : `journalctl -u ssh` rend une sortie **vide sans erreur**. Même famille que « rules download OK, 0 règle » : une commande qui réussit sans rien dire | `3a7e8bf` |
+| C2 ch.9 | contrôle rapide d'ElastAlert sans lire ses logs : les index `elastalert_status` (alertes émises, `alert_sent`) et `elastalert_status_status` (runs, nombre de correspondances) | `3a7e8bf` |
+| C3 ch.8 / bastion | **Tailnet Lock** : aucun appareil n'entre dans le réseau maillé sans signature du Mac ou de l'iPhone — le bastion n'est jamais signataire ; deux secrets de désactivation sur papier. Pièges CLI : sans `--confirm`, `lock init` n'est qu'un aperçu et n'active rien ; `--gen-disablements N` ; `tailscale ping` répond « timed out » les premières secondes. Un bastion reconstruit reste « locked out » tant qu'il n'est pas signé | `39569d9`, `docs/acces-distant.md` |
+| C3 ch.8 / bastion | avant d'accuser le bastion : l'app Tailscale de l'iPhone était simplement déconnectée (le bastion la voyait hors ligne). Vérifier le client avant le serveur | `3a7e8bf` |
+| C2 ch.5 ✍️ · C3 ch.1 ✍️ | **Kibana sur le téléphone sans ouvrir un port** : `tailscale serve` sur le bastion proxifie Kibana en HTTPS sur l'adresse tailnet seulement ; l'appareil est authentifié par Tailscale + Tailnet Lock, la personne par la mire Kibana. Effet de bord accepté : le nom `bastion.<tailnet>.ts.net` apparaît dans les journaux de transparence des certificats (nom seul) | `bc422ec`, `docs/acces-distant.md` |
+| C2 ch.3 ✍️ | un processus Go (tailscaled) ne relit pas le magasin de confiance système : chaîne de CA installée, proxy qui refuse toujours Kibana — jusqu'au redémarrage du service (`flush_handlers` avant de configurer) | `bc422ec` |
+| C3 ch.8 / bastion | `tailscale serve` sans « Serve » activé sur le tailnet affiche un lien puis **attend sans fin** : play bloqué 10 min. Borné par `timeout 60 … --yes`, refus expliqué. Et `pkill -f "tailscale serve"` lancé via `ssh host '…'` tue la session ssh elle-même (le motif est dans la ligne de commande du shell distant) : ancrer avec `^` | `bc422ec` |
+| C3 ch.3 ✍️ | Safari envoie en **http (port 80)** quand on tape le nom sans `https://` ; la politique ne laisse passer que le 443 → « Kibana ne répond plus ». Journal tailscaled : `Drop: TCP{… > …:80} no rules matched`. Choix assumé : on n'ouvre pas le 80, même pour rediriger — on épingle l'URL complète | `8725bc7` |
+| C3 ch.7 | en réserve : des clés publiques dont le **commentaire** est un mot de passe (pve, VMs) — un secret qui se promène en clair dans `authorized_keys` | `docs/acces-distant.md` « Reprendre ici » |
+| C1 ch.7 ✍️ **(rôle élève corrigé)** | **fail2ban sur Debian 12 sans rsyslog** : « Have not found any log file for sshd jail », le service tombe. `backend = systemd` dans `jail.d/`. Le rôle `common` de la formation avait le même défaut : ses VMs sortent de l'image cloud Debian 12 sans rsyslog — `site.yml` serait tombé au premier play | `4fa21b4`, `docs/pihole.md` |
+| C0 ch.7 ✍️ | **un nœud seul n'a pas le quorum** : après un redémarrage de pve03 seul, Proxmox refuse de relancer les invités (« cluster not ready - no quorum »). Garde `pve-quorum-seul` : attendre, vérifier qu'aucun autre nœud ne répond, `pvecm expected 1`. **Interblocage vécu** : `After=pve-guests.service` faisait attendre le garde derrière le démarrage des invités, qui attend le quorum que le garde doit rendre — jamais exécuté. Une unité qui contourne un blocage ne doit dépendre de rien qui puisse être bloqué ; un test « à blanc » (cluster allumé) ne prouve rien | `b2bb506`, `1f5ec90`, `docs/pihole.md` |
+| C3 ch.4 ✍️ | **le chemin qu'on n'a pas filtré** : la Livebox annonce des résolveurs IPv6 (RDNSS) ; les appareils les préfèrent, le DNS manuel d'iOS ne les remplace pas — le Pi-hole n'a jamais vu l'iPhone. IPv6 coupé sur le LAN de la box. Contrôle : `scutil --dns` sans résolveur IPv6 | `f8b1bd4`, `0c2dbf7` |
+| C2 ch.8 ✍️ | **le silence est un signal** : un Pi-hole vivant mais ignoré ne produit aucune erreur. Règle ElastAlert `flatline` « une heure sans requête », mail, `realert` 6 h ; sondes `pihole-dns` (TCP 53) et `pihole` (HTTP) avec remédiation Rundeck ; tableau de bord « Foyer — DNS » (part bloquée, top domaines, top clients). Agrégations sur `monitor.name`, `dns.verdict` : champs `text` → `.keyword` | `bebfa1e`, `f5115ab` |
+| C3 ch.1 ✍️ | **une défense pour les gens** : Pi-hole + Unbound (DNSSEC, qname-minimisation) pour tout le foyer sans rien installer sur les appareils ; listes « deux grandes + télémétrie par fabricant », pas trente (chaque liste ajoute plus de faux positifs que de protection) ; liste blanche vide, un domaine n'y entre que quand un usage réel casse, et par le dépôt | spec `2026-10-13-pihole-foyer-design.md` |
+| C1 ch.4 / ch.5 | en réserve : installeur Pi-hole v6 rendu non interactif en posant la configuration (`pihole.toml`) **avant** de le lancer ; une tâche sautée qui `register` écrase la variable (relire inconditionnellement) ; `chronyd` ne règle pas l'horloge d'un conteneur non privilégié (`common_manage_chrony: false`) ; le template LXC Debian n'a pas `sudo` — paquets d'abord, `set -e` à l'intérieur du `bash -c` | `docs/pihole.md` « Pièges » |
 | C2 ch.9 ✍️ | **la panne d'un mois** (04/09 → 08/10) : certificats Metricbeat (TTL 72 h) expirés car le job de renouvellement avait disparu, jeton PKI mort, VM 300 sans `onboot` ; le chien de garde a vu la panne **391 fois** mais Rundeck n'avait pas de SMTP, chaque mail échouait. Qui surveille le surveillant ? Tester la chaîne d'alerte en la faisant **échouer** | `830f78e`, `docs/supervision.md` §8 quater |
 | C1 ch.8 ✍️ | un job Rundeck créé **à la main** le 02/08 (hors dépôt) a disparu à la reconstruction du 31/08 — et avec lui le renouvellement des certificats. Ce qui n'est pas dans le dépôt n'existe pas ; désormais importé par le rôle `vortex_rundeck_projet` | `830f78e` |
 | C3 ch.6 ✍️ | un jeton Vault **périodique** (720 h) ne se prolonge pas en servant : seul `renew-self` le fait. Mort début octobre, il bloquait même le renouvellement manuel. Timer systemd nocturne, `Persistent=true` | `830f78e` |
@@ -250,6 +267,14 @@ hors-série ou une V2.
   `ssh pve01-ts hostname` en rebond. Adresse `100.x` jamais à l'écran.
 - Rundeck : le job `vdp/renew-certs-nova` a tourné cette nuit (succès), et un job d'échec
   jetable produit un **mail reçu** — pas seulement « envoyé ».
+- Bastion : une session depuis le tailnet (Mac ou iPhone) déclenche le mail
+  « connexion au bastion depuis le tailnet » dans les 2 minutes (règle ElastAlert, index
+  `elastalert_status` à montrer). `tailscale lock status` = ENABLED sur le bastion.
+- iPhone : Kibana s'ouvre sur `https://bastion.<tailnet>.ts.net` (app Tailscale connectée),
+  mire de login puis « Homelab — Vue d'ensemble ». Le nom du tailnet ne passe pas à l'écran.
+- Pi-hole : `http://192.168.1.5/admin/` répond, « Foyer — DNS » alimenté (requêtes de moins
+  d'une minute, part bloquée > 0), `journalctl -t pve-quorum-seul` sur pve03 lisible.
+  Aucune adresse MAC ni nom d'appareil du foyer à l'écran.
 - GitHub → Actions : dernier workflow `homelab-ansible` vert, runner `gitlab-vortex` *Idle*.
 
 ## 7. Fichiers modifiés le 11/10/2026
@@ -267,10 +292,10 @@ réaligné le 11/10/2026 ».
 - Cours 3 : `chap-1`, `chap-2`, `chap-3`, `chap-4`, `chap-5`, `chap-6`, `chap-8`
   (`script-video.md`), `chap-8/projet.md`.
 
-**Non modifiés, volontairement** : tout le matériel élève (`demo.sh`, `tp.md`,
-`correction/`, `quiz.md` hors C0 ch.1, `lab-depart.md`, `labs/`), les extraits Ansible
-(`ansible-extraits/`, `cours-1-ansible/ansible/`) et les tags `c*-fin` — le lab élève est
-autonome et ne dépend pas du parc réel. Le matériel de bêta-test du cours 0 non plus.
+**Non modifiés le 11/10, volontairement** : tout le matériel élève, les extraits Ansible et
+les tags — le lab élève est autonome et ne dépend pas du parc réel. (Le 12/10, l'audit a
+ensuite corrigé le matériel élève pour ses défauts propres et reposé les tags : §8 et
+`evaluation-2026-10-12.md`.)
 
 ## 8. Journal des synchronisations avec le dépôt `homelab`
 
@@ -291,3 +316,24 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   courant, pin inerte posé avant l'installation, vmbr7 partagé). Mis à jour : §1
   (gitlab-vortex, paragraphe supervision), §4 (huit lignes), §5 décision 4, §6 ; encarts
   de C1 ch.2, C1 ch.8, C2 ch.2, C2 ch.9, C3 ch.1, C3 ch.6 et C3 ch.8.
+- **12/10/2026 (ter)** — audit complet de la formation contre sa spec et le homelab
+  (`docs/evaluation-2026-10-12.md`) : 14 bloquants élève corrigés, 24 tags reposés depuis
+  `main`, 4 encarts oubliés réalignés (C1 ch.1 et ch.6, C2 ch.2 et ch.4), quiz et durées.
+  Addendum de spec déposé côté homelab :
+  `docs/superpowers/specs/2026-10-12-formation-addendum-post-pivot.md`. Aucun commit
+  homelab nouveau : marqueur inchangé.
+- **12/10/2026 (quater)** — `39569d9`, `3a7e8bf` (bastion : Tailnet Lock, Filebeat +
+  Metricbeat sur le bastion, règles ElastAlert `bastion-connexion` / `bastion-echecs`,
+  validées par mails reçus). Mis à jour : §1 (ligne bastion), §4 (cinq lignes), §6 ;
+  encarts de C0 ch.7, C2 ch.9, C3 ch.5 et C3 ch.8. Matériel élève intact.
+- **13/10/2026** — `bc422ec`, `8725bc7`, puis fusion des branches dans `main` (`0972fa2`) :
+  Kibana depuis l'iPhone par `tailscale serve`, port 80 refusé par la politique. Mis à
+  jour : §1 (ligne bastion), §4 (cinq lignes), §6 ; encarts de C2 ch.3, C2 ch.5, C3 ch.1 et
+  C3 ch.3. Marqueur réduit à deux têtes (`main` + la branche docs Elastic). Matériel élève intact.
+- **13/10/2026 (bis)** — branche `feat/pihole-foyer` (`23a0349` → `1f5ec90`, 21 commits) :
+  Pi-hole + Unbound pour le foyer (LXC 230 sur pve03, nœud toujours allumé, garde de
+  quorum), DHCP de la maison, IPv6 coupé sur la box, journal DNS, sondes, alerte de silence,
+  tableau de bord « Foyer — DNS ». **Matériel élève modifié** : le rôle `common` du cours 1
+  fait lire le journal systemd à fail2ban (image cloud Debian 12 sans rsyslog — le défaut
+  était aussi dans le lab), tags reposés. Mis à jour : §1 (pve03, pihole), §4 (sept lignes),
+  §6 ; encarts de C0 ch.7, C1 ch.1, C1 ch.7, C2 ch.8, C3 ch.1 et C3 ch.4.

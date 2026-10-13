@@ -1,6 +1,6 @@
 # Chapitre 5 — Kibana : la salle de lecture : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~35 min. Prérequis : cluster ES en HTTPS (chap. 2-3) + Logstash qui
 > alimente `logstash-*` (chap. 4). La VM `kibana-logstash` (10.10.99.14) héberge Kibana.
@@ -108,6 +108,12 @@ Et chez moi, un cran de plus : le NDJSON n'est plus écrit à la main — il est
 par un playbook à partir d'une définition YAML, créé par l'API, puis exporté. Le fichier
 reste canonique, mais on peut le relire et le *differ*. Ton tableau de bord n'est pas un
 clic perdu dans une UI : c'est du code, dans Git. »
+
+**À montrer, 20 secondes, téléphone en main** : « Homelab — Vue d'ensemble » dans Safari
+sur l'iPhone. **À dire** : « Et ce tableau de bord, je l'ai dans la poche. Pas un port
+ouvert sur ma box : mon bastion le sert en HTTPS, sur le réseau maillé seulement, et seul
+mon téléphone y a droit. L'appareil est reconnu par le réseau, la personne par la mire de
+Kibana. Tu verras au cours 3 comment on expose un service sans jamais l'exposer. »
 
 **💥 Et la version grandeur nature de la panne qui suit** : « Mon ancien paquet de
 dashboards visait la data view `logstash-*` — la nomenclature d'une stack que j'avais

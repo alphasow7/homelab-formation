@@ -161,3 +161,36 @@ l'étalement.
 
 Tant que les points 1 à 3 ne sont pas faits, la bonne réponse à « est-ce que la formation est au
 point ? » est : **le discours l'est, le lab ne l'est pas.**
+
+## 6. Passe de correction du 12/10/2026 — ce qui a été fait
+
+Tout ce qui pouvait l'être sans machine a été fait le jour même, en six commits (un par
+cours, un pour quiz et durées) plus les tags :
+
+| Défaut (§2) | Correctif |
+|---|---|
+| 1 clé du poste jamais déployée | **Trousseau du lab** (`/root/.ssh/lab-keys.pub` = clé du poste + clé du nœud) créé au chap. 2 du cours 0 ; `--sshkeys` le prend partout |
+| 2 masquerade sans routage | `ip_forward` dans la démo, refermeture garantie même si le test échoue |
+| 3 `apt upgrade` sans Internet | masquerade temporaire autour de la mise à jour, plus de `\|\| true` |
+| 4 chemin A sans bastion | bastion en `10.0.2.20` fixe + redirection VirtualBox `2223` ; test signature depuis le poste |
+| 5 `changed=0` impossible | Serial = variable `dns_zone_serial` ; htpasswd vérifié (`-v`) avant écriture |
+| 6 phénix sans Internet | bloc masquerade écrit une fois (`lab-depart`), appelé par ch. 6 et ch. 8 |
+| 7 tag ch. 7 mal posé | tags reposés depuis `main`, chaîne vérifiée |
+| 8 champs grok inexistants | `ecs_compatibility => disabled` sur le grok nginx ; index syslog réservé aux lignes lues |
+| 9 nginx répond 401 | curls authentifiés ; scénario 4 = scan d'URL (4xx), ce que nginx produit vraiment |
+| 10 `machine`, `journald.unit` | Lens et KQL sur `tags.keyword` ; `systemd.unit` |
+| 11 `vmbr5` absent | créé au chap. 2 du cours 3 ; GUI par tunnel SSH via le nœud |
+| 12 pve-firewall inactif | `cluster.fw enable: 1`, `firewall=1` sur chaque carte, `pve-firewall compile` ; rôle testé contre un `qm` simulé |
+| 13 bastion verrouillé | `zone_firewall_admin_source` (réseau du poste) ; le nœud garde toujours la main |
+| 14 Vault | `VAULT_CACERT` exporté, kv-v2 monté, clé d'unseal dans `inventory/group_vars` |
+| 15 tags périmés | 24 tags reposés (périmètre d'origine, contenu de `main`), syntaxe vérifiée |
+| 16 quiz | une seule ligne « Réponses », dans le corrigé |
+| 17 durées | `udemy-metadata.md` = durées des scripts |
+| 4 encarts oubliés | C1 ch. 1 et 6, C2 ch. 2 et 4 réalignés |
+
+Non fait, parce qu'impossible sans matériel : **rejouer les labs**. Les correctifs ci-dessus
+sont vérifiés par lecture, `--syntax-check`, `ansible-lint` et, pour le pare-feu, par une
+exécution contre des commandes simulées. Ils n'ont **pas** été exécutés sur un Proxmox.
+Points à valider en priorité lors du rejeu : la redirection VirtualBox vers une VM imbriquée
+(chemin A), le routage LAN d'OPNsense → segment ELK via le nœud, le grok hors ECS sur un
+Logstash 9.3.8 réel, le `htpasswd -v` d'apache2-utils.

@@ -99,3 +99,13 @@ serveur qui devait envoyer le courrier n'avait pas de serveur de courrier. Un SI
 surveille tout… sauf lui-même. Retiens ça : qui surveille le surveillant ? Et teste ta
 chaîne d'alerte en la faisant **échouer** — un mail de test qui part, ce n'est pas un mail
 de panne qui arrive. »
+
+**Et la fin de l'histoire, le 12 octobre** : « La chaîne réparée, je lui ai confié ma
+porte d'entrée : chaque session SSH ouverte sur mon bastion depuis l'extérieur me vaut un
+mail. Le détecteur tient en une ligne de journal, et c'est ça que je veux que tu retiennes :
+depuis l'extérieur, mon bastion exige clé PUIS code à usage unique ; depuis le réseau
+local, clé seule. La ligne `Accepted keyboard-interactive/pam` n'existe donc QUE pour une
+session venue de dehors. Pas de liste d'adresses à maintenir, pas de seuil : une ligne qui
+ne peut apparaître que sur un chemin, c'est le meilleur détecteur du monde. Testé depuis
+mon téléphone à 23 h 28 : mail à 23 h 30. » À montrer : l'index `elastalert_status`, qui
+dit quelle règle a tiré et si le mail est parti — « le journal du surveillant ».
