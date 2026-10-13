@@ -1,0 +1,16 @@
+// Managed by Ansible — ne pas modifier manuellement
+
+options {
+    // « any » = toutes les interfaces. NE PAS mettre 0.0.0.0 : pour BIND c'est une
+    // address_match_list qui ne matche que l'adresse littérale → named n'écoute nulle part.
+    listen-on { any; };
+    directory "/var/cache/bind";
+    recursion yes;
+    allow-query { any; };
+    forwarders {
+{% for fwd in dns_forwarders %}
+        {{ fwd }};
+{% endfor %}
+    };
+    dnssec-validation auto;
+};

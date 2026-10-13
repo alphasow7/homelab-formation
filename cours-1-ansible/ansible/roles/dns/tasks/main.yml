@@ -1,0 +1,51 @@
+---
+- name: Installer BIND9
+  ansible.builtin.apt:
+    name:
+      - bind9
+      - bind9-utils
+    state: present
+    update_cache: true
+
+- name: Créer le dossier des zones
+  ansible.builtin.file:
+    path: /etc/bind/zones
+    state: directory
+    owner: bind
+    group: bind
+    mode: "0750"
+
+- name: Déployer les options de BIND
+  ansible.builtin.template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+    owner: root
+    group: bind
+    mode: "0640"
+  notify: Restart bind9
+
+# Zones uniquement : le bloc options vit dans named.conf.options
+# (sinon doublon « already exists » → named refuse de démarrer).
+- name: Déployer la déclaration des zones
+  ansible.builtin.template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+    owner: root
+    group: bind
+    mode: "0640"
+  notify: Restart bind9
+
+- name: Déployer le fichier de zone
+  ansible.builtin.template:
+    src: zone.j2
+    dest: "/etc/bind/zones/db.{{ dns_domain }}"
+    owner: root
+    group: bind
+    mode: "0640"
+  notify: Reload bind9
+
+- name: BIND9 démarré et activé
+  ansible.builtin.service:
+    name: named
+    state: started
+    enabled: true

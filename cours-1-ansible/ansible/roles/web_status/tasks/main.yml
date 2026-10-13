@@ -1,0 +1,48 @@
+---
+- name: Installer nginx et apache2-utils (fournit htpasswd)
+  ansible.builtin.apt:
+    name:
+      - nginx
+      - apache2-utils
+    state: present
+    update_cache: true
+
+- name: Déployer la page de statut
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    mode: "0644"
+  notify: Restart nginx
+
+# no_log: true → le mot de passe ne doit JAMAIS apparaître dans la sortie
+# d'Ansible (ni en -v, ni dans les logs CI).
+# Idempotence d'une commande : on VÉRIFIE d'abord (htpasswd -v, lecture seule,
+# rc=0 si le mot de passe du fichier est déjà le bon), on n'écrit QUE si besoin.
+# Un htpasswd -b lancé à chaque run réécrirait le fichier (sel aléatoire) et
+# rendrait "changed" à chaque passage : adieu le changed=0.
+- name: Vérifier le mot de passe admin déjà en place
+  ansible.builtin.command: >-
+    htpasswd -vb /etc/nginx/.htpasswd admin {{ web_status_users_password }}
+  register: web_status_htpasswd_check
+  changed_when: false
+  failed_when: false
+  no_log: true
+
+- name: Créer ou mettre à jour le fichier htpasswd (utilisateur admin)
+  ansible.builtin.command: >-
+    htpasswd -bc /etc/nginx/.htpasswd admin {{ web_status_users_password }}
+  when: web_status_htpasswd_check.rc != 0
+  no_log: true
+
+- name: Déployer la conf nginx (page protégée par mot de passe)
+  ansible.builtin.template:
+    src: status.conf.j2
+    dest: /etc/nginx/sites-available/default
+    mode: "0644"
+  notify: Restart nginx
+
+- name: Nginx démarré et activé
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

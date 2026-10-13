@@ -1,0 +1,7 @@
+---
+# Le même résultat qu'au chapitre 3… en 4 lignes utiles.
+- name: Page de statut du lab (version rôle)
+  hosts: dns-proxy
+  become: true
+  roles:
+    - web_status
