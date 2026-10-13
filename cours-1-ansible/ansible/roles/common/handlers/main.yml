@@ -1,0 +1,13 @@
+---
+# systemd ne relit pas les fichiers d'unités tout seul : après avoir posé ou
+# modifié un drop-in, il faut lui demander de recharger sa configuration.
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+# Un fichier dans jail.d ne vaut qu'après relecture : fail2ban se recharge.
+- name: Restart fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    state: restarted
+  when: common_fail2ban_enabled
