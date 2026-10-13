@@ -135,8 +135,9 @@ général, parce que ça vaccine. »
 
 **Le contexte (à raconter)** : « Sur mon infra, il y avait un serveur DNS — **BIND**, le
 logiciel de référence pour ça, tu le connaîtras bien dans ce cours. (Aujourd'hui ce rôle
-est archivé : depuis le pivot d'août 2026, c'est le pare-feu qui fait DNS chez moi — mais
-l'histoire, elle, n'a pas pris une ride.) Il était géré par Ansible : sa configuration
+est archivé : depuis le pivot d'août 2026, mes machines interrogent la box, et depuis
+octobre toute la maison passe par un Pi-hole avec Unbound — un autre rôle Ansible, même
+logique. L'histoire, elle, n'a pas pris une ride.) Il était géré par Ansible : sa configuration
 vivait dans du code, versionnée dans Git. Tout est propre. Sauf
 qu'un jour, pressé, j'ai eu besoin d'une zone DNS de plus — une zone, c'est un domaine
 que le serveur connaît, ici "alphahome" pour mon réseau maison. Et qu'est-ce que j'ai

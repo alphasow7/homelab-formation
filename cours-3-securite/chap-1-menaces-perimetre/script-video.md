@@ -228,6 +228,13 @@
   réseau maillé, à mon téléphone et à lui seul. Rappelle-toi le port "juste pour tester"
   de tout à l'heure : la bonne question n'est pas "comment j'ouvre", c'est "comment je
   n'ouvre pas". »
+- « Une couche de plus, celle qui protège les gens et pas seulement les machines : depuis
+  octobre, le DNS de toute ma maison passe par un **Pi-hole** hébergé sur le lab. Chaque
+  appareil du foyer — téléphones, télé, enceinte — voit ses publicités, ses traqueurs et
+  les domaines malveillants ou d'hameçonnage bloqués **sans rien installer dessus** :
+  c'est le résolveur qui refuse de répondre. Et derrière, un Unbound qui résout lui-même,
+  avec DNSSEC, sans passer par le résolveur du fournisseur. Défense en profondeur, version
+  salon. »
 
 ---
 

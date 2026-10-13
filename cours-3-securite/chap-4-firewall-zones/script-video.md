@@ -189,6 +189,15 @@ troisième est la version grandeur nature de la panne du chapitre) :
   coupable n'était ni le service, ni un pare-feu qu'on croyait actif. Les rôles
   garantissent maintenant que le démon TOURNE, pas seulement que ses règles existent. »
 
+**💥 Et un quatrième, d'octobre, qui n'est même pas un pare-feu** : « Mon Pi-hole filtrait
+le DNS de la maison — enfin, je le croyais. Mon téléphone ne l'interrogeait jamais. La box
+annonçait aussi ses résolveurs en **IPv6**, et les appareils les préfèrent à l'IPv4 : tout
+le filtre était contourné par un chemin auquel je n'avais pas pensé. Le symptôme : la page
+d'admin s'affiche, mais le Pi-hole ne voit aucun client. J'ai coupé l'IPv6 sur la box.
+Retiens la règle de ce chapitre, élargie : un filtre ne vaut que sur les chemins qu'il
+couvre — et il y a toujours un chemin que tu n'as pas listé. Cherche-le avant qu'un
+autre le trouve. »
+
 ## 5. Annonce du TP (1 min)
 
 **À dire** : « À toi de poser une serrure. Objectif : durcir la zone du **bastion**

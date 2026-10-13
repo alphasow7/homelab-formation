@@ -50,5 +50,12 @@ Tailscale et un second facteur en plus, et depuis mon Mac comme depuis mon tél�
 Un point commun avec le tien à souligner : **le bastion ne garde aucune clé**. Il
 rebondit, c'est tout — c'est ton appareil qui s'authentifie jusqu'à la machine du fond.
 Et chaque session ouverte depuis l'extérieur m'arrive **par mail**, dans les deux minutes :
-une porte d'entrée, ça se surveille (cours 2).
+une porte d'entrée, ça se surveille (cours 2). Dernier clin d'œil, en pointant pve03 dans
+la vue Datacenter : « Ce nœud-là reste allumé quand j'éteins le reste. Il porte le bastion
+et, depuis octobre, le DNS de toute la maison — un petit conteneur qui bloque pubs et
+traqueurs pour chaque appareil du foyer. Un lab, ça finit par rendre service. Et ça m'a
+appris une règle de cluster : un nœud seul sur quatre n'a pas le *quorum* — après un
+redémarrage, Proxmox refuse de relancer ses VMs tant qu'il ne sait pas s'il est seul ou
+coupé des autres. Tu n'as qu'un nœud, tu n'as pas ce problème. Le jour où tu en auras
+deux, tu te souviendras de ce mot. »
 « Ce que tu viens de poser, c'est la version junior d'une vraie brique de sécurité. »
