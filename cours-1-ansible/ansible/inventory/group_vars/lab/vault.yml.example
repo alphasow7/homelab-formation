@@ -1,0 +1,4 @@
+---
+# Renomme-moi en vault.yml puis chiffre-moi : ansible-vault encrypt vault.yml
+# (le vrai vault.yml est dans .gitignore — il ne doit JAMAIS être poussé en clair)
+vault_web_status_password: "change-moi-Formation2026"

@@ -1,0 +1,10 @@
+---
+# Variables communes au groupe lab — surchargent les defaults des rôles
+web_status_title: "Lab du groupe LAB — géré par Ansible (group_vars)"
+dns_forwarders:
+  - 1.1.1.1
+  - 8.8.8.8
+
+# Convention pro : vars.yml (lisible) référence les secrets définis dans
+# vault.yml (chiffré). On voit QUELLES variables existent, pas leurs valeurs.
+web_status_users_password: "{{ vault_web_status_password }}"

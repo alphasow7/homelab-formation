@@ -1,6 +1,0 @@
----
-# Variables communes au groupe lab — surchargent les defaults des rôles
-web_status_title: "Lab du groupe LAB — géré par Ansible (group_vars)"
-dns_forwarders:
-  - 1.1.1.1
-  - 8.8.8.8
