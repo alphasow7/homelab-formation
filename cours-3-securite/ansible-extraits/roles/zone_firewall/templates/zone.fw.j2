@@ -1,0 +1,12 @@
+{#- Fichier de zone pve-firewall pour UNE VM : /etc/pve/firewall/<vmid>.fw #}
+{#- Managed by Ansible (rôle zone_firewall) — ne pas modifier à la main.     #}
+[OPTIONS]
+enable: 1
+policy_in: DROP
+
+[RULES]
+{% for rule in item.rules %}
+{{ rule }}
+{% endfor %}
+IN ACCEPT -p icmp # ping autorisé (diagnostic)
+IN ACCEPT -source {{ zone_firewall_node_source }} -p tcp -dport 22 # le nœud garde toujours la main (console de secours)

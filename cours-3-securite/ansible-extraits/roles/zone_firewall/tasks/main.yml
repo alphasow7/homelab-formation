@@ -1,0 +1,55 @@
+---
+# ⚠️ Ce rôle tourne sur le NŒUD Proxmox, pas sur les VMs. C'est le nœud qui
+# possède /etc/pve/firewall/ et y écrit un fichier de règles par VM.
+#
+# /etc/pve est un système de fichiers spécial (pmxcfs / FUSE) : il gère lui-même
+# le propriétaire et les permissions, et il n'autorise PAS l'écriture atomique
+# « temp + rename » qu'Ansible fait par défaut. D'où `unsafe_writes: true`
+# (exactement comme dans le rôle proxmox_firewall réel).
+#
+# Trois verrous, sinon RIEN ne filtre (piège vécu : des fichiers .fw parfaits et
+# un pare-feu qui laisse tout passer) :
+#   1. le pare-feu est activé au niveau du datacenter (cluster.fw, enable: 1) ;
+#   2. chaque carte réseau de la VM porte firewall=1 (sinon la VM est hors jeu) ;
+#   3. le fichier <vmid>.fw de la VM a enable: 1 (le template s'en charge).
+
+- name: Activer le pare-feu au niveau du datacenter  # noqa: risky-file-permissions
+  ansible.builtin.template:
+    src: cluster.fw.j2
+    dest: /etc/pve/firewall/cluster.fw
+    unsafe_writes: true
+
+- name: Déployer la zone firewall de chaque VM  # noqa: risky-file-permissions
+  ansible.builtin.template:
+    src: zone.fw.j2
+    dest: "/etc/pve/firewall/{{ item.vmid }}.fw"
+    unsafe_writes: true
+  loop: "{{ zone_firewall_vms }}"
+  loop_control:
+    label: "{{ item.name }} (vmid {{ item.vmid }})"
+
+- name: Lire la configuration de chaque VM (cartes réseau)
+  ansible.builtin.command: qm config {{ item.vmid }}
+  register: zone_firewall_qm_config
+  changed_when: false
+  loop: "{{ zone_firewall_vms }}"
+  loop_control:
+    label: "{{ item.name }} (vmid {{ item.vmid }})"
+
+# Pour chaque VM, chaque ligne netN: qui ne porte pas encore firewall=1 est
+# réécrite à l'identique + ",firewall=1". Idempotent : rien à faire au 2e run.
+- name: Activer le pare-feu sur chaque carte réseau des VMs (firewall=1)
+  ansible.builtin.command: >-
+    qm set {{ item.0.item.vmid }} --{{ item.1.split(':')[0] }}
+    "{{ item.1.split(': ')[1] }},firewall=1"
+  loop: "{{ zone_firewall_qm_config.results | subelements('stdout_lines') }}"
+  loop_control:
+    label: "{{ item.0.item.name }} : {{ item.1.split(':')[0] }}"
+  changed_when: true
+  when:
+    - item.1 is match('^net[0-9]+:')
+    - "'firewall=1' not in item.1"
+
+- name: Vérifier que les règles compilent (pve-firewall compile)
+  ansible.builtin.command: pve-firewall compile
+  changed_when: false

@@ -1,0 +1,23 @@
+# Managed by Ansible — ne pas modifier manuellement
+
+# Interface web (https://<ip>:8200/ui)
+ui = {{ vault_ui_enabled | lower }}
+
+# Stockage sur disque : les secrets vivent ici, TOUJOURS chiffrés au repos.
+# La clé qui les déchiffre n'est JAMAIS écrite ici → d'où l'unseal au démarrage.
+storage "file" {
+  path = "{{ vault_storage_path }}"
+}
+
+# Écoute en TLS sur le port 8200 (Vault refuse le HTTP en clair par défaut).
+listener "tcp" {
+  address       = "0.0.0.0:8200"
+  tls_disable   = 0
+  tls_cert_file = "{{ vault_tls_cert }}"
+  tls_key_file  = "{{ vault_tls_key }}"
+}
+
+# Adresse annoncée aux clients du réseau.
+api_addr = "{{ vault_api_addr }}"
+
+log_level = "{{ vault_log_level }}"

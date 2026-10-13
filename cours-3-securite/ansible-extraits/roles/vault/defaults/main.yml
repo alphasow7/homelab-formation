@@ -1,0 +1,26 @@
+---
+# Version de HashiCorp Vault installée depuis le dépôt apt HashiCorp.
+vault_version: "1.17.0"
+
+# Adresse locale du CLI et de l'API sur la VM (le cert couvre le SAN 127.0.0.1).
+vault_addr: "https://127.0.0.1:8200"
+# Adresse annoncée aux clients du réseau (renseignée dans vault.hcl).
+vault_api_addr: "https://{{ ansible_host }}:8200"
+
+vault_ui_enabled: true
+
+# Stockage "file" : les secrets vivent chiffrés dans ce répertoire sur le disque.
+vault_storage_path: /opt/vault/data
+vault_log_level: info
+
+# ── TLS ──────────────────────────────────────────────────────────────────
+# CHOIX DU LAB : certificat AUTO-SIGNÉ généré par le rôle lui-même.
+#   → zéro dépendance, le rôle est autonome (pas besoin de la CA ELK du cours 2).
+#   → suffisant pour un lab : Vault EXIGE du TLS, ce cert le lui fournit.
+# Sur l'infra RÉELLE, le cert est signé par la CA ELK interne (même PKI que
+# Kibana/GitLab) — plus propre, mais plus de plomberie. Ici : simple d'abord.
+vault_domain: "vault.lab"
+vault_tls_dir: /opt/vault/tls
+vault_tls_cert: "{{ vault_tls_dir }}/{{ vault_domain }}.crt"
+vault_tls_key: "{{ vault_tls_dir }}/{{ vault_domain }}.key"
+vault_cert_days: 1095
