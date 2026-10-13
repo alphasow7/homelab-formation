@@ -1,0 +1,97 @@
+---
+- name: Ensure certs directory exists
+  ansible.builtin.file:
+    path: "{{ elk_certs_dir }}"
+    state: directory
+    owner: root
+    group: elasticsearch
+    mode: "0750"
+
+# UNE SEULE CA. Si chaque machine générait la sienne, rien ne chaînerait :
+# CertPathValidatorException: Path does not chain with any of the trust anchors
+# (vécu sur l'infra réelle — cluster bloqué en 503). Le `creates` rend la
+# génération idempotente : jamais de 2e CA par accident.
+- name: Generate THE certificate authority (once)
+  ansible.builtin.command:
+    cmd: >-
+      {{ elk_certs_certutil }} ca --silent --pem
+      --out {{ elk_certs_dir }}/ca.zip
+      --days {{ elk_certs_ca_days }}
+    creates: "{{ elk_certs_dir }}/ca.zip"
+
+- name: Unzip the CA
+  ansible.builtin.unarchive:
+    src: "{{ elk_certs_dir }}/ca.zip"
+    dest: "{{ elk_certs_dir }}"
+    remote_src: true
+    creates: "{{ elk_certs_dir }}/ca/ca.crt"
+
+- name: Generate this node's certificate (signed by THE CA)
+  ansible.builtin.command:
+    cmd: >-
+      {{ elk_certs_certutil }} cert --silent --pem
+      --ca-cert {{ elk_certs_dir }}/ca/ca.crt
+      --ca-key {{ elk_certs_dir }}/ca/ca.key
+      --name {{ inventory_hostname }}
+      --dns {{ inventory_hostname }} --dns localhost
+      --ip {{ ansible_host }} --ip 127.0.0.1
+      --out {{ elk_certs_dir }}/{{ inventory_hostname }}.zip
+      --days {{ elk_certs_node_days }}
+    creates: "{{ elk_certs_dir }}/{{ inventory_hostname }}.zip"
+
+- name: Unzip this node's certificate
+  ansible.builtin.unarchive:
+    src: "{{ elk_certs_dir }}/{{ inventory_hostname }}.zip"
+    dest: "{{ elk_certs_dir }}"
+    remote_src: true
+    creates: "{{ elk_certs_dir }}/{{ inventory_hostname }}/{{ inventory_hostname }}.crt"
+
+# Les certs des autres machines (Kibana/Logstash au chap. 4-5) sont signés ICI,
+# par LA CA — les rôles concernés viendront les chercher (slurp/copy).
+- name: Generate extra certificates (signed by THE CA)
+  ansible.builtin.command:
+    cmd: >-
+      {{ elk_certs_certutil }} cert --silent --pem
+      --ca-cert {{ elk_certs_dir }}/ca/ca.crt
+      --ca-key {{ elk_certs_dir }}/ca/ca.key
+      --name {{ item.name }}
+      --dns {{ item.name }} --dns localhost
+      --ip {{ item.ip }} --ip 127.0.0.1
+      --out {{ elk_certs_dir }}/{{ item.name }}.zip
+      --days {{ elk_certs_node_days }}
+    creates: "{{ elk_certs_dir }}/{{ item.name }}.zip"
+  loop: "{{ elk_certs_extra_certs }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Unzip extra certificates
+  ansible.builtin.unarchive:
+    src: "{{ elk_certs_dir }}/{{ item.name }}.zip"
+    dest: "{{ elk_certs_dir }}"
+    remote_src: true
+    creates: "{{ elk_certs_dir }}/{{ item.name }}/{{ item.name }}.crt"
+  loop: "{{ elk_certs_extra_certs }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Fix certs ownership
+  ansible.builtin.file:
+    path: "{{ elk_certs_dir }}"
+    state: directory
+    recurse: true
+    owner: root
+    group: elasticsearch
+    mode: "u=rwX,g=rX,o="
+
+# Activation du TLS HTTP. En « vrai », ces lignes vivraient dans le template du
+# rôle elasticsearch — on les isole ici pour que le chapitre soit autonome.
+- name: Enable HTTPS in elasticsearch.yml
+  ansible.builtin.blockinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    marker: "# {mark} TLS HTTP (rôle elk_certs)"
+    block: |
+      xpack.security.http.ssl.enabled: true
+      xpack.security.http.ssl.certificate: {{ elk_certs_dir }}/{{ inventory_hostname }}/{{ inventory_hostname }}.crt
+      xpack.security.http.ssl.key: {{ elk_certs_dir }}/{{ inventory_hostname }}/{{ inventory_hostname }}.key
+      xpack.security.http.ssl.certificate_authorities: {{ elk_certs_dir }}/ca/ca.crt
+  notify: Restart elasticsearch (certs)

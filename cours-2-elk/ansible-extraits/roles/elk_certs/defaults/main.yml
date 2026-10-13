@@ -1,0 +1,9 @@
+---
+elk_certs_dir: /etc/elasticsearch/certs
+elk_certs_ca_days: 3650
+elk_certs_node_days: 1095
+elk_certs_certutil: /usr/share/elasticsearch/bin/elasticsearch-certutil
+# Machines à qui LA CA signera un certificat (en plus du nœud ES lui-même)
+elk_certs_extra_certs:
+  - name: kibana-logstash
+    ip: 10.10.99.14
