@@ -1,0 +1,9 @@
+---
+# Kibana : la salle de lecture. Tourne sur kibana-logstash (là où vit déjà Logstash,
+# posé au chapitre 4). Prérequis : la CA + le cert kibana-logstash existent sur
+# elastic-1 (playbook elk-certs.yml, chapitre 3) et le compte kibana_system est vaulté.
+- name: Deploy Kibana
+  hosts: kibana-logstash
+  become: true
+  roles:
+    - kibana

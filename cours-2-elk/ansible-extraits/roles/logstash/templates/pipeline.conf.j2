@@ -1,0 +1,89 @@
+# Managed by Ansible — ne pas modifier manuellement.
+# Le pipeline : INPUT (d'où viennent les événements) -> FILTER (on les met en
+# forme) -> OUTPUT (où on les range). Le centre de tri postal du chapitre.
+
+input {
+  # Les Beats (filebeat, metricbeat…) parleront ici.
+  # CHOIX PÉDAGOGIQUE : input beats EN CLAIR (pas de TLS) pour rester simple.
+  # Seule la sortie vers Elasticsearch est chiffrée (HTTPS + CA). En prod on
+  # activerait aussi le TLS côté beats — voir l'encart du script.
+  beats {
+    port => {{ logstash_beats_port }}
+  }
+  # Le syslog réseau (équipements, tests manuels via nc) arrive ici.
+  tcp {
+    port => {{ logstash_syslog_port }}
+    type => "syslog"
+  }
+  udp {
+    port => {{ logstash_syslog_port }}
+    type => "syslog"
+  }
+}
+
+filter {
+  # grok = des expressions régulières avec des étiquettes nommées. On teste si la
+  # ligne ressemble à un log nginx (COMBINEDAPACHELOG = le format standard) ; si
+  # oui, on éclate le message en champs interrogeables (clientip, verb, response,
+  # bytes…). Sinon, on se contente d'un tag pour la retrouver.
+  if [message] =~ /HTTP\/\d/ {
+    grok {
+      match => { "message" => "%{COMBINEDAPACHELOG}" }
+      tag_on_failure => ["_nginxparsefailure"]
+      # Logstash ≥ 8 nomme les champs « à la ECS » par défaut
+      # ([http][response][status_code], [source][address]…). On garde ici les
+      # noms courts et lisibles (response, clientip, verb…) : ce sont ceux du
+      # cours. Sans cette ligne, rien de ce qui suit ne trouverait ses champs.
+      ecs_compatibility => disabled
+    }
+  } else {
+    mutate {
+      add_tag => ["non_nginx"]
+    }
+  }
+
+  # ── Syslog réseau (ajouté au chapitre 7) ──────────────────────────────────
+  # Les inputs tcp/udp livrent la ligne syslog BRUTE dans `message`, et `host`
+  # contient l'adresse de QUI A ENVOYÉ LE PAQUET — un relais quand il y en a un
+  # (cours 3 : OPNsense passe par le nœud Proxmox), pas l'équipement d'origine.
+  # L'équipement d'origine est dans l'EN-TÊTE syslog : grok l'en sort, dans
+  # `syslog_hostname`, avec le programme et le message nettoyé.
+  # Formats acceptés : RFC 3164 (rsyslog par défaut, « Oct 11 05:22:01 »),
+  # horodatage ISO 8601 (rsyslog haute précision, syslog-ng), PRI optionnel
+  # (un test à la main avec `nc` n'en met pas), « prog[pid]: » ou « prog: ».
+  if [type] == "syslog" {
+    grok {
+      match => { "message" => "(?:<%{POSINT:syslog_pri}>)?(?:1 )?(?:%{SYSLOGTIMESTAMP:syslog_timestamp}|%{TIMESTAMP_ISO8601:syslog_timestamp8601}) %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?:? %{GREEDYDATA:syslog_message}" }
+      tag_on_failure => ["_syslogparsefailure"]
+    }
+  }
+}
+
+output {
+  # Un index par FAMILLE de source (encart du chapitre 4) : le syslog réseau
+  # dans `logstash-syslog-*`, le reste (Beats, tests) dans `logstash-*`.
+  # Seul ce que le grok syslog a SU LIRE va dans l'index syslog ; une ligne
+  # envoyée à la main par nc sans en-tête (chapitre 4) reste dans `logstash-*`.
+  # La data view `logstash-*` de Kibana voit les deux.
+  if [type] == "syslog" and "_syslogparsefailure" not in [tags] {
+    elasticsearch {
+      hosts => ["{{ elasticsearch_host }}"]
+      user => "{{ logstash_es_user }}"
+      password => "{{ logstash_es_password }}"
+      ssl_enabled => true
+      ssl_certificate_authorities => ["{{ logstash_ca_cert }}"]
+      ssl_verification_mode => "full"
+      index => "logstash-syslog-%{+YYYY.MM.dd}"
+    }
+  } else {
+    elasticsearch {
+      hosts => ["{{ elasticsearch_host }}"]
+      user => "{{ logstash_es_user }}"
+      password => "{{ logstash_es_password }}"
+      ssl_enabled => true
+      ssl_certificate_authorities => ["{{ logstash_ca_cert }}"]
+      ssl_verification_mode => "full"   # on vérifie le cert d'ES avec notre CA
+      index => "logstash-%{+YYYY.MM.dd}"
+    }
+  }
+}
