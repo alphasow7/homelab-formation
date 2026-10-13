@@ -1,0 +1,12 @@
+---
+# Canal du dépôt apt (packages/9.x/apt) et VERSION du paquet : deux choses
+# différentes. Le canal « 9.x » sert toujours la DERNIÈRE 9.x du moment ; sans
+# épinglage, l'élève installe une version différente de celle des vidéos, aux
+# défauts et à l'interface qui bougent. Leçon vécue sur le homelab (02/09/2026 :
+# le dépôt 9.x servait 9.5.2 alors que l'examen Elastic est en 9.3).
+# UNE valeur pour les 4 rôles : surcharger `elastic_version` dans group_vars/lab
+# pour changer de version d'un bloc — ici, et nulle part ailleurs.
+elasticsearch_repo_channel: "{{ elastic_repo_channel | default('9.x') }}"
+elasticsearch_version: "{{ elastic_version | default('9.3.8') }}"
+elasticsearch_heap: "2g"
+elasticsearch_cluster_name: "lab-elk"

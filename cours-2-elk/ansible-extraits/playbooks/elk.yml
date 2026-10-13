@@ -1,0 +1,7 @@
+---
+# Le play ELK — il grandira aux chapitres suivants (certs, logstash, kibana, filebeat).
+- name: Deploy Elasticsearch
+  hosts: elastic-1
+  become: true
+  roles:
+    - elasticsearch
