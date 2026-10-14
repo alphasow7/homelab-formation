@@ -18,7 +18,7 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: 99e5df4 3e44693 2171609` — `main` du 14/10 (cluster RKE2 et Pi-hole fusionnés),
+> `homelab-sync: 99e5df4 d5f2e0b 3e44693 2171609` — `main` du 14/10 (cluster RKE2 et Pi-hole fusionnés), Trello (14/10, hors `main`),
 > runner GitHub (08/10, toujours hors `main`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
@@ -143,6 +143,7 @@ hors-série ou une V2.
 | C1 ch.7 | `/etc/hosts` et templates d'index à rejouer après tout `vdp rebuild` (cloud-init, réplicas) | `e05bd3e` |
 | C1 ch.6 (secrets) | un mot de passe personnel en `user.email` dans **207 commits** poussés ; garde-fou de commit versionné, rotation à faire | `docs/secret-dans-l-historique.md`, `c636217` |
 | C1 ch.6 (secrets) | `scripts/secret --poser` : une lecture ratée (jeton expiré, Vault scellé) retombait sur un secret vide et l'écriture kv-v2 effaçait les autres champs → check-and-set | `306a6d4` |
+| C1 ch.6 (secrets) · C3 ch.6 | **valider la forme d'un secret avant de le ranger** : la page Trello montre côte à côte une clé (32 hexa), un « secret » (64 hexa) et le jeton (`ATTA…`) ; le secret collé à la place du jeton donnait « invalid key » — `ranger-secret` (saisie masquée vers Vault `secret/vdp/trello`) refuse désormais ce qui n'a pas la forme attendue | `b94c8a5`, `docs/trello.md` (branche `feat/trello`) |
 | C2 ch.2 | le dépôt apt/dnf `9.x` sert la dernière 9.x (9.5.2 le 02/09) alors que l'examen est en 9.3 : **épingler** la version | `b34cd84`, `elastic/DEMARRAGE.md` |
 | C2 ch.2 | le canal du dépôt n'est pas la version : `packages/7.x/` existe, `packages/7.17/` non (404 muet) | `9cccda7` #1 |
 | C2 ch.3 ✍️ | CA racine sans `keyUsage` : acceptée par curl, refusée par Python/Debian 13 → `uri` vers Vault échoue depuis les hyperviseurs seulement | `docs/supervision.md` §8 quinquies |
@@ -370,3 +371,8 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
 - **14/10/2026 (ter)** — `99e5df4` : première exécution Rundeck de `rebuild-cluster`
   (23 min 5 s, succès) suivie de neuf heures d'`ImagePullBackOff` faute d'avoir rejoué
   l'auth `kubernetes` de Vault. Mis à jour : §1, §4 (une ligne) ; encart de C1 ch.8.
+- **14/10/2026 (quater)** — branche locale `feat/trello` (`c9f77eb` → `d5f2e0b`, 8 commits) :
+  trois tableaux Trello (chantiers, alertes, certifs) tenus par un client Python et Vault,
+  lot 1 livré (Chantiers). Outil de pilotage du homelab, pas une pratique enseignée : aucun
+  encart. Mis à jour : §4 (une ligne en réserve). À revoir au lot 3 (alertes ElastAlert →
+  webhook Rundeck → carte), qui prolongerait la chaîne d'alerte de C2 ch.9.
