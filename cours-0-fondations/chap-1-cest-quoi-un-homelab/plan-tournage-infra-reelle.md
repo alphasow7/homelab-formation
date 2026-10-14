@@ -52,7 +52,10 @@
 - [ ] Les 4 nœuds sont verts dans la vue Datacenter, et toutes les VMs permanentes
       *running* (plateforme 210-212, cible ELK 300, bastion 220, OPNsense 600, PBS 500).
       Les VMs de labs de certification (91xx), si elles existent, sont **arrêtées** ou
-      hors champ : elles brouillent le message « chaque VM a son métier ».
+      hors champ : elles brouillent le message « chaque VM a son métier ». Le cluster
+      Kubernetes (VMs 311-313 sur la tour) peut rester visible : une ligne de voix off
+      suffit — « et là, un cluster Kubernetes, pour la suite du chemin ». Ne pas
+      l'expliquer au cours 0.
 - [ ] Le tableau de bord « Homelab — Vue d'ensemble » est alimenté (sondes vertes,
       métriques < 1 min) — sinon rejouer `monitoring.yml` avant.
 - [ ] Suricata a des alertes récentes à montrer (sinon en déclencher une de test).

@@ -1,6 +1,6 @@
 # Projet final du cours 3 — ET DE LA FORMATION — La boucle complète : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 14/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~30 min. C'est le dernier chapitre du dernier cours. Prérequis : tout le
 > lab debout — OPNsense pare-feu de périmètre (WAN + LAN `192.168.99.1`, chap 2-4),
@@ -166,8 +166,11 @@ Sois fier. Vraiment. Peu de gens vont au bout de ces quatre cours. Toi, tu l'as 
   liée à l'appareil ET code à usage unique, et un mail à chaque session — ton bastion du
   cours 0, version adulte. Et chaque compromis est écrit noir sur blanc dans la doc, avec
   sa compensation.
-- **Orchestration** — Kubernetes, les conteneurs à l'échelle : deux VMs et `kubeadm`
-  suffisent pour apprendre — c'est comme ça que je m'entraîne.
+- **Orchestration** — Kubernetes, les conteneurs à l'échelle. Chez moi depuis octobre :
+  un cluster de trois VMs, reconstruit de zéro en vingt-trois minutes, piloté par Git —
+  je pousse un commit, il se déploie tout seul ; ses secrets et ses certificats viennent
+  du même Vault que tu viens de monter, ses journaux du même SIEM. Pour commencer, une
+  seule VM et k3s suffisent.
 
 Aucune n'est un mur. Ce sont des **portes**, et tu as maintenant la clé de chacune. La
 suite t'appartient. Merci d'avoir fait tout ce chemin. À toi de jouer. »

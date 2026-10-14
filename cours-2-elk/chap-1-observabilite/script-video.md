@@ -1,6 +1,6 @@
 # Chapitre 1 — Observabilité : voir enfin ce qui se passe : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 14/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~20 min. Prérequis élève : cours 0 et cours 1 terminés — 4 VMs vivantes
 > (elastic-1 4 Go, kibana-logstash 2 Go, dns-proxy sur le segment isolé 10.10.99.0/24,
@@ -187,7 +187,9 @@
   apprends ici, tu le retrouveras en entreprise, tel quel. »
 - **L'honnêteté finale, regard caméra** : « Prometheus est excellent — si ton contexte
   diffère, ton choix peut différer. Peut-être que ton lab à toi finira sous Grafana, et
-  ce sera très bien. Ce qu'on apprend ici — centraliser, parser, indexer, chercher,
+  ce sera très bien. Chez moi d'ailleurs, les deux cohabitent : ELK pour les journaux de
+  tout le parc, et sur mon cluster Kubernetes un Prometheus avec Grafana pour les
+  métriques des conteneurs — chacun là où il est le meilleur. Ce qu'on apprend ici — centraliser, parser, indexer, chercher,
   visualiser, alerter — ce sont des CONCEPTS. Ils se transposent à n'importe quel outil.
   On apprend une manière de penser ; ELK est notre véhicule. »
 

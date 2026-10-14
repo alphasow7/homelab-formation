@@ -185,8 +185,9 @@ défendre**. Ce ne sont pas quatre compétences séparées : c'est un métier. P
 même. Et ce lab est ton **portfolio vivant**.
 
 La suite t'appartient : une supervision qui t'appelle, une plateforme de déploiement
-(avec ton GitLab), la haute disponibilité, un accès distant durci, Kubernetes… Tu as
-maintenant le socle pour tout ça.
+(avec ton GitLab), la haute disponibilité, un accès distant durci, Kubernetes piloté par
+Git — avec ton Vault pour les secrets et ton ELK pour les journaux… Tu as maintenant le
+socle pour tout ça.
 
 Bravo. Vraiment.
 

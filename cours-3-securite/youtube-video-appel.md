@@ -47,8 +47,9 @@ défendu. Proxmox, Ansible, ELK, sécurité : ce n'est pas un hobby, c'est un po
 Le cours complet en description, avec mes vraies pannes — le pare-feu resté en mot de
 passe par défaut trois semaines, les règles Suricata "téléchargées" mais jamais chargées,
 le coffre-fort dont j'avais perdu les clés. On apprend autant de mes erreurs que de mes
-réussites. Merci d'avoir construit tout ça avec moi. La suite — orchestration, CI/CD,
-haute dispo — t'appartient. »
+réussites. Merci d'avoir construit tout ça avec moi. La suite — Kubernetes, GitOps,
+haute dispo — t'appartient : chez moi, elle tourne déjà, et elle s'appuie sur tout ce
+qu'on vient de construire. »
 
 ## Checklist tournage
 

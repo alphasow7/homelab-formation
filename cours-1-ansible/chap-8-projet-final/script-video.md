@@ -1,6 +1,6 @@
 # Chapitre 8 — Projet final : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 14/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~20 min de vidéo (le gros du chapitre, c'est le projet de l'élève, 45 min).
 > Format projet, comme le chap. 7 du cours 0 : pas de nouvelle notion — on cadre, on
@@ -69,6 +69,11 @@ a disparu à la reconstruction suivante — avec lui le renouvellement des certi
 supervision, et un mois de panne silencieuse (tu l'entendras au cours 2). **Ce qui n'est
 pas dans le dépôt n'existe pas.** Aujourd'hui ce job est un fichier versionné, importé par
 un rôle, et chaque push du dépôt est vérifié par une CI qui tourne dans le lab.
+Dernier plan, la version maximale de ton phénix : le job Rundeck `rebuild-cluster`, qui
+détruit les trois VMs de mon cluster Kubernetes, les recrée et réinstalle tout —
+**22 minutes 49, sans que je touche le clavier**, et dix-sept applications reviennent
+toutes seules parce qu'elles sont décrites dans un dépôt Git. « Ton `dns-proxy` en cinq
+minutes, c'est exactement ça, à l'échelle d'une VM. »
 
 ## 4. Célébration et suite (3 min)
 

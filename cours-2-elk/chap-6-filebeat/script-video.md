@@ -1,6 +1,6 @@
 # Chapitre 6 — Filebeat : le facteur de chaque machine : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 14/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~35 min. Prérequis : Logstash écoute les beats sur
 > `kibana-logstash:5044` (chap 4), Kibana est joignable (chap 5).
@@ -63,9 +63,10 @@ vois plus que ses logs. Quatre facteurs, un seul centre de tri, une seule vue. �
 **À dire** : « Sur mon vrai parc, les VMs de la plateforme et le PBS ont exactement ce
 rôle Filebeat — le même, rendu multi-distribution, Debian et Rocky. Et à côté, son
 cousin **Metricbeat**, sur les 9 machines supervisées, pour les métriques. Même idée : un
-agent proche de la source, qui poste à Logstash. Dans un cluster Kubernetes — j'en ai eu
-un, libéré depuis — ce serait un agent par NŒUD en DaemonSet, qui lit les logs de tous
-les conteneurs du nœud. Autre emballage, concept identique. »
+agent proche de la source, qui poste à Logstash. Et sur mon cluster Kubernetes, monté en
+octobre, c'est le même Filebeat en **DaemonSet** : un agent par NŒUD, qui lit les logs de
+tous les conteneurs du nœud et les envoie au même Logstash, dans le même index — près de
+90 000 lignes toutes les dix minutes. Autre emballage, concept identique. »
 
 **💥 Deux pannes « 0 documents » de plus, vécues sur ce parc en août et septembre** (à
 raconter juste avant de rejouer la tienne — elles ont la même forme) :

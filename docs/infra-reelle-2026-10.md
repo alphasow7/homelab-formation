@@ -18,7 +18,7 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: dea2880 3e44693 2171609` — branche Pi-hole du 13/10 soir (contient `main`),
+> `homelab-sync: 2c0368a 3e44693 2171609` — branche cluster RKE2 du 14/10 (contient le Pi-hole et `main`),
 > runner GitHub (08/10, toujours hors `main`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
@@ -45,7 +45,9 @@
        │                                        en 192.168.1.61 (VIP + NAT 1:1)
        ├── vmbr1 ── PBS (LXC 500) 10.10.10.20, aussi sur le LAN en .220
        ├── vmbr5/vmbr6 ── LAN d'OPNsense (192.168.99.1) et 2e patte
-       └── vmbr7/vmbr8 ── segments des labs de certification (10.10.99.x / 10.10.98.x)
+       ├── vmbr7/vmbr8 ── segments des labs de certification (10.10.99.x / 10.10.98.x)
+       └── vmbr0 ── cluster Kubernetes RKE2 (VMs 311-313, 192.168.1.71-73), 14/10 :
+                    s'éteint avec la tour
 ```
 
 | Machine | Rôle | Vit sur | Adresse |
@@ -55,6 +57,7 @@
 | `rundeck-vortex` (VM 210) | Rundeck + **Vault principal** (auto-unseal par transit) | pve01 | .53 |
 | `gitlab-vortex` (VM 211) | GitLab CE + runner GitLab + **Vault unsealer** (:8210) + runner **GitHub Actions** (08/10, sortie HTTPS seule : la CI joue dans le lab sans port entrant) | pve02 | .54 |
 | `artifactory-vortex` (VM 212) | Artifactory OSS + moteur `vdp` + PKI Vault | pve01 | .55 |
+| `vxrk-lab-01/02/03` (VMs 311-313) | **cluster Kubernetes RKE2 1.36** (14/10) : 1 serveur (2 vCPU / 4 Go, marqué `CriticalAddonsOnly`) + 2 agents (3 vCPU / 5 Go), Rocky 9 SELinux enforcing, déployé par les modules VDP `VXRK` / `VXGO`. **GitOps Argo CD** (dépôt `k8s-gitops`, app of apps, `prune` + `selfHeal`), MetalLB `.80-.89`, ingress-nginx `.80`, cert-manager et External Secrets **branchés sur Vault**, registre GitLab, runner GitLab à exécuteur Kubernetes (kaniko + Trivy), kube-prometheus-stack, Filebeat DaemonSet vers l'ELK. **Reconstruit de zéro par un job Rundeck en 22 min 49 s.** Occupe 14 des 16 Go libres de la tour | pve | .71 / .72 / .73 |
 | `pihole` (LXC 230) | **DNS filtrant et DHCP de la maison** (13/10) : Pi-hole v6 + Unbound récursif DNSSEC, listes StevenBlack + hagezi, journal DNS dans `vortex-logs-*` (`application: pihole`), sondes Heartbeat, alerte de silence, tableau de bord « Foyer — DNS ». Le lab, lui, interroge toujours la box | pve03 | 192.168.1.5 |
 | `bastion` (VM 220) | seule porte SSH depuis l'extérieur (Tailscale), aucun secret **ni aucune clé** : Mac (Secure Enclave) et iPhone (Termius) enrôlés les 11-12/10, clé + TOTP, puis rebond vers les hôtes internes. **Tailnet Lock** actif (signataires Mac + iPhone, jamais le bastion). Filebeat + Metricbeat ; **un mail à chaque session depuis le tailnet** et un à 3 échecs du TOTP en 10 min — validé de bout en bout le 12/10. **Kibana depuis l'iPhone** par `tailscale serve` (proxy TLS de tailscaled, certificat Let's Encrypt, écoute tailnet seulement, téléphone seul autorisé) : aucun port ouvert, 13/10 | pve03 | .56 |
 | `vxse-lab-01` (VM 300) | cible VDP : stack ELK **7.17** (VXSE/VXLO/VXKI/VXFB), TLS par PKI Vault | pve, vmbr2 | 10.10.20.61 ↔ 192.168.1.61 |
@@ -81,7 +84,7 @@ des certificats importé par Ansible, jeton PKI prolongé par un timer, SMTP sur
 
 | Dans les scripts de juillet | Aujourd'hui | Où c'est corrigé |
 |---|---|---|
-| « 2 Lenovo, cluster K3S » | 3 Lenovo, **hyperviseurs Proxmox** ; K3S libéré en août, archivé dans `docs/archive/` ; l'entraînement Kubernetes se fait sur des mini-labs kubeadm jetables (`cka/`, `cks/`) | C0 ch.1 (script, plan, quiz), C2 ch.6, C3 ch.8 |
+| « 2 Lenovo, cluster K3S » | 3 Lenovo, **hyperviseurs Proxmox** ; K3S libéré en août, archivé dans `docs/archive/`. **Kubernetes revenu le 14/10 sous une autre forme** : un cluster RKE2 de 3 VMs sur la tour, reconstruit de zéro par Rundeck, piloté en GitOps — plus les mini-labs kubeadm jetables (`cka/`, `cks/`) | C0 ch.1 (script, plan, quiz), C2 ch.6, C3 ch.8 |
 | « 10 VMs Debian » sur un nœud | 7 invités permanents sur 4 nœuds (3 VMs plateforme Rocky 9, cible ELK, bastion, OPNsense, LXC PBS) + labs de certification éphémères (91xx) | C0 ch.1-3, 5-7, YouTube |
 | « 4 segments 10.10.10/20/30/40 » | la plateforme est sur le **LAN plat** ; seul le segment ELK `10.10.20.0/24` est habité, derrière OPNsense ; `vmbr7`/`vmbr8` pour les labs ; les Lenovo n'ont que `vmbr0` | C0 ch.4 |
 | « ELK, GitLab, Vault sans Internet » | seule la cible ELK est sur un segment interne ; GitLab et Vault sont sur le LAN | C0 ch.4 |
@@ -93,12 +96,12 @@ des certificats importé par Ansible, jeton PKI prolongé par un timer, SMTP sur
 | « VMs recréables depuis les playbooks » | `provision-plateforme.yml` pour la plateforme, **`vdp rebuild`** (job Rundeck) pour la cible ELK | C1 ch.8 |
 | Kibana « 2 millions de documents », dashboards par service (DNS, proxy, K3S…) | Kibana **7.17** en HTTPS authentifié, index `vortex-logs-*` / `vortex-metrics-*` / `vortex-uptime-*`, 2 tableaux de bord générés par playbook ; compteur à relever le jour J | C2 ch.1, ch.5, ch.8 |
 | « la même CA signe ES, Kibana, GitLab et Vault » | racine « Vortex Homelab CA », **moteur PKI Vault** `*.vortex.local`, certs 72 h renouvelés tous les 2 jours (job Rundeck) ; racine sans `keyUsage` (dette, `docs/supervision.md` §8 quinquies) | C2 ch.3, C3 ch.6 |
-| Filebeat partout + DaemonSet K3S | Filebeat multi-distro sur la plateforme et PBS, Metricbeat sur 9 machines ; plus de K3S | C2 ch.6 |
+| Filebeat partout + DaemonSet K3S | Filebeat multi-distro sur la plateforme et PBS, Metricbeat sur les machines supervisées ; **et de nouveau un Filebeat en DaemonSet** sur le cluster RKE2 (14/10, `application: k8s`, ~86 000 lignes de pods / 10 min) | C2 ch.6 |
 | OPNsense → « 5514 de Logstash », index `logstash-syslog-*`, `syslog_hostname: OPNsense.internal` | OPNsense → relais `pve:514` (rôle `syslog_relay`) → Logstash **5140/udp** → `vortex-logs-*`, `application: opnsense`, équipement d'origine en `logsource` | C2 ch.7, ch.9, C3 ch.1, ch.5 |
 | OPNsense « Phase 1 lab, VM laissée arrêtée » | **en service**, `onboot: 1`, filtre réellement : VIP `192.168.1.61` NAT 1:1 → `10.10.20.61`, seuls 22/5044/5140udp/9200/5601 passent, prouvé (port 9999 refusé du parc) | C3 ch.1-3, ch.5 |
 | `proxmox_firewall` « zones management/elk/devsecops » | `cluster.fw` (4 nœuds) + `host.fw` + zones par VM ; recentré sur `proxmox_routeur` (`pct` ne marche que localement) ; `log_level_in` invalide au niveau cluster | C3 ch.4 |
 | Vault : `vault-unseal.yml`, clés dans le vault Ansible `devsecops`, cert « CA ELK » | **auto-unseal par transit** (unsealer sur gitlab-vortex), aucune clé sur le disque du principal, Shamir = recovery ; cert de la racine Vortex ; `vault-unseal.yml` archivé | C3 ch.6 |
-| « tes deux nœuds K3S attendent », « WireGuard sur OPNsense » | kubeadm sur 2 VMs ; accès distant = **bastion + Tailscale**, clé liée à l'appareil + TOTP — Mac enrôlé le 11/10, iPhone le 12/10/2026 ; WireGuard archivé | C3 ch.8 (script + projet) |
+| « tes deux nœuds K3S attendent », « WireGuard sur OPNsense » | cluster RKE2 GitOps (14/10) + kubeadm sur 2 VMs pour les certifs ; accès distant = **bastion + Tailscale**, clé liée à l'appareil + TOTP — Mac enrôlé le 11/10, iPhone le 12/10/2026 ; WireGuard archivé | C3 ch.8 (script + projet) |
 | Teaser des 4 cours dans C0 ch.1 (ordre et contenus faux : « cours 1 réseau, 2 services, 3 automatisation ») | ordre réel 0 Fondations, 1 Ansible, 2 ELK, 3 Sécurité — incohérence antérieure au pivot, corrigée au passage | C0 ch.1 §6 |
 
 ## 3. Ce qui n'a pas bougé (à filmer tel quel)
@@ -189,6 +192,12 @@ hors-série ou une V2.
 | C3 ch.1 ✍️ | **une défense pour les gens** : Pi-hole + Unbound (DNSSEC, qname-minimisation) pour tout le foyer sans rien installer sur les appareils ; listes « deux grandes + télémétrie par fabricant », pas trente (chaque liste ajoute plus de faux positifs que de protection) ; liste blanche vide, un domaine n'y entre que quand un usage réel casse, et par le dépôt | spec `2026-10-13-pihole-foyer-design.md` |
 | C3 ch.3 ✍️ · C2 ch.8 ✍️ | **la route qu'on n'a pas écrite** : OPNsense (comme pfSense) pose une route /32 vers chaque serveur DNS reçu par DHCP, via sa passerelle WAN. Après la bascule DHCP il a reçu le Pi-hole en DNS : tout ce qui allait vers `192.168.1.5` partait vers la Livebox — les petits paquets revenaient par ce détour, les gros se perdaient. Symptôme : Filebeat/Metricbeat du Pi-hole ne joignaient plus Logstash (derrière OPNsense), poignée de main TLS sans réponse, **ping OK**. Diagnostic décisif : `tcpdump -e` sur la tour, paquets vers `.5` adressés à la MAC de la Livebox. Remède versionné : option DHCP ciblée (`dhcp-host=MAC,set:dns-livebox` + `dhcp-option=tag:…,option:dns-server`) qui sert la Livebox en DNS à OPNsense. **L'alerte « silence DNS » a détecté la coupure** | `f218529`, `docs/pihole.md` |
 | C0 ch.0 · C3 ch.8 | **si l'IP répond et pas le nom, c'est le DNS** : Kibana « serveur introuvable » sur l'iPhone, aucun paquet côté bastion — l'option « Use Tailscale DNS » de l'app iOS s'était désactivée après une reconnexion, et rien d'autre ne résout les noms `ts.net`. Test qui tranche : `https://100.x.y.z` répond (avec avertissement), pas le nom | `dea2880`, `docs/acces-distant.md` |
+| C1 ch.8 ✍️ | **le phénix à l'échelle d'un cluster** : `rebuild-cluster` détruit 3 VMs, les recrée depuis le template, rejoue RKE2 puis la couche GitOps — 22 min 49 s sans intervention, 17 applications Argo revenues `Synced/Healthy`. Le dépôt GitOps fait foi : ce qui n'est pas dans Git est effacé (`prune`) ou remis (`selfHeal`) | `2c0368a`, `docs/k8s.md` |
+| C1 ch.5 ✍️ | **un défaut qui transforme des agents en serveurs** : `vdp deploy` ne chargeait pas le dictionnaire de la stack, et le module avait `vxrk_role: serveur` par défaut — deux agents reconfigurés en plans de contrôle. Remède : plus de valeur par défaut pour un choix qui doit être explicite | `docs/k8s.md` « Pièges » |
+| C1 ch.4 | en réserve : `lookup('file')` s'exécute sur le contrôleur, pas sur la cible — relire par `slurp` ; `PATH` de sudo sur Rocky sans `/usr/local/bin` | `docs/k8s.md` |
+| C0 ch.5 ✍️ | **cloud-init encore actif quand SSH répond** : son `dnf upgrade` remplaçait dnf sous la première tâche du module. Attendre `cloud-init status --wait` (en root) avant de jouer quoi que ce soit sur une VM neuve | `docs/k8s.md` |
+| C2 ch.3 · C3 ch.6 | **cert-manager et Vault** : chaque ingress reçoit un certificat de la même PKI que l'ELK ; ESO lit les secrets d'application sous `secret/k8s/*`. Pièges : CSR sans CN (rôle PKI `require_cn: false`), cert-manager qui attend une heure après un échec | `bef749d`, `docs/k8s.md` |
+| C0 ch.6 ✍️ | **ne retire jamais les deux agents à la fois** : tous les pods se sont repliés sur le serveur de 4 Go (99 Mo libres, API en timeout). Le serveur porte désormais `CriticalAddonsOnly` ; et pas de reconstruction pendant la sauvegarde nocturne (02:00-02:25), qui ralentit tout | `32a9e1b` |
 | C1 ch.4 / ch.5 | en réserve : installeur Pi-hole v6 rendu non interactif en posant la configuration (`pihole.toml`) **avant** de le lancer ; une tâche sautée qui `register` écrase la variable (relire inconditionnellement) ; `chronyd` ne règle pas l'horloge d'un conteneur non privilégié (`common_manage_chrony: false`) ; le template LXC Debian n'a pas `sudo` — paquets d'abord, `set -e` à l'intérieur du `bash -c` | `docs/pihole.md` « Pièges » |
 | C2 ch.9 ✍️ | **la panne d'un mois** (04/09 → 08/10) : certificats Metricbeat (TTL 72 h) expirés car le job de renouvellement avait disparu, jeton PKI mort, VM 300 sans `onboot` ; le chien de garde a vu la panne **391 fois** mais Rundeck n'avait pas de SMTP, chaque mail échouait. Qui surveille le surveillant ? Tester la chaîne d'alerte en la faisant **échouer** | `830f78e`, `docs/supervision.md` §8 quater |
 | C1 ch.8 ✍️ | un job Rundeck créé **à la main** le 02/08 (hors dépôt) a disparu à la reconstruction du 31/08 — et avec lui le renouvellement des certificats. Ce qui n'est pas dans le dépôt n'existe pas ; désormais importé par le rôle `vortex_rundeck_projet` | `830f78e` |
@@ -254,6 +263,11 @@ hors-série ou une V2.
 
 9. **Prérequis Ansible — fait le 11/10/2026** : le cours 1 demande désormais `≥ 2.16`
    (le homelab l'exige et épingle `ansible-core` en CI ; 2.15 n'est plus maintenu).
+10. **Un cours 4 « Kubernetes et GitOps » est devenu filmable sur du vrai** (14/10) : cluster
+   RKE2 reconstruit de zéro, Argo CD, cert-manager et ESO branchés sur Vault, CI kaniko +
+   Trivy, Filebeat en DaemonSet vers l'ELK des cours 2-3. Non engagé ; à trancher après le
+   bêta-test du cours 0. Contrainte connue : le cluster prend 14 Go — un cours élève
+   devrait partir de k3s ou d'un nœud unique pour tenir dans 16 Go.
 
 ## 6. Ce qui reste à vérifier sur le parc, le jour J
 
@@ -342,3 +356,9 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
 - **13/10/2026 (ter)** — `f218529`, `dea2880` : OPNsense routait le Pi-hole par sa
   passerelle WAN (route /32 par serveur DNS), option DHCP ciblée ; « Use Tailscale DNS »
   désactivé sur iOS. Mis à jour : §4 (deux lignes) ; encarts de C0 ch.0, C2 ch.8 et C3 ch.3.
+- **14/10/2026** — branche `feat/cluster-rke2` (`12479c9` → `2c0368a`, 17 commits) : cluster
+  Kubernetes RKE2 de 3 VMs sur la tour, GitOps Argo CD, Vault pour secrets et certificats,
+  registre et CI GitLab, observabilité, reconstruction de zéro en 22 min 49 s. Ce que la
+  formation disait de Kubernetes (« libéré », « kubeadm sur deux VMs ») est réaligné.
+  Mis à jour : §1, §2 (trois lignes), §4 (six lignes), §5 (décision 10) ; encarts de C0 ch.1
+  (plan), C1 ch.8, C2 ch.1, C2 ch.6, C3 ch.8 (script, projet), vidéo d'appel du cours 3.
