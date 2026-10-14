@@ -18,7 +18,7 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: 2c0368a 3e44693 2171609` — branche cluster RKE2 du 14/10 (contient le Pi-hole et `main`),
+> `homelab-sync: 9de0f4c 3e44693 2171609` — `main` du 14/10 (cluster RKE2 et Pi-hole fusionnés),
 > runner GitHub (08/10, toujours hors `main`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
@@ -362,3 +362,7 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   formation disait de Kubernetes (« libéré », « kubeadm sur deux VMs ») est réaligné.
   Mis à jour : §1, §2 (trois lignes), §4 (six lignes), §5 (décision 10) ; encarts de C0 ch.1
   (plan), C1 ch.8, C2 ch.1, C2 ch.6, C3 ch.8 (script, projet), vidéo d'appel du cours 3.
+- **14/10/2026 (bis)** — `493a6ab` (lignes YAML repliées pour le linter, installeur Pi-hole
+  tiers exclu de shellcheck) puis `9de0f4c` : la branche RKE2 fusionnée dans `main` (MR !11).
+  Rien de pédagogique ; le cluster n'est plus une branche mais l'état de référence.
+  Mis à jour : le marqueur seul.
