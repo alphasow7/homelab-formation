@@ -73,7 +73,13 @@ Dernier plan, la version maximale de ton phénix : le job Rundeck `rebuild-clust
 détruit les trois VMs de mon cluster Kubernetes, les recrée et réinstalle tout —
 **22 minutes 49, sans que je touche le clavier**, et dix-sept applications reviennent
 toutes seules parce qu'elles sont décrites dans un dépôt Git. « Ton `dns-proxy` en cinq
-minutes, c'est exactement ça, à l'échelle d'une VM. »
+minutes, c'est exactement ça, à l'échelle d'une VM. » Et le revers, vécu à la première
+exécution par Rundeck (23 min 5 s, job vert) : un cluster neuf change de certificats, et
+Vault, qui ne connaissait que l'ancien, refusait de lui confier ses secrets — dont l'accès
+au registre d'images. L'application de démo est restée **neuf heures** en
+`ImagePullBackOff` derrière un job « succès », parce que l'étape d'après n'était écrite
+que dans la doc. « Un job vert ne prouve rien : ton critère, c'est le `curl` du point 5,
+pas la couleur du bouton. »
 
 ## 4. Célébration et suite (3 min)
 
