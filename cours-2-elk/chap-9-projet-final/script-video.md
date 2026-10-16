@@ -1,6 +1,6 @@
 # Chapitre 9 — Projet final : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10 et le 16/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~18 min de vidéo (le gros du chapitre, c'est l'examen de l'élève : < 10 min
 > chrono en main). Format projet, comme les finals du cours 0 et du cours 1 : pas de
@@ -100,6 +100,17 @@ surveille tout… sauf lui-même. Retiens ça : qui surveille le surveillant ? E
 chaîne d'alerte en la faisant **échouer** — un mail de test qui part, ce n'est pas un mail
 de panne qui arrive. »
 
+**Et le surveillant lui-même, le 15 octobre** : « J'ai cru l'affaire réglée. Puis le disque
+de la stack s'est rempli (je te l'ai raconté au chapitre 8) : index en lecture seule, dix
+heures sans données. Mon chien de garde tournait toutes les dix minutes… et ne voyait
+rien. Il demandait à Elasticsearch "tu es là ?", et Elasticsearch répondait "oui" — il
+était là, il n'écrivait plus, c'est tout. Aujourd'hui le chien de garde vérifie quatre
+choses : qu'Elasticsearch répond **avec** un mot de passe (une réponse "accès refusé" ne
+compte plus comme un succès), qu'aucun index n'est bloqué, que le disque est sous 90 % —
+pour prévenir **avant** le blocage —, et surtout que la dernière métrique a moins de dix
+minutes. Ce dernier test, c'est le symptôme lui-même : quelle que soit la cause, si plus
+rien n'arrive, je le sais. Teste ce que ton système **produit**, pas s'il répond. »
+
 **Et la fin de l'histoire, le 12 octobre** : « La chaîne réparée, je lui ai confié ma
 porte d'entrée : chaque session SSH ouverte sur mon bastion depuis l'extérieur me vaut un
 mail. Le détecteur tient en une ligne de journal, et c'est ça que je veux que tu retiennes :
@@ -109,3 +120,8 @@ session venue de dehors. Pas de liste d'adresses à maintenir, pas de seuil : un
 ne peut apparaître que sur un chemin, c'est le meilleur détecteur du monde. Testé depuis
 mon téléphone à 23 h 28 : mail à 23 h 30. » À montrer : l'index `elastalert_status`, qui
 dit quelle règle a tiré et si le mail est parti — « le journal du surveillant ».
+
+**En une phrase, si le temps le permet (16/10)** : « Chaque alerte ouvre aussi une carte
+dans un tableau Trello — le mail part toujours **en premier**, pour qu'une panne de Trello
+ne le retarde jamais. Et la carte se ferme toute seule, mais seulement sur une **preuve
+positive** : une sonde dont plus rien ne remonte n'est pas une sonde guérie. »

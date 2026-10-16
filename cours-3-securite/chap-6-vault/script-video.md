@@ -1,6 +1,6 @@
 # Chapitre 6 — HashiCorp Vault : le coffre-fort à secrets : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10 et le 16/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~25 min. Prérequis : lab de départ (`../lab-depart.md`) + une VM pour
 > héberger Vault (on réutilise `dns-proxy`, `10.10.99.12` sur le segment `10.10.99.0/24`).
@@ -191,6 +191,15 @@ backend transit est perdu. Même règle qu'au chapitre : généré → sauvegard
 dans la minute. Et deux pannes "qu'aucun playbook vert ne montre", révélées par un
 reboot : `/etc/hosts` régénéré par cloud-init qui effaçait le nom de Vault, et un
 `firewalld` installé mais arrêté qui s'est réveillé au boot en coupant le port 8200. »
+
+**💥 La panne qui attend son heure (16/10/2026)** : « Et ce Vault de secours, qui le
+surveillait ? Personne. Mes sondes regardaient le Vault principal, pas l'unsealer. Or
+l'unsealer ne sert qu'au **démarrage** du principal : tu peux l'arrêter, rien ne casse…
+jusqu'à la prochaine coupure de courant, où le principal reste scellé et emporte toute la
+chaîne. Une panne qui n'a aucun symptôme le jour où elle arrive. Je lui ai ajouté une
+sonde, puis je l'ai éprouvée : unsealer arrêté, mail et carte d'alerte 3 minutes 18 plus
+tard ; relancé, alerte refermée toute seule. Retiens : une dépendance qui ne sert qu'au
+démarrage se surveille comme les autres — sinon tu la découvres le pire jour. »
 
 ## 5. Annonce du TP (1 min)
 

@@ -1,6 +1,6 @@
 # Chapitre 6 — Filebeat : le facteur de chaque machine : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 14/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 14/10 et le 16/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~35 min. Prérequis : Logstash écoute les beats sur
 > `kibana-logstash:5044` (chap 4), Kibana est joignable (chap 5).
@@ -66,7 +66,10 @@ cousin **Metricbeat**, sur les 9 machines supervisées, pour les métriques. Mê
 agent proche de la source, qui poste à Logstash. Et sur mon cluster Kubernetes, monté en
 octobre, c'est le même Filebeat en **DaemonSet** : un agent par NŒUD, qui lit les logs de
 tous les conteneurs du nœud et les envoie au même Logstash, dans le même index — près de
-90 000 lignes toutes les dix minutes. Autre emballage, concept identique. »
+90 000 lignes toutes les dix minutes. Autre emballage, concept identique. Avec un
+revers : un DaemonSet envoie **tout** ce que les conteneurs écrivent. Le 15 octobre, deux
+composants bavards en niveau `info` ont rempli le disque de ma stack — dix heures sans une
+donnée. Je te raconte ça au chapitre 8. »
 
 **💥 Deux pannes « 0 documents » de plus, vécues sur ce parc en août et septembre** (à
 raconter juste avant de rejouer la tienne — elles ont la même forme) :

@@ -1,6 +1,6 @@
 # Chapitre 8 — Dashboards de service : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10 et le 16/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~22 min. Prérequis : l'ELK complet du cours (Filebeat journald sur les 4
 > VMs, syslog de l'hyperviseur, data view `logstash-*` dans Kibana).
@@ -107,7 +107,12 @@ décline à l'infini : même recette, un dashboard par service. »
 - « Mon moteur d'alertes alertait… sur les conséquences de sa propre installation : ses
   index internes naissaient avec un réplica impossible à placer sur un seul nœud, le
   cluster restait jaune, et la règle "cluster dégradé" hurlait en permanence. Même
-  famille de panne. Le signal, c'est ce qui change. »
+  famille de panne. Le signal, c'est ce qui change. Et la même règle m'a refait le coup
+  en octobre, en plus discret : chaque nuit à 3 h, le renouvellement des certificats
+  redémarre Elasticsearch, et la toute première mesure après le démarrage est rouge —
+  une seule, le temps de remettre les données en place. Une fausse alerte par nuit. La
+  règle exige désormais **deux** constats en dix minutes : une vraie dégradation en
+  produit un toutes les 30 secondes, elle sonne toujours en moins d'une minute. »
 - « Et la plus récente, d'octobre : le DNS de ma maison. Un Pi-hole en bonne santé, que
   plus personne n'interroge — parce que la box a repris la main, ou qu'un appareil passe
   par un autre chemin — ne produit **aucune erreur**. Il se tait. Alors la règle d'alerte
@@ -125,6 +130,16 @@ Un bon dashboard met le bruit en sourdine et le signal en avant : c'est pour ça
 camembert de sévérité est là. Réflexe pro : quand tu enquêtes, filtre d'emblée
 `log.syslog.priority < 6` (ou `not log.level : info`) — tu jettes 95 % du volume et il ne
 reste que ce qui mérite ton attention. »
+
+**💥 Et le jour où l'`info` m'a coûté dix heures (15/10/2026)** : « Le bruit de fond n'est
+pas seulement gênant à lire : il pèse. Sur mon cluster Kubernetes, deux composants
+écrivaient en `info` — l'un d'eux une boucle de contrôle qui racontait chaque tour : dix
+millions de lignes par jour, environ 9 Go. Mon Filebeat les envoyait toutes, fidèlement.
+Le disque de la stack a atteint 96 % ; à 95 %, Elasticsearch se protège en passant les
+index en **lecture seule**. Plus rien n'entre. Dix heures sans une donnée — et sans une
+alerte, parce que mon moteur d'alertes écrit lui aussi dans Elasticsearch. Le remède tient
+en deux lignes : niveau `warn` pour ces deux composants. Et un réflexe : le lendemain de
+l'ajout d'un composant, regarde son volume de journaux dans Kibana. »
 
 ## 5. Annonce du TP (1 min)
 

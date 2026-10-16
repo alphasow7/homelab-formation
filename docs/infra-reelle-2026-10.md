@@ -18,7 +18,7 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: 99e5df4 d5f2e0b 3e44693 2171609` — `main` du 14/10 (cluster RKE2 et Pi-hole fusionnés), Trello (14/10, hors `main`),
+> `homelab-sync: af3eab4 78b5d04 3e44693 2171609` — `main` du 16/10 (RKE2, Pi-hole, Trello et chien de garde ELK fusionnés), sonde de l'unsealer (16/10, branche `feat/sonde-unsealer`),
 > runner GitHub (08/10, toujours hors `main`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
@@ -72,7 +72,12 @@ VDP ») ; une alerte réelle éprouvée de bout en bout, panne → courrier en 3
 (02/09). **Deux jours plus tard, la stack s'est arrêtée pour un mois (04/09 → 08/10) sans
 un seul mail** — cinq défauts muets, §4 C2 ch.9 ; corrigés le 08/10 : job de renouvellement
 des certificats importé par Ansible, jeton PKI prolongé par un timer, SMTP sur Rundeck,
-`onboot` sur la VM 300, BIOS des Lenovo en *Power On*.
+`onboot` sur la VM 300, BIOS des Lenovo en *Power On*. **Le 15/10, dix heures sans données
+ni alerte** (disque de la stack saturé par les journaux `info` du cluster RKE2, index en
+lecture seule) : le chien de garde vérifie désormais réponse authentifiée, blocs d'écriture,
+disque < 90 % et fraîcheur de la dernière métrique (< 10 min). Depuis le 16/10, chaque
+alerte ouvre aussi une **carte Trello** (tableau « Alertes ») après le mail, refermée par un
+job toutes les 15 min sur preuve positive ; une sonde Heartbeat surveille l'**unsealer**.
 
 **Ansible** : 26 rôles, `site.yml` = 16 plays + import de `monitoring.yml`, groupes
 `proxmox` (`proxmox_routeur` / `proxmox_noeuds`), `plateforme`, `cibles_elk`, `backup`,
@@ -209,6 +214,12 @@ hors-série ou une V2.
 | C1 ch.3 | CI du dépôt : `yamllint`, `ansible-lint --offline` (profil production) et `--syntax-check` sur chaque push, dans le lab | `3e44693` |
 | C1 ch.2 ✍️ | `ansible.cfg` n'est lu que dans le **répertoire courant** et porte `inventory` et `roles_path` en relatif : lancé depuis la racine du dépôt, « No inventory was parsed » puis « role … was not found » alors que le rôle est là. C'est la raison du `cd` en tête de chaque `demo.sh` | `89d25bf` |
 | C2 ch.2 ✍️ | un pin posé **avant** l'installation ne verrouille rien (`dnf versionlock` sur un paquet absent écrit une ligne par version du dépôt, 49 pour kibana, et la liste est un allowlist) ; aucun message, le lock « existe ». Épingler après, et **vérifier** le pin : une ligne par paquet | `89d25bf` |
+| C2 ch.6 ✍️ · C2 ch.8 ✍️ | **les journaux `info` qui remplissent l'ELK** (15/10) : les speakers MetalLB (~10 millions de lignes/jour) et Argo CD (~1,2 million) en `info`, ~9 Go/jour via le Filebeat DaemonSet ; disque de la cible à 96 % → index en lecture seule (seuil 95 %) → **10 h sans données ni alerte**. `logLevel: warn` dans `k8s-gitops`, un index ancien effacé, rattrapage ~7× le temps réel. Réflexe : regarder le volume d'un composant le lendemain de son ajout | `d079c5d`, `docs/k8s.md` |
+| C2 ch.9 ✍️ | **le chien de garde ne testait que la réponse HTTP** : Elasticsearch répondait, n'écrivait plus. Désormais : réponse **authentifiée** (un 401 n'est plus un succès), aucun bloc d'écriture, disque < 90 % (avant le blocage), dernière métrique < 10 min (le symptôme lui-même). Compte ES dédié, mot de passe dans Vault, tests joués en CI sous **Python 3.9** (celui du serveur : `fromisoformat` refusait « .73Z », vu en production) | `8528693`, `198abba`, `docs/supervision.md` §5 |
+| C2 ch.8 ✍️ | **une fausse alerte par nuit** : le renouvellement des certificats (03:00) redémarre Elasticsearch ; la première mesure après démarrage est rouge (une seule) → « cluster dégradé » exige 2 constats en 10 min, une vraie dégradation en produit un toutes les 30 s | `32c06e2` |
+| C2 ch.9 ✍️ | **alerte → carte Trello** : ElastAlert envoie le mail **puis** un `post2` vers un webhook Rundeck (une panne Trello ne retarde jamais le mail) ; une carte par règle et objet, récidive comptée ; fermeture par le job `trello-resoudre` (*/15) seulement sur **preuve positive** (« une sonde dont plus rien ne remonte n'est pas une sonde guérie ») ; `bastion-echecs` jamais fermée automatiquement. Éprouvé : carte ouverte 21 s après le mail, fermée seule à 23:00 | `73b446d`, `9e80cf5`, `docs/trello.md` |
+| C3 ch.6 ✍️ · C2 ch.8 | **la panne qui attend son heure** : l'unsealer ne sert qu'au démarrage du Vault principal — arrêté, rien ne casse jusqu'à la coupure de courant suivante. Aucune sonde ne le voyait ; ajoutée le 16/10 et éprouvée : arrêt 00:58:41 → carte (et mail) 01:01:59, relance → carte fermée 01:15:04. Au passage, la table des sondes de `supervision.md` gardait les adresses d'avant le 31/08 (la conf Heartbeat, elle, était juste) | `afb8195`, `78b5d04` |
+| C1 ch.6 (secrets) | en réserve : un fichier d'environnement **sourcé par bash** n'est pas un fichier de données — une regex avec apostrophes y a cassé le client Trello en réel ; et un jeton Vault périodique **prolongé à chaque exécution** (30 j) plutôt que par un timer | `d0e1ea9`, `docs/superpowers/plans/2026-10-15-trello-lot3.md` |
 
 ## 5. À trancher avant tournage
 
@@ -376,3 +387,11 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   lot 1 livré (Chantiers). Outil de pilotage du homelab, pas une pratique enseignée : aucun
   encart. Mis à jour : §4 (une ligne en réserve). À revoir au lot 3 (alertes ElastAlert →
   webhook Rundeck → carte), qui prolongerait la chaîne d'alerte de C2 ch.9.
+- **16/10/2026** — `main` jusqu'à `af3eab4` (Trello lots 2 et 3 fusionnés, chien de garde ELK)
+  et la branche `feat/sonde-unsealer` (`afb8195`, `78b5d04`), 24 commits : incident du 15/10
+  (journaux `info` du cluster → disque plein → 10 h sans données ni alerte), chien de garde
+  qui teste désormais ce que la stack produit, « cluster dégradé » à 2 constats, alertes
+  doublées d'une carte Trello fermée sur preuve positive, sonde de l'unsealer. Mis à jour :
+  §1 (paragraphe supervision), §4 (six lignes) ; encarts de C2 ch.6, C2 ch.8, C2 ch.9 et
+  C3 ch.6. Matériel élève intact : aucune pratique enseignée ne change. Le tableau Trello
+  « Certifs » (80 cartes générées depuis les fiches) reste un outil de pilotage, sans encart.
