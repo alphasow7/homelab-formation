@@ -18,7 +18,7 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: d7a7a47 ae46546 3e44693 2171609` — `main` du 16/10 (RKE2, Pi-hole, Trello, chien de garde ELK, sonde unsealer, alerte d'expiration des certificats), vzdump bridé (16/10, branche `fix/vzdump-max-workers`, preuve attendue la nuit du 17/10),
+> `homelab-sync: e89cc90 ae46546 3e44693 2171609` — `main` du 16/10 (RKE2, Pi-hole, Trello, chien de garde ELK, sonde unsealer, alerte d'expiration des certificats), vzdump bridé (16/10, branche `fix/vzdump-max-workers`, preuve attendue la nuit du 17/10),
 > runner GitHub (08/10, toujours hors `main`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
@@ -405,3 +405,5 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   et C2 ch.9. Le correctif vzdump n'est pas encore prouvé : relire le résultat de la nuit
   du 17/10 avant de tourner C0 ch.6. Matériel élève intact. `d7a7a47` (branche
   `chore/trello-certs-sauvegarde`, synchro du tableau Chantiers) : rien de pédagogique.
+- **16/10/2026 (ter)** — `e89cc90` : fusion dans `main` de `chore/trello-certs-sauvegarde`,
+  contenu identique à `d7a7a47` déjà traité. Mis à jour : le marqueur seul.
