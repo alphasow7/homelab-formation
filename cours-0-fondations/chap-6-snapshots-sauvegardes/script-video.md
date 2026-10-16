@@ -1,6 +1,6 @@
 # Chapitre 6 — Snapshots & sauvegardes : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 17/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~35 min. Prérequis : chapitre 5 (clones 9101-9103 en marche).
 > Toutes les commandes montrées sont dans `demo.sh`, rejouées sur le lab avant tournage.
@@ -82,6 +82,14 @@ existe. »
 - Et l'honnêteté : mon PBS est sur un disque **de la même machine** que ce qu'il
   sauvegarde. Le feu, le vol, la panne d'alim : non couverts. Sache-le quand tu
   dimensionneras le tien.
+- Et la plus sournoise, d'octobre : **la sauvegarde qui fait tomber ce qu'elle protège.**
+  Trois nuits de suite, mon coffre-fort Vault a calé vers minuit — écritures refusées, six
+  minutes de silence, alerte « service down ». Vault n'y était pour rien : sur ce nœud, un
+  seul disque mécanique porte deux VMs, et pendant la sauvegarde de la voisine, l'outil
+  lisait 16 morceaux en parallèle, éparpillés sur le plateau. Le disque saturait, Vault
+  attendait. Correctif posé : deux lectures à la fois, une sauvegarde plus longue mais
+  supportable (le vrai remède est un SSD). Retiens : une sauvegarde est une **charge**
+  comme une autre — regarde ce qu'elle coûte aux voisins, pas seulement si elle réussit.
 
 ## 5. Annonce du TP (2 min)
 

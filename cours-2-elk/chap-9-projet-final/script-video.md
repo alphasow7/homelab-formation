@@ -1,6 +1,6 @@
 # Chapitre 9 — Projet final : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10 et le 16/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 12/10, le 16/10 et le 17/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~18 min de vidéo (le gros du chapitre, c'est l'examen de l'élève : < 10 min
 > chrono en main). Format projet, comme les finals du cours 0 et du cours 1 : pas de
@@ -104,12 +104,15 @@ de panne qui arrive. »
 de la stack s'est rempli (je te l'ai raconté au chapitre 8) : index en lecture seule, dix
 heures sans données. Mon chien de garde tournait toutes les dix minutes… et ne voyait
 rien. Il demandait à Elasticsearch "tu es là ?", et Elasticsearch répondait "oui" — il
-était là, il n'écrivait plus, c'est tout. Aujourd'hui le chien de garde vérifie quatre
+était là, il n'écrivait plus, c'est tout. Aujourd'hui le chien de garde vérifie cinq
 choses : qu'Elasticsearch répond **avec** un mot de passe (une réponse "accès refusé" ne
 compte plus comme un succès), qu'aucun index n'est bloqué, que le disque est sous 90 % —
-pour prévenir **avant** le blocage —, et surtout que la dernière métrique a moins de dix
-minutes. Ce dernier test, c'est le symptôme lui-même : quelle que soit la cause, si plus
-rien n'arrive, je le sais. Teste ce que ton système **produit**, pas s'il répond. »
+pour prévenir **avant** le blocage —, que les certificats ont encore plus de 47 heures à
+vivre, et surtout que la dernière métrique a moins de dix minutes. Ce dernier test, c'est le symptôme lui-même : quelle que soit la cause, si plus
+rien n'arrive, je le sais. Teste ce que ton système **produit**, pas s'il répond. Et j'ai noté l'angle mort qui
+reste, par écrit : mon chien de garde vit sur la même machine que le job qui renouvelle les
+certificats. Si elle s'éteint, ni l'un ni l'autre ne tourne — et rien ne prévient. Un
+surveillant parfait n'existe pas ; un surveillant dont on connaît les angles morts, si. »
 
 **Et la fin de l'histoire, le 12 octobre** : « La chaîne réparée, je lui ai confié ma
 porte d'entrée : chaque session SSH ouverte sur mon bastion depuis l'extérieur me vaut un

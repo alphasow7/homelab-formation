@@ -18,7 +18,7 @@
 >
 > **Point de synchronisation.** Commits du dépôt `homelab` jusqu'auxquels la formation est
 > alignée, **une tête par branche** (le homelab travaille en branches, pas seulement sur `main`) :
-> `homelab-sync: af3eab4 78b5d04 3e44693 2171609` — `main` du 16/10 (RKE2, Pi-hole, Trello et chien de garde ELK fusionnés), sonde de l'unsealer (16/10, branche `feat/sonde-unsealer`),
+> `homelab-sync: d7a7a47 ae46546 3e44693 2171609` — `main` du 16/10 (RKE2, Pi-hole, Trello, chien de garde ELK, sonde unsealer, alerte d'expiration des certificats), vzdump bridé (16/10, branche `fix/vzdump-max-workers`, preuve attendue la nuit du 17/10),
 > runner GitHub (08/10, toujours hors `main`) et la branche docs du lab Elastic (03/09). Le script `scripts/suivi-homelab.sh` lit cette ligne et liste tout commit
 > de toute branche, locale ou distante, qui n'en descend pas. Après chaque passe, remplacer
 > les hashs par les têtes traitées (une tête fusionnée dans une autre peut être retirée).
@@ -75,7 +75,8 @@ des certificats importé par Ansible, jeton PKI prolongé par un timer, SMTP sur
 `onboot` sur la VM 300, BIOS des Lenovo en *Power On*. **Le 15/10, dix heures sans données
 ni alerte** (disque de la stack saturé par les journaux `info` du cluster RKE2, index en
 lecture seule) : le chien de garde vérifie désormais réponse authentifiée, blocs d'écriture,
-disque < 90 % et fraîcheur de la dernière métrique (< 10 min). Depuis le 16/10, chaque
+disque < 90 %, fraîcheur de la dernière métrique (< 10 min) et, depuis le 16/10,
+**expiration des certificats** ES/Kibana/Logstash (alerte sous 47 h, critique sous 24 h). Depuis le 16/10, chaque
 alerte ouvre aussi une **carte Trello** (tableau « Alertes ») après le mail, refermée par un
 job toutes les 15 min sur preuve positive ; une sonde Heartbeat surveille l'**unsealer**.
 
@@ -220,6 +221,8 @@ hors-série ou une V2.
 | C2 ch.9 ✍️ | **alerte → carte Trello** : ElastAlert envoie le mail **puis** un `post2` vers un webhook Rundeck (une panne Trello ne retarde jamais le mail) ; une carte par règle et objet, récidive comptée ; fermeture par le job `trello-resoudre` (*/15) seulement sur **preuve positive** (« une sonde dont plus rien ne remonte n'est pas une sonde guérie ») ; `bastion-echecs` jamais fermée automatiquement. Éprouvé : carte ouverte 21 s après le mail, fermée seule à 23:00 | `73b446d`, `9e80cf5`, `docs/trello.md` |
 | C3 ch.6 ✍️ · C2 ch.8 | **la panne qui attend son heure** : l'unsealer ne sert qu'au démarrage du Vault principal — arrêté, rien ne casse jusqu'à la coupure de courant suivante. Aucune sonde ne le voyait ; ajoutée le 16/10 et éprouvée : arrêt 00:58:41 → carte (et mail) 01:01:59, relance → carte fermée 01:15:04. Au passage, la table des sondes de `supervision.md` gardait les adresses d'avant le 31/08 (la conf Heartbeat, elle, était juste) | `afb8195`, `78b5d04` |
 | C1 ch.6 (secrets) | en réserve : un fichier d'environnement **sourcé par bash** n'est pas un fichier de données — une regex avec apostrophes y a cassé le client Trello en réel ; et un jeton Vault périodique **prolongé à chaque exécution** (30 j) plutôt que par un timer | `d0e1ea9`, `docs/superpowers/plans/2026-10-15-trello-lot3.md` |
+| C2 ch.3 ✍️ · C2 ch.9 ✍️ | **un certificat court exige une alerte d'expiration** : Rundeck éteint du 09 au 12/10, quatre renouvellements sautés et rien ne regardait les dates. Le chien de garde fait une poignée de main TLS **vérifiée** sur 9200/5601/5044 et lit `notAfter` : < 47 h = une nuit a manqué, < 24 h = CRITIQUE ; contrôlé même quand ES ne répond pas (un cert expiré est une cause d'« injoignable »). Éprouvé sans rien renouveler par `--seuil-certificats-h 80`. **Angle mort écrit** : chien de garde et job de renouvellement vivent sur la même VM | `9d9e75d`, `bf10117`, `docs/supervision.md` §5-§6 |
+| C0 ch.6 ✍️ | **la sauvegarde qui fait caler ce qu'elle protège** (14-16/10) : vzdump en dirty-bitmap, 16 lectures de 4 Mio en parallèle sur l'unique disque mécanique de pve01 (VMs 210 et 212) → pression d'E/S « full » 80-88 % ; Vault (10-20 Ko/s d'écriture) calait : « failed to persist entry », 6 min muet, alerte `service-down`. Ni réseau ni PBS ; fleecing inutile (même disque). `--performance max-workers=2` (`pbs_backup_max_workers`) ; remède de fond : un SSD. **Preuve attendue nuit du 17/10** (critères dans `docs/backups-reste-a-faire.md`) — confirmer avant tournage | `ae46546` (branche `fix/vzdump-max-workers`) |
 
 ## 5. À trancher avant tournage
 
@@ -395,3 +398,10 @@ Une entrée par passe de `scripts/suivi-homelab.sh` ayant donné lieu à des mod
   §1 (paragraphe supervision), §4 (six lignes) ; encarts de C2 ch.6, C2 ch.8, C2 ch.9 et
   C3 ch.6. Matériel élève intact : aucune pratique enseignée ne change. Le tableau Trello
   « Certifs » (80 cartes générées depuis les fiches) reste un outil de pilotage, sans encart.
+- **16/10/2026 (bis)** — `main` jusqu'à `ee6123f` (sonde unsealer fusionnée, alerte
+  d'expiration des certificats ELK : `9d9e75d`, `bf10117`) et la branche
+  `fix/vzdump-max-workers` (`ae46546` : vzdump bridé à 2 lectures, Vault calait chaque nuit).
+  Mis à jour : §1 (paragraphe supervision), §4 (deux lignes) ; encarts de C0 ch.6, C2 ch.3
+  et C2 ch.9. Le correctif vzdump n'est pas encore prouvé : relire le résultat de la nuit
+  du 17/10 avant de tourner C0 ch.6. Matériel élève intact. `d7a7a47` (branche
+  `chore/trello-certs-sauvegarde`, synchro du tableau Chantiers) : rien de pédagogique.

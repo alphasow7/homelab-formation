@@ -1,6 +1,6 @@
 # Chapitre 3 — TLS partout : ta propre autorité : script vidéo
 
-> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
+> 🔄 Encart « vrai matériel » réaligné le 11/10/2026 sur le parc post-pivot VDP, complété le 13/10 et le 17/10/2026 — référence : [`docs/infra-reelle-2026-10.md`](../../docs/infra-reelle-2026-10.md).
 
 > Durée cible : ~35 min. Prérequis : chapitre 2 (Elasticsearch mono-nœud en http).
 > Rôle complet : `../ansible-extraits/roles/elk_certs/`. Commandes dans `demo.sh`.
@@ -54,7 +54,12 @@ importé une fois dans le navigateur, et tous les services internes deviennent v
 moi, l'étage du dessus : la racine ne signe plus rien directement. C'est le moteur PKI de
 **Vault** — on le rencontre au cours 3 — qui émet des certificats **courts, 72 heures**,
 renouvelés chaque nuit par un job automatique. Un cert qui expire vite, c'est un
-cert volé qui ne sert à rien longtemps. Et une leçon d'octobre, sur l'autre bout de la
+cert volé qui ne sert à rien longtemps. Le revers : si le renouvellement saute, tout
+tombe en trois jours. Ça m'est arrivé — mon serveur d'automatisation éteint quatre jours,
+quatre renouvellements sautés, et rien ne regardait les dates. Aujourd'hui mon chien de
+garde ouvre une vraie connexion TLS sur chaque port et lit la date d'expiration : moins
+de 47 heures restantes, c'est qu'une nuit a manqué, j'ai encore un jour ; moins de 24,
+c'est critique. Un certificat court **exige** une alerte d'expiration. Et une leçon d'octobre, sur l'autre bout de la
 chaîne : installer ta CA dans le magasin de confiance d'une machine ne suffit pas, le
 **processus** qui doit lui faire confiance doit la relire — chez moi, un proxy refusait
 Kibana jusqu'au redémarrage de son service. Confiance posée ≠ confiance chargée. Ta CA à
